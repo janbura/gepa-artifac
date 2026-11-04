@@ -1,6 +1,11 @@
+import os
 from pathlib import Path
 
-BASE_EXPERIMENT_DIR = str((Path(__file__).parent.parent / "experiment_runs_data").resolve())
+# can be pointed somewhere else (e.g. a replay folder) without touching the shipped data
+BASE_EXPERIMENT_DIR = os.environ.get(
+    "GEPA_EXPERIMENT_DIR",
+    str((Path(__file__).parent.parent / "experiment_runs_data").resolve()),
+)
 
 MAX_CONTEXT_LENGTH = 8192
 MAX_CONTEXT_LENGTH_TRAINING = 8192
