@@ -254,7 +254,8 @@ def run_experiment_and_write_results_actual(
         if dry_run:
             benchmark.train_set = benchmark.train_set[:2]
             benchmark.val_set = benchmark.val_set[:2]
-            benchmark.dev_set = benchmark.dev_set[:2]
+            if hasattr(benchmark, "dev_set"):  # no benchmark defines dev_set, so this line crashed every dry run
+                benchmark.dev_set = benchmark.dev_set[:2]
             benchmark.test_set = benchmark.test_set[:2]
             print(f"Dry run: only using 2 examples from each set.")
 
