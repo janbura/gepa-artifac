@@ -15,6 +15,8 @@ Three parts:
 3. Prompt examples. Seed and final instructions of two GEPA runs, verbatim.
 
 Run from the repository root:  python analysis/prompt_evolution.py
+By default this reads our own runs in experiment_runs_data/ (step 8.2).  For the
+authors' runs, pass --runs-dir reference_runs_data/experiment_runs/seed_0.
 """
 import argparse
 import csv
@@ -408,10 +410,13 @@ def write_prompt_examples(dspy):
 
 
 def main():
+    global RUNS_DIR
     parser = argparse.ArgumentParser(description="Prompt evolution analysis of the GEPA artifact runs.")
     parser.add_argument("--skip-run-figures", action="store_true",
                         help="do not draw the per-run instruction length figures")
+    parser.add_argument("--runs-dir", default=RUNS_DIR)
     args = parser.parse_args()
+    RUNS_DIR = args.runs_dir
     os.makedirs(OUT_DIR, exist_ok=True)
     os.makedirs(FIG_DIR, exist_ok=True)
 

@@ -14,6 +14,8 @@ that "oracle" is above the best single candidate.
 
 Run from the repo root:
     python analysis/feedback_and_pareto.py
+By default this reads our own runs in experiment_runs_data/ (step 8.2).  For the
+authors' runs, pass --runs-dir reference_runs_data/experiment_runs/seed_0.
 """
 import argparse
 import json

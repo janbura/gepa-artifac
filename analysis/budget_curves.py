@@ -14,6 +14,8 @@ Outputs, relative to the repo root:
   analysis/outputs/sample_efficiency.md         summary tables (also as csv)
 
 Run from the repo root:  python analysis/budget_curves.py [--logx]
+By default this reads our own runs in experiment_runs_data/ (step 8.2).  For the
+authors' runs, pass --runs-dir reference_runs_data/experiment_runs/seed_0.
 """
 
 import argparse
@@ -503,10 +505,13 @@ def summary_text(eff, best, acc_gepa, acc_other):
 
 
 def main():
+    global RUNS_DIR
     parser = argparse.ArgumentParser(description="Best validation score vs rollouts per optimizer run.")
     parser.add_argument("--logx", action="store_true",
                         help="use a symlog x axis; figures get a _logx suffix")
+    parser.add_argument("--runs-dir", default=RUNS_DIR)
     args = parser.parse_args()
+    RUNS_DIR = args.runs_dir
     os.makedirs(OUT_DIR, exist_ok=True)
     os.makedirs(FIG_DIR, exist_ok=True)
 

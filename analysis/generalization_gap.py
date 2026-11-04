@@ -10,6 +10,8 @@ concentrated on a few.
 
 Run from the repository root:
     python analysis/generalization_gap.py
+By default this reads our own runs in experiment_runs_data/ (step 8.2).  For the
+authors' runs, pass --runs-dir reference_runs_data/experiment_runs/seed_0.
 """
 
 import argparse

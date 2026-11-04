@@ -21,6 +21,8 @@ Notes on the logs:
 
 Run from the repository root:
     python analysis/significance.py
+By default this reads our own runs in experiment_runs_data/ (step 8.2).  For the
+authors' runs, pass --runs-dir reference_runs_data/experiment_runs/seed_0.
 """
 
 import argparse
@@ -136,9 +138,9 @@ def holm(pvalues):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--runs_dir", default=RUNS_DIR)
-    parser.add_argument("--out_dir", default=OUT_DIR)
-    parser.add_argument("--fig_dir", default=FIG_DIR)
+    parser.add_argument("--runs-dir", default=RUNS_DIR)
+    parser.add_argument("--out-dir", default=OUT_DIR)
+    parser.add_argument("--fig-dir", default=FIG_DIR)
     parser.add_argument("--seed", type=int, default=0)
     args = parser.parse_args()
     os.makedirs(args.out_dir, exist_ok=True)
