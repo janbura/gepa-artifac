@@ -484,8 +484,8 @@ def parse_arguments():
 
 if __name__ == "__main__":
     assert "OPENAI_API_KEY" in os.environ, "Please set the OPENAI_API_KEY environment variable."
-    # wandb logging can be switched off (GEPA_USE_WANDB=0), useful for offline replays
-    use_wandb = os.environ.get("GEPA_USE_WANDB", "1") == "1"
+    # wandb logging can be switched off with GEPA_USE_WANDB=0 (or false/no/off), useful for offline runs
+    use_wandb = os.environ.get("GEPA_USE_WANDB", "1").strip().lower() not in ("0", "false", "no", "off")
     if use_wandb:
         assert "WANDB_API_KEY" in os.environ, "Please set the WANDB_API_KEY environment variable."
     openai_api_key = os.environ["OPENAI_API_KEY"]

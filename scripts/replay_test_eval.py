@@ -8,7 +8,7 @@ counters stay at zero (cache hits report no usage), so we never need an API
 key or a GPU for this check.
 
 Example:
-    python -m scripts.replay_test_eval --run AIMEBench_CoT_GEPA_gpt-41-mini
+    python -m scripts.replay_test_eval --run AIMEBench_CoT_GEPA_gpt-41-mini --source_dir reference_runs_data
 """
 
 import argparse
@@ -22,6 +22,8 @@ def parse_args():
     p = argparse.ArgumentParser()
     p.add_argument("--run", required=True,
                    help="run name, e.g. AIMEBench_CoT_GEPA_gpt-41-mini")
+    p.add_argument("--source_dir", default=None,
+                   help="folder with the authors' data (experiment_runs/ and experiment_cache_dirs/); GEPA_EXPERIMENT_DIR is not used for reading, so it can never point a real run at this folder (default: <repo>/reference_runs_data)")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--num_threads", type=int, default=16)
     p.add_argument("--limit", type=int, default=None,
@@ -37,18 +39,22 @@ def parse_args():
 def main():
     args = parse_args()
 
-    from scripts.experiment_configs import BASE_EXPERIMENT_DIR, LM_CONFIGS
+    from scripts.experiment_configs import LM_CONFIGS
 
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    source_dir = os.path.abspath(os.path.expanduser(args.source_dir or os.path.join(repo, "reference_runs_data")))
     seed_dir = f"seed_{args.seed}"
-    run_dir = os.path.join(BASE_EXPERIMENT_DIR, "experiment_runs", seed_dir, args.run)
-    src_cache = os.path.join(BASE_EXPERIMENT_DIR, "experiment_cache_dirs", seed_dir, args.run)
+    run_dir = os.path.join(source_dir, "experiment_runs", seed_dir, args.run)
+    src_cache = os.path.join(source_dir, "experiment_cache_dirs", seed_dir, args.run)
     if not os.path.isdir(run_dir):
         sys.exit(f"run dir not found: {run_dir}")
     if not os.path.isdir(src_cache):
         sys.exit(f"cache dir not found: {src_cache}")
 
     # work on a copy: the sqlite files get opened for writing by the cache library
-    replay_dir = args.replay_dir or os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "replay_runs")
+    replay_dir = os.path.abspath(os.path.expanduser(args.replay_dir or os.path.join(repo, "replay_runs")))
+    if replay_dir == source_dir:
+        sys.exit("--replay_dir must not be the same folder as --source_dir")
     cache_copy = os.path.join(replay_dir, "experiment_cache_dirs", seed_dir, args.run)
     if not os.path.isdir(cache_copy):
         import shutil

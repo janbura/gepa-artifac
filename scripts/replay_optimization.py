@@ -3,14 +3,16 @@ Replay one of the shipped optimization runs (for example GEPA on AIME) using
 only the cached LLM responses, write the result into a separate folder and
 compare it with the original run.
 
-The experiment code reads its base folder from the environment variable
-GEPA_EXPERIMENT_DIR, so we build a small replay folder that only contains the
-cache of the run we want to repeat and start scripts.run_experiments on it.
+The authors' data is read from --source_dir only.  The experiment code writes
+to the folder in GEPA_EXPERIMENT_DIR, so we build a small replay folder that
+only contains the cache of the run we want to repeat and start
+scripts.run_experiments on it with GEPA_EXPERIMENT_DIR set for that process only.
 With a dummy API key every request that is not in the cache fails, which makes
 cache misses visible instead of silently spending money.
 
 Example:
-    python -m scripts.replay_optimization --run AIMEBench_CoT_GEPA_gpt-41-mini --replay_dir ~/gepa_replay
+    python -m scripts.replay_optimization --run AIMEBench_CoT_GEPA_gpt-41-mini \
+        --source_dir reference_runs_data --replay_dir ~/gepa_replay
 """
 
 import argparse
@@ -39,19 +41,27 @@ def main():
     p = argparse.ArgumentParser()
     p.add_argument("--run", required=True, help="e.g. AIMEBench_CoT_GEPA_gpt-41-mini")
     p.add_argument("--replay_dir", required=True, help="folder for the replayed run (created if missing)")
+    p.add_argument("--source_dir", default=None,
+                   help="folder with the authors' data (experiment_runs/ and experiment_cache_dirs/); GEPA_EXPERIMENT_DIR is not used for reading, so it can never point a real run at this folder (default: <repo>/reference_runs_data)")
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--num_threads", type=int, default=16)
     p.add_argument("--dry_run", action="store_true", help="2 examples per split, just to see that it runs")
     p.add_argument("--out", default=None, help="json summary file")
     args = p.parse_args()
 
-    from scripts.experiment_configs import BASE_EXPERIMENT_DIR, LM_CONFIGS, get_benchmarks, get_optimizers
+    from scripts.experiment_configs import LM_CONFIGS, get_benchmarks, get_optimizers
 
     bench_name, prog_name, opt_name, lm_name = args.run.split("_")
     seed_dir = f"seed_{args.seed}"
     replay_dir = os.path.abspath(os.path.expanduser(args.replay_dir))
+    repo = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    source_dir = os.path.abspath(os.path.expanduser(args.source_dir or os.path.join(repo, "reference_runs_data")))
+    if replay_dir == source_dir:
+        sys.exit("--replay_dir must not be the same folder as --source_dir")
 
-    src_cache = os.path.join(BASE_EXPERIMENT_DIR, "experiment_cache_dirs", seed_dir, args.run)
+    src_cache = os.path.join(source_dir, "experiment_cache_dirs", seed_dir, args.run)
+    if not os.path.isdir(src_cache):
+        sys.exit(f"cache dir not found: {src_cache}")
     dst_cache = os.path.join(replay_dir, "experiment_cache_dirs", seed_dir, args.run)
     if not os.path.isdir(dst_cache):
         print(f"copying cache {src_cache} -> {dst_cache}")
@@ -86,7 +96,7 @@ def main():
     elapsed = time.time() - t0
     print(f"run finished in {elapsed:.0f}s")
 
-    orig = os.path.join(BASE_EXPERIMENT_DIR, "experiment_runs", seed_dir, args.run)
+    orig = os.path.join(source_dir, "experiment_runs", seed_dir, args.run)
     new = os.path.join(replay_dir, "experiment_runs", seed_dir, args.run)
     summary = {
         "run": args.run,
