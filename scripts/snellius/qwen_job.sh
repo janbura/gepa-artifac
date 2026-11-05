@@ -19,8 +19,13 @@
 # Watchdog: if Arbor exits, vLLM stops answering its health check, or Arbor writes no response for
 # STALL_MINUTES (default 20) while runs are active, the job stops its runs and exits 1. Without it,
 # a GEPA run whose LM calls fail loops forever without using up its budget (F54).
-# Optional: ARBOR_VENV=<venv> serves from another Arbor environment, e.g. one with the authors'
-# vLLM 0.9.1 (envs/arbor-vllm091-requirements.txt); default gepa_artifact/utils/arbor/.venv.
+# Snellius submits with --export=NONE (its cli_filter.lua), so a variable set in front of sbatch
+# does NOT reach the job. Put per-run variables (GEPA_EXPERIMENT_DIR, GEPA_MAX_METRIC_CALLS) at the
+# start of each command line, and pass job-wide ones with sbatch --export=VAR=value,VAR2=value.
+# Optional 2nd argument: another Arbor environment to serve from, e.g. one with the authors' vLLM
+# 0.9.1 (envs/arbor-vllm091-requirements.txt):
+#   sbatch ... scripts/snellius/qwen_job.sh my_commands.txt $HOME/arbor-envs/vllm091
+# Default: gepa_artifact/utils/arbor/.venv. The job logs which vLLM version it served.
 # Optional: PROGRESS_DIRS="<dir> ..." logs once a minute, for every run under those experiment
 # dirs, its metric calls (lines in metric_logs/{train,val}.jsonl) and reflections (lines in
 # instruction_proposer_inpouts.jsonl) to logs/progress-<job>.csv (pilot 4.4, F44).
@@ -39,8 +44,10 @@ nvidia-smi -L
 START=$(date +%s)
 DIRTY=$(git diff --quiet HEAD 2>/dev/null || echo " + uncommitted changes")
 echo "start $(date) on $(hostname), commit $(git rev-parse --short HEAD)$DIRTY, commands: $CMDS"
-ARBOR_VENV=${ARBOR_VENV:-$REPO/gepa_artifact/utils/arbor/.venv}
+ARBOR_VENV=${2:-${ARBOR_VENV:-$REPO/gepa_artifact/utils/arbor/.venv}}
+[ -x "$ARBOR_VENV/bin/python" ] || { echo "no Arbor environment at $ARBOR_VENV"; exit 1; }
 echo "arbor venv: $ARBOR_VENV (vllm $("$ARBOR_VENV/bin/python" -c 'import importlib.metadata as m; print(m.version("vllm"))' 2>/dev/null || echo '?'))"
+echo "job settings: STALL_MINUTES=$STALL_MINUTES PROGRESS_DIRS=${PROGRESS_DIRS:-<unset>} GEPA_EXPERIMENT_DIR=${GEPA_EXPERIMENT_DIR:-<unset>} GEPA_MAX_METRIC_CALLS=${GEPA_MAX_METRIC_CALLS:-<unset>}"
 
 # arbor writes request/response logs to ./storage, keep them out of the repo
 WORK=/scratch-shared/$USER/arbor_$JOB
