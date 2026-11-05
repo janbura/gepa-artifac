@@ -1,296 +1,193 @@
 # GEPA reproduction plan
 
-Reproduction of *GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning* ([arXiv 2507.19457](https://arxiv.org/abs/2507.19457)) using this artifact repository.
+Reproduction of *GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning* ([arXiv 2507.19457](https://arxiv.org/abs/2507.19457)) with this artifact, on Snellius.
 
-- **Where:** all runs happen on **Snellius**. Laptops are only for analysis and figures; B did Phase 2 on one. The Mac (M2) is also the fallback if the SBU budget runs low.
-- **Budget:** shared course account `gpuuva090`, about 980k SBU left on 2026-11-04, shared with the other course users. **It expires 2026-12-18.** My own share is still to be confirmed (step 0.3).
-- **External deadline:** `gpt-4.1-mini` is reported to leave the OpenAI API on **2027-01-14** (F16).
-- **Team:** **A** (fork owner) and **B** (teammate) share the work. §6 has the split and the branch workflow; results go in §7.
-- **Current scope (2026-11-04):** Table 1 on HotpotQA, HoVer, IFBench, AIME-2025 and LiveBench-Math, with Baseline, MIPROv2, GEPA and GEPA+Merge. No PUPA and no GRPO until there's an OpenAI key and a scope decision (step 5.3). Estimated ~14.5k SBU (±2×) plus ~0.5k for pilots, and €0 of API.
-- **Legend:** ☐ todo · ◐ in progress · ☑ done · ✗ dropped. F1, F2, … refer to the findings in §3. Costs are in SBU (free course budget, but keep them low) unless marked `€`, which means out-of-pocket OpenAI API spend.
+- **Objective:** Table 1 of the paper (Qwen3-8B) on the five benchmarks that need no OpenAI key: HotpotQA, HoVer, IFBench, AIME-2025 and LiveBench-Math, with Baseline, MIPROv2, GEPA and GEPA+Merge. Every cell gets **3 seeds (0, 1, 2), reported as mean ± SD**, served by the authors' vLLM 0.9.1 (F62).
+- **Out of scope for now:** PUPA (its program and judge call `gpt-4.1-mini`, F14), the GRPO row (no key needed, but about 85k SBU for six benchmarks), Table 2 (GPT-4.1-mini), Table 3 and the figures.
+- **Team:** A (fork owner) runs HotpotQA and HoVer; B runs IFBench, AIME-2025 and LiveBench-Math. A benchmark's whole chain stays in its owner's experiment directory (F20).
+- **Budget:** the shared course account `gpuuva090` (about 980k SBU on 2026-11-04, shared with the rest of the course) expires **2026-12-18**. Our own share is still unconfirmed. Used so far: A about 440 SBU, B about 1,300 SBU before his final Baseline jobs. One A100-hour is 128 SBU.
+- F-numbers point to the findings in §6. The phase plan used until 2026-11-05 is in git history (`60b8e91`).
 
-_Last updated: 2026-11-04, after B checked the plan against the authors' logs, caches and code (§3 group F, §8)._
+_Last updated: 2026-11-06._
 
 ---
 
-## 1. Steps
+## 1. Results: Table 1, Qwen3-8B, no API key
 
-Order: set everything up (Phases 0–3), run small pilots that measure the real cost (Phase 4), turn the measurements into an estimate and decide the scope (Phase 5), and only then start the main runs (Phases 6–7).
+Test-set score in %: mean ± SD over seeds, the number of seeds in parentheses, the paper's single run in brackets. One A100 per job, vLLM 0.9.1 unless noted.
 
-### Where each phase stands (after B's check, 2026-11-04)
+| Variant | HotpotQA (A) | HoVer (A) | IFBench (B) | AIME-2025 (B) | LiveBench-Math (B) |
+|---|---|---|---|---|---|
+| Baseline | **41.22 ± 2.22** (3) [42.33] | **36.89 ± 1.17** (3) [35.33] | 36.56 (1, vLLM 0.8.5) [36.90] | final runs done, numbers pending (B) [27.33] | final runs done, numbers pending (B) [48.70] |
+| MIPROv2 | – [55.33] | – [47.33] | – [36.22] | – [20.00] | – [46.60] |
+| GEPA | – [62.33] | – [52.33] | – [38.61] | – [32.00] | – [51.95] |
+| GEPA+Merge | – [64.33] | – [51.67] | – [28.23] | – [32.00] | – [51.95] |
+| *Rollout budget, MIPROv2 and GEPA* | *6,871* | *7,051* | *3,593* | *1,839* | *1,839* |
 
-| Phase | Status | What's done, what's left |
+- **A's Baselines per seed** (failed examples in parentheses): HotpotQA 42.33 (6), 42.67 (0), 38.67 (5); HoVer 35.67 (0), 37.00 (0), 38.00 (0). Jobs 28923152, 28927513 and 28927510, all in `~/vllm091_runs`.
+- **What a Baseline seed is:** the seed doesn't change the test set or the prompts, but each seed has its own run and cache directory, so the model samples every answer afresh. The paper's number lies within 1.3 SD of our mean for both benchmarks, and any two runs agree on 82–90% of examples (F65).
+- **Not counted:** A's two runs on vLLM 0.8.5 (HotpotQA 39.67 and 40.67, HoVer 35.67 and 34.33; §5). B's earlier seed-1 and vLLM 0.9.1 values were mostly cache replays (F55) or lost answers to timeouts (F54, F56). His final Baselines (jobs 28929002 and 28929003, `~/final_baselines`) use vLLM 0.9.1, a fresh cache and both timeouts at 1,800 s; IFBench seed 0 is kept from job 28908434 (vLLM 0.8.5, no timeouts).
+- **The paper's other Table 1 cells:** PUPA 80.82 / 81.55 / 91.85 / 86.26 (Baseline, MIPROv2, GEPA, GEPA+Merge), and a GRPO row of 43.33, 38.67, 35.88, 38.00 and 51.26 in the column order above (PUPA 86.66). The paper prints the same GEPA and GEPA+Merge score for both math benchmarks (F61).
+
+---
+
+## 2. Next: the optimizer runs
+
+### 2.1 How a 3-seed cell is built
+
+- **The chain, per benchmark and seed:** Baseline → MIPROv2-Heavy (`--use_cache_from_opt Baseline`) → GEPA and GEPA+Merge (each `--use_cache_from_opt MIPROv2-Heavy`). Each step starts from a copy of the previous step's DSPy cache, so a seed's whole chain stays in one experiment directory (F20). Chain the jobs with `--dependency=afterok:<job id>`.
+- **Seeds:** pass `--seed s` to every step. For the optimizers a seed other than 0 also reshuffles train and validation; the test set stays fixed (F24). So the seeds vary both the search and its data.
+- **Runs to do:** A 18 (2 benchmarks × 3 seeds × MIPROv2, GEPA and GEPA+Merge), B 27, plus B's third Baseline seed.
+- **Sharing a server:** GEPA is limited by latency and leaves the GPU mostly idle (F3), and the authors started a benchmark's GEPA-family runs together (F62). Running a seed's GEPA and GEPA+Merge in one job, or several seeds at once, saves most of their GPU-hours if they don't slow each other down much. The timing test in §2.3 measures that.
+- **Directories:** A's chains go in `~/vllm091_runs`, which holds the vLLM 0.9.1 Baselines of seeds 0–2 (proposal, §2.4). B's go in `~/final_baselines`.
+
+### 2.2 Expected size and cost per run (one A100)
+
+| | HotpotQA | HoVer | IFBench | AIME-2025 | LiveBench-Math |
+|---|---|---|---|---|---|
+| Rollout budget (metric calls) | 6,871 | 7,051 | 3,593 | 1,839 | 1,839 |
+| Authors' metric calls used: MIPROv2 / GEPA / GEPA+Merge | 6,817 / 7,110 / 7,004 | 6,895 / 7,240 / 7,260 | – | no runs shipped | no runs shipped |
+| Authors' run time on 4 GPUs: MIPROv2 / GEPA / GEPA+Merge | 1.1 / 6.4 / 3.7 h | 4.7 / 5.6 / 1.8 h | – | – | – |
+| Our test pass per example (32 threads) | 2.9–3.7 s | 2.7–2.8 s | 6.3 s | 6.5 s | 15.8 s |
+| MIPROv2 on one A100 | ~10 h, ~1,300 SBU (estimate) | ~9 h, ~1,100 SBU (estimate) | ~10 h, ~1,300 SBU (B, partly measured) | – | – |
+
+- **MIPROv2 estimate:** the metric-call budget × our test-pass time per example × 1.6, the overhead B measured on IFBench (≈10 h for 3,593 calls at 6.3 s per example; 11 of 41 trials in 2 h 43 min).
+- **GEPA isn't measured yet.** The authors needed 5.6–6.4 h on 4 GPUs. On one A100 it may take longer; the timing test decides.
+- **Rough total for the objective:** about 40–50k SBU (A ~15–19k, B ~23–29k), assuming ~1,200 SBU per MIPROv2 run and GEPA + GEPA+Merge sharing one server at 10–15 h per pair. ±2× until the first MIPROv2 and GEPA runs are in. GEPA-family runs use 2–23% more metric calls than their budget (F36).
+
+### 2.3 Proposed first steps (2026-11-06)
+
+1. Settle the open points in §2.4.
+2. **GEPA timing test** (A, HotpotQA, about 2 h, ≤ 300 SBU). In a pilot directory, without `--use_cache_from_opt`, with `GEPA_MAX_METRIC_CALLS=1500` and `timeout 30m` per phase: 1 run (GEPA), then 2 (GEPA and GEPA+Merge), then 6 (both at seeds 0–2), each phase in its own `GEPA_EXPERIMENT_DIR`, with `PROGRESS_DIRS` on. Seconds per reflection come from `instruction_proposer_inpouts.jsonl` (F44). It also checks the metric-call cap on a GPU (F21).
+3. **In parallel, start the real chains with MIPROv2:** HotpotQA and HoVer seed 0 (A) and IFBench seed 0 (B), about 9–10 h each, then GEPA and GEPA+Merge with `--dependency=afterok`.
+4. After each job: the checks in §3, a row in §5, and the cell in §1 once a seed's run is done.
+
+### 2.4 Open decisions
+
+- **A's chain directory:** `~/vllm091_runs` (proposed; it holds the 0.9.1 Baselines of seeds 0–2).
+- **Upstream's post-paper GEPA fix (F60):** keep it (correct code) or revert it (the paper's behaviour).
+- **Timeouts in the repo:** B's raised limits (Arbor's 300 s and the client's 600 s, both to 1,800 s; decision in §6 H) are local edits. Put them in the repo as opt-in settings, so both of us run the same code. For HotpotQA and HoVer they change nothing: no timeout ever reached DSPy.
+- **How many GEPA runs share a server:** from the timing test.
+- **Budget:** ask for our share of `gpuuva090` (still open since 2026-11-04) and compare it with the 40–50k SBU of §2.2.
+- **GRPO** stays out unless the budget allows: about 85k SBU for six benchmarks, about 29k for HotpotQA and IFBench alone (the curves in Figure 1).
+
+---
+
+## 3. Running a benchmark
+
+Every Qwen3-8B job goes through `scripts/snellius/qwen_job.sh` on one A100. This checklist is built from the problems in F50–F66.
+
+**Environments** (once per person)
+
+- uv 0.13.7 (`curl -LsSf https://astral.sh/uv/0.13.7/install.sh | sh`), with `UV_CACHE_DIR=/scratch-shared/$USER/uv-cache UV_LINK_MODE=copy` in `~/.bashrc`.
+- `bash setup_gepa_repo.sh` (DSPy fork `62dc3b6`, Arbor fork `113fc35`, F46), then `uv sync --locked`: all 285 package versions of an original run (F49).
+- Arbor with the authors' vLLM 0.9.1: `uv venv --no-config --python 3.12.9 ~/arbor-envs/vllm091`, then `uv pip sync --no-config --python ~/arbor-envs/vllm091/bin/python envs/arbor-vllm091-requirements.txt` (F62). The older 0.8.5.post1 environment (`gepa_artifact/utils/arbor/.venv`, from `envs/arbor-uv.lock`) is what a job uses without its 2nd argument.
+- Weights: `huggingface-cli download qwen/qwen3-8b` from an Arbor environment (16 GB, revision `b968826`, F11). Datasets: `uv run python -m scripts.generate_launch_commands > launch_commands` once on the login node (F48). HotpotQA and HoVer need the BM25 index, built once (F23).
+- The authors' runs are in `reference_runs_data/` (A's checkout), never in `experiment_runs_data/` (F19).
+
+**Before submitting**
+
+1. Commit first: the job log records the commit, or "+ uncommitted changes". Don't `git switch`, `pull` or `merge` while a job runs; it reads the code and the commands file from the checkout.
+2. Serve with the authors' vLLM 0.9.1: `qwen_job.sh <commands> $HOME/arbor-envs/vllm091` (F62). Without the 2nd argument the job serves 0.8.5.post1.
+3. Build each command with `make_command.sh <benchmark> <program> <optimizer>`, which checks the names. Put per-run variables at the start of the line (`GEPA_EXPERIMENT_DIR=… GEPA_MAX_METRIC_CALLS=…`), never in front of `sbatch` (F63). Real chain runs add `--use_cache_from_opt` (MIPROv2 ← Baseline, GEPA family ← MIPROv2-Heavy) and `--seed s`; pilots leave out `--use_cache_from_opt` (F44).
+4. One experiment directory per serving setup and purpose. A chain runs in the directory whose Baseline was served by the same vLLM, because MIPROv2 copies the Baseline's cache and GEPA copies MIPROv2's (F20). A run that already finished in a directory is skipped.
+5. `mkdir -p logs`, then `bash scripts/snellius/sbu_guard.sh <hours × 128>` and `sbatch -p gpu_a100 -t <limit> -J <name> scripts/snellius/qwen_job.sh …`. Chain the steps with `--dependency=afterok:<job id>`. Lines ending in `&` share one server, and `wait` waits for them.
+
+**After every job**
+
+1. In `logs/<name>-<id>.out`: `arbor venv: … (vllm 0.9.1)`, `job settings:`, `server ready`, each command's exit code, and no watchdog line (F57).
+2. `SEED=<s> GEPA_EXPERIMENT_DIR=<dir> bash scripts/snellius/check_run.sh <run name>`: score, failed examples (test size − unique examples logged), parse failures.
+3. Requests that reached the server, `cat logs/arbor_requests_<id>/*/inference_requests.jsonl | wc -l` (F55), and timeouts, `grep -c "Timeout for chat request" logs/arbor-<id>.log` (F54).
+4. A row in §5 with commit, vLLM version, SBU, score, failed examples and request count.
+
+**Problems we hit**
+
+| Problem | Symptom | Handled by | Finding |
+| --- | --- | --- | --- |
+| Environment set in front of `sbatch` dropped | The log shows the default `arbor venv` or `<unset>` settings | 2nd argument; variables at the start of command lines | F63 |
+| Two vLLM 0.9 jobs start together | "vLLM failed to compile the model" | Per-job `VLLM_CACHE_ROOT`; the warm-up stops at the first fatal message | F64 |
+| GEPA loops when every call fails | Thousands of "No feedback samples, skipping" iterations, budget unused | Watchdog in `qwen_job.sh`; `timeout` for pilots | F57 |
+| Arbor's 300 s and the client's 600 s limits | HTTP 504 or `APITimeoutError`; the example scores 0 | Long math answers; B raises both to 1,800 s (§2.4) | F54, F56 |
+| DSPy writing to `~/.dspy_cache` | Far fewer requests reach the server than the run needs | Check the request count after every run | F55 |
+| Format failures | Fewer unique examples logged than the test set has | Keep the parser; report the count | F52, F65 |
+| An example logged twice in `test.jsonl` | Line count above the unique count | `check_run.sh` counts unique examples | F65 |
+| `--dry_run` crash | `AttributeError: … dev_set` | Fixed on `feat/pilot-caps` | F50 |
+| `gpu_mig` too small | vLLM can't fit the 32,768-token context | Full GPUs only | F51 |
+| Queue | `PENDING (Priority)` for hours; H100 for days | 1-GPU jobs on `gpu_a100` | F47 |
+
+**A's benchmarks** (B adds IFBench, AIME-2025 and LiveBench-Math the same way)
+
+| | HotpotQA | HoVer |
+| --- | --- | --- |
+| Program (`--prog_name`) and calls per example | `HotpotMultiHop`, 4 | `HoverMultiHop`, 4 |
+| Test examples | 300 | 300 |
+| Output tokens per call, mean / p90 | 422 / 611 | 473 / 651 |
+| Baseline test pass on one A100, 32 threads | 14–19 min; a 1-run job 34–41 SBU | 13–14 min; a 3-run job 94 SBU |
+| Our Baselines (failed examples) | vLLM 0.9.1: 42.33 (6), 42.67 (0), 38.67 (5); 0.8.5: 39.67 (7), 40.67 (6) | vLLM 0.9.1: 35.67 (0), 37.00 (0), 38.00 (0); 0.8.5: 35.67 (0), 34.33 (2) |
+| Authors' scores: Baseline / MIPROv2 / GEPA / GEPA+Merge / SelectBest | 42.33 / 55.33 / 62.33 / 64.33 / 58.33 | 35.33 / 47.33 / 52.33 / 51.67 / 45.33 |
+| Authors' vLLM | 0.9.1; GEPA family 0.9.2 | 0.9.1 |
+| Authors' reflections: GEPA / GEPA+Merge / SelectBest | 132 / 64 / 74 | 93 / 50 / 126 |
+| Timeouts per Baseline run | 0–5, all retried | 0–1 |
+| Retrieval | Local BM25 over 2017 Wikipedia abstracts; one index for both (F23) | Same |
+| Our run directories | vLLM 0.9.1: `~/vllm091_runs` (seeds 0–2); 0.8.5: `experiment_runs_data/`, `~/vllm085_rep2_runs` | The same |
+
+---
+
+## 4. Measurements
+
+| What | Who | Measured |
 |---|---|---|
-| 0. Housekeeping | ◐ | **Done:** branch pushed; git identity, local excludes, upstream remote, `.gitignore` of generated files (0.2), B added as collaborator. **Left:** the SBU-share question (0.3). W&B will only be needed for GRPO once `GEPA_USE_WANDB=0` is merged (F13). |
-| 1. Environment | ◐ | **Done by A on Snellius:** 1.1–1.7 (uv 0.13.7, forks, both environments, weights, datasets, BM25 index, F40–F49); `build/pin-env` merged as PR #2. **Left:** B builds their own environments (T4, T5). |
-| 2. Reference data | ☑ | **Done by B on a laptop:** thinking mode was on (F25); run durations measured (F37); cost and token table for the GPT runs (§8); target numbers checked (F34). **No need to redo on Snellius,** except copying the shipped cache there for the replay check (4.0). |
-| 3. Pilot tooling | ◐ | **Done:** 3.1a (`GEPA_EXPERIMENT_DIR`, PR #1); 3.2–3.5 (`scripts/snellius/`, PR #3); 3.1b (`GEPA_MAX_METRIC_CALLS`, on A's `feat/pilot-caps`, which also fixes `--dry_run`, F50). A's job-script changes (parallel mode, watchdog F56, review fixes) are on `feat/pilot-caps` too. **Left:** the GPU check of 3.1b, in pilot 4.4. |
-| 4. Pilots | ☐ | All still needed. Pilot 4.3 is the only source of Qwen tokens per call (F33). |
-| 5. Estimate and decide | ☐ | After the pilots. |
-| 6. Main runs | ☐ | The Baselines come from pilot 4.3, and MIPROv2 on IFBench from pilot 4.5. |
-| 7. Extensions | ☐ | Extra seeds (7.4) become the first extension (F27). |
-| 8. Analysis | ◐ | **Done:** 8.1, by B with the scripts in `analysis/` on the reference data (§8). **Left:** 8.2 and 8.3, which wait for our runs. |
-
-### Today (2026-11-04): first Table 1 runs, without PUPA and GRPO
-
-Goal for today:
-- environments ready for both of us;
-- pilot tooling merged into `reproduction`;
-- pilots 4.1–4.3 finished, which fills the Baseline row of Table 1 for 5 benchmarks;
-- pilots 4.4 and 4.5 running overnight.
-
-Budget for today is about 1,000–1,100 SBU and €0. B has already done steps 2.1–2.4, 3.1a, the log analysis and the W&B switch on a laptop.
-
-| # | Who | Task | Steps | Done when | Status |
-|---|---|---|---|---|---|
-| T1 | A | Access | Branch `reproduction` is pushed (commit `e47fd9e`). Left: add B as a collaborator on the GitHub fork, and step 0.2 | B can push | ☑ collaborator added; 0.2 in `2378040` |
-| T2 | B | Own checkout on Snellius | `git clone` the fork, then `git switch reproduction` | B is on the branch | ☑ B: `~/gepa-artifac`, branch `b-tonight` (`7adf8ca`) |
-| T3 | A | Budget | Ask the account contact what each person's SBU share is | Answered | ☐ |
-| T4 | A, then B | Pinned environment | A: 1.1–1.3, with `uv.lock` pinned to the versions of the original runs (F7). Then both run `uv sync --locked`. B does 1.3 only if A hasn't committed `uv.lock` yet | Same versions on both sides | ◐ A done (PR #2 merged; whole environment as in an original run, F49). B synced the lock of `build/pin-env` before `0ec5585`, so B's runs of 2026-11-05 don't have the F49 constraints yet; B re-syncs before the next job |
-| T5 | Both | Arbor environment and weights | 1.4 and 1.6 (repo id `qwen/qwen3-8b`), each in their own checkout. A needs them too, for A's own pilots | `import vllm` works; weights cached | ☑ A and B (B: Arbor freeze diff 0) |
-| T6 | A | BM25 index | 1.7: a short CPU job. Only HotpotQA and HoVer use it | `bm25s_retriever/` exists | ☑ job 28902285, ~2.5 SBU |
-| T7 | A | Metric-call cap | 3.1b on `feat/pilot-caps`, with a PR that B reviews. Skip 2.1–2.4 and 3.1a, which are done | A capped run stops after N calls | ◐ code on `feat/pilot-caps`, checked without a GPU; the stop after N calls is checked in the first GPU job (T8 and T9 are merged now) |
-| T8 | B | Job tooling | On `feat/slurm-tooling`, with a PR that A reviews: 3.2 one-GPU YAML; 3.3 SLURM template (Arbor from the Arbor environment, scratch directory, free port, wait until the server answers); 3.4 launch filter with the port filled in; 3.5 measurement hooks | Dry-run job works | ☑ merged as PR #3 (`03208df`); used for B's job 28908434. A's review fixes (`logs/` in `.gitignore`, stdin and last-line handling, a name check in `make_command.sh`, executable bits), a parallel mode for 4.4 and a watchdog (F56) are on `feat/pilot-caps` |
-| T9 | B | Share the laptop work | Push `feat/replay-and-analysis` (3.1a, `GEPA_USE_WANDB`, replay script, `analysis/`) and open the PR into `reproduction`, rebased on the latest plan | PR open | ☑ merged as PR #1 (`54bc26e`), with `--source_dir` in both replay scripts |
-| T10 | B | Pilots 4.1 and 4.2 | Network check from a compute node; Baseline dry run into the pilot directory; record the server start-up time | Both pass | ◐ 4.1 done by A. 4.2: the server start-up is measured (§7.3); the dry run itself needs the F50 fix on `feat/pilot-caps` |
-| T11 | A and B | Pilot 4.3: the Table 1 Baselines | Real directory. A: HotpotQA, HoVer. B: IFBench, AIME-2025, LiveBench-Math. Record tokens per call (from Arbor's response log, F33) and seconds per rollout in §7.3 | 5 scores in §7.1 | ◐ B done: IFBench, AIME, LiveBench-Math (§7.1, F52). A: HotpotQA and HoVer done twice on vLLM 0.8.5, HotpotQA once on 0.9.1 (§7.1, F64); HoVer on 0.9.1 left (F63) |
-| T12 | A | Pilot 4.4 (overnight) | GEPA-family runs on HotpotQA, 1, 3 and 6 processes sharing one server, set up as in F44. Needs T7, T8 and T9 (`GEPA_USE_WANDB=0`) | Seconds per iteration in §7.3 | ☐ |
-| T13 | B | Pilot 4.5 (overnight) | MIPROv2 on IFBench, as a real run | Wall-clock in §7.2 and §7.3 | ◐ cut by the 5 h limit at trial 12 of 41; full run ≈ 10 h on one A100 (§7.3) |
-| T14 | Both | Report | Fill in §7.1 and §7.3, then commit as `docs(results): ...` after `git pull --rebase`. After every pilot, grep `run_log.txt` for errors (F29) and check `budget-overview` | §7 up to date | ◐ B's rows filled in (2026-11-05) |
-| T15 | Both | Decide | A ~$1 GPT-4.1-mini pilot (4.7) if an OpenAI key exists; extra seeds (7.4) as the first extension (F27) | Decisions in §5 | ☐ |
-
-### Phase 0: Housekeeping
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 0.1 | Git identity and local-only excludes | `git config --global user.name/user.email`. Add personal, local-only tool files to `.git/info/exclude` (never to `.gitignore`). `git remote add upstream https://github.com/gepa-ai/gepa-artifact` | `git status` lists only files meant for the repo | 0 | ☑ A |
-| 0.2 | Ignore generated files | Add `wiki.abstracts.2017.tar.gz`, `gepa_artifact/benchmarks/hover/wiki.abstracts.2017.jsonl`, `gepa_artifact/benchmarks/hover/bm25s_retriever/`, `launch_commands`, `reference_runs_data/`, `storage/` to `.gitignore`. Commit as `chore: ignore generated retrieval and run files` (F9, F23) | Commit exists | 0 | ☑ A (`2378040`) |
-| 0.3 | Accounts and budget decisions | Ask the account contact (see `accinfo`) what my SBU share is. Decide whether to get an OpenAI key (F14, F16). W&B: once `GEPA_USE_WANDB=0` is merged, only GRPO needs a key (F13). Keep keys in `~/.config/gepa/secrets.env` (chmod 600), sourced by job scripts, never in the repo | Share known. OpenAI decision made | 0 | ☐ |
-
-### Phase 1: Environment (login node)
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 1.1 | Install uv | `curl -LsSf https://astral.sh/uv/install.sh \| sh` installs to `~/.local/bin`, which is already on PATH. uv also provides Python ≥3.11 (system Python is 3.9, F8) | `uv --version` | 0 | ☑ A: uv 0.13.7 (B: install the same version, `https://astral.sh/uv/0.13.7/install.sh`). Cache in `/scratch-shared/$USER/uv-cache` via `UV_CACHE_DIR` |
-| 1.2 | Clone the forks | `bash setup_gepa_repo.sh` | `gepa_artifact/utils/{dspy,arbor}` exist on branch `gepa_study` | 0 | ☑ A: DSPy `62dc3b6`, Arbor `113fc35` (F46) |
-| 1.3 | Main environment, pinned to the original runs | Use the versions recorded by the original runs (F7): Python 3.12.9 (`uv python pin 3.12.9`), dspy 2.6.23 (the fork), litellm 1.74.0.post1, openai 1.93.2, pydantic 2.11.7, ujson 5.10.0, cloudpickle 3.1.1, datasets 3.6.0. For example, `uv lock --upgrade-package litellm==1.74.0.post1` for each package changes only `uv.lock`. Commit `uv.lock` and `.python-version` as `build: pin dependencies to the versions of the original runs` | `uv pip list` shows the pinned versions; `uv run python -c "from dspy.teleprompt.grpo import GRPO"` works | 0 | ☑ A: merged as PR #2. `[tool.uv] constraint-dependencies` holds all 285 versions of an original run (`envs/original-run-requirements.txt`, F49), the lock covers Python 3.12 only, and `exclude-newer = "2025-08-04T00:00:00Z"` stays for anything outside that list. 288 packages; 0 versions differ from the original run; `dspy` from the fork; fork-only APIs import. First install ~6 min (copied from the scratch cache); re-sync from the earlier lock ~3 min |
-| 1.4 | Arbor/vLLM environment | `cd gepa_artifact/utils/arbor && uv sync --exclude-newer 2025-08-04`. A separate environment, because the default one has no `arbor-ai` (F6). The check found no recorded vLLM/torch versions, so the date cut-off stays here. Use `--python 3.12` (F45). A copy of the resulting lock is in the repo as `envs/arbor-uv.lock`, and its 176 packages are in `envs/arbor-requirements.txt`, because the fork directory itself is ignored. B: copy `envs/arbor-uv.lock` to `gepa_artifact/utils/arbor/uv.lock`, run `uv sync --locked --python 3.12` there, and check that `uv pip freeze` matches `envs/arbor-requirements.txt` | `uv run python -c "import vllm"` in that directory | 0 | ☑ A: vLLM 0.8.5.post1, torch 2.6.0+cu124, transformers 4.54.1. `arbor` imports from any directory with `PYTHONPATH` set (F41) |
-| 1.5 | Datasets and launch commands | `uv run python -m scripts.generate_launch_commands > launch_commands`. This builds every benchmark, which downloads all 6 datasets from the HF Hub (F17, F22) | 72 lines, no download errors | 0 | ☑ A: all 6 datasets in `~/.cache/huggingface/datasets` (`hotpot_qa` and `hover` load through their scripts with `datasets` 3.6.0). 72 commands after removing pip's output (F48); spaCy `en_core_web_sm` 3.8.0 and NLTK `punkt_tab` installed |
-| 1.6 | Model weights | From the Arbor environment: `uv run huggingface-cli download qwen/qwen3-8b` (about 16 GB). Use the same repo-id spelling Arbor requests (F11) | Weights in the HF cache | 0 | ☑ A: 16 GB in `~/.cache/huggingface/hub/models--qwen--qwen3-8b`, revision `b968826`, 2 min. vLLM loads tokenizer and config with `HF_HUB_OFFLINE=1`; the chat template has thinking on by default |
-| 1.7 | Build the BM25 index once | Short CPU job on `rome` (16 cores, about 28 GB RAM), run from the repo root, that calls `init_retriever()` from `gepa_artifact/benchmarks/hover/hover_program.py` (F23). Only HotpotQA and HoVer use it, so only A needs it | `gepa_artifact/benchmarks/hover/bm25s_retriever/` exists | ~10–30 | ☑ A: job 28902285 on `genoa` (F47), 6 min 18 s, ~2.5 SBU, peak 7.9 GB RAM, one core in use. 5,233,330 abstracts; index ~1 GB; a test search returns passages. The archive also contains a macOS `._wiki.abstracts.2017.jsonl`, now ignored |
-
-### Phase 2: Reference data (no GPU; done by B on a laptop)
-
-This shows how the authors ran Qwen3-8B (thinking on, F25) and gives reference times and costs. It doesn't need to be repeated on Snellius.
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 2.1 | Get the authors' archive | On Snellius there's no git-lfs module: put the `git-lfs` binary from the linux-amd64 release (github.com/git-lfs/git-lfs/releases) in `~/.local/bin`, then `git lfs install && git lfs pull` | `sha256sum experiment_runs_data.tar.gz` = `0e1db10331bbbdd48701443b0690d5b7b8abef841a73b76882d26853b3f38dd7` | 0 | ☑ B (laptop) |
-| 2.2 | Extract outside `BASE_EXPERIMENT_DIR` | `mkdir reference_runs_data && tar -xzf experiment_runs_data.tar.gz -C reference_runs_data`. **Never extract into `experiment_runs_data/`** (F19) | Authors' runs listed under `reference_runs_data/` | 0 | ☑ B (laptop) |
-| 2.3 | Reference analysis | **Thinking:** read from the cached raw Qwen responses (`reasoning_content`). The metric logs store `prediction: null`, so they can't show it (F25). **Tokens:** only the GPT-4.1-mini runs report them; Arbor runs report 0 (F33). **Durations:** from the authors' logs (F37) | Thinking on. Token and cost table for the GPT runs. Run durations | 0 | ☑ B (laptop) |
-| 2.4 | Target numbers | Check the reference `evaluation_result.txt` scores against the paper tables in §4 | 46 of 58 cells match, 1 differs, 11 have no run (F34) | 0 | ☑ B (laptop) |
-
-### Phase 3: Pilot tooling (our code)
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 3.1 | Separate output directory and budget caps | (a) `GEPA_EXPERIMENT_DIR` overrides `BASE_EXPERIMENT_DIR` (default unchanged). (b) A flag that caps `max_metric_calls` (default unchanged). (c) Only if GRPO is in scope: the same kind of cap for GRPO's `num_train_steps`. Every dry run and pilot goes to a separate directory (F18, F21). Commit as `feat(scripts): add metric-call cap for pilots` | A capped GEPA run stops after N calls and writes nothing to the real directory | 0 | ◐ (a) done by B, merged (PR #1). (b) done by A on `feat/pilot-caps`: env var `GEPA_MAX_METRIC_CALLS=<n>` sets GEPA-family budgets to `min(n, known)`. Unset or empty means unchanged; anything other than a positive integer fails. A cap is refused before any directory is created if `BASE_EXPERIMENT_DIR` resolves to the default `experiment_runs_data/`, symlinked spellings included. The cap is logged in `run_log.txt` and stored as `metric_call_cap` in `config.json` (only when set). Checked on the login node: refusals; AIME GEPA dry run in a scratch directory with cap 20 → `max_metric_calls = 20 (uncapped budget: 1839)`; uncapped run unchanged. Left: a GPU dry run showing the stop, expecting up to one full val eval of overshoot (`gepa.py:369`) |
-| 3.2 | 1-GPU Arbor config | YAML with `inference.gpu_ids: '0'` and `training.gpu_ids: ''`, kept in the repo (e.g. `slurm/arbor_inference_1gpu.yaml`) (F2) | Committed | 0 | ☑ B: `scripts/snellius/arbor_inference_1gpu.yaml` (PR #3) |
-| 3.3 | SLURM job template | Start Arbor **from the Arbor environment (1.4)**, with its venv first on `PATH` and `PYTHONPATH` pointing at the fork (F41), from a per-job scratch directory, on a free port (F9). Set `HF_HUB_OFFLINE=1`. Log `nvidia-smi -L` (F43). Send one warm-up chat request and wait for its reply, which starts vLLM (F42). Run one or more `run_experiments` processes against that `api_base`, then stop Arbor. Chain jobs with `--dependency=afterok` (F20). Commit as `feat(slurm): add Qwen3-8B job script` | Dry-run job succeeds | — | ☑ B: `scripts/snellius/qwen_job.sh` (PR #3), used in job 28908434 (server ready after 238 s). A, on `feat/pilot-caps`: lines ending in `&` run in the background and `wait` waits for them, so several runs share one server (4.4); a watchdog (F56); commands no longer read the commands file as stdin, and a last line without a newline runs; `PROGRESS_DIRS` logs metric calls and reflections per run once a minute (F44). Tested on the login node against a fake Arbor |
-| 3.4 | Launch-command selection | Helper that filters `launch_commands` by benchmark, optimizer and LM, and fills in the `{portnum}` placeholder (F22) | Prints the chosen commands, ready to run | 0 | ☑ B: `scripts/snellius/make_command.sh` builds the command from the names instead of filtering `launch_commands`; the job fills in `{portnum}`. Chain runs need `--use_cache_from_opt` passed by hand. A, on `feat/pilot-caps`: wrong benchmark, program or optimizer names now fail on the login node, and a reminder about `--use_cache_from_opt` goes to stderr |
-| 3.5 | Measurement hooks | In the job template, log `nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv -l 30` and the start/end time. After each job, record `sacct -j <id> --format=JobID,Elapsed,AllocTRES` and the SBU used (`budget-overview`) in a pilot log (e.g. `pilots/pilot_log.csv`). Qwen tokens: Arbor returns no usage (F33), so count them from Arbor's `storage/logs/<timestamp>/inference_responses.jsonl` (F9) with the Qwen3 tokenizer | Each pilot leaves one row: what ran, wall-clock, SBU, GPU utilization, tokens or iterations | 0 | ☑ B: `qwen_job.sh` logs GPU use every 30 s, start/end and per-command times, and copies Arbor's request log to `logs/` for token counts; `check_run.sh` and `sbu_guard.sh` (PR #3). The pilot log is §7.2 |
-
-### Phase 4: Pilots for the compute estimate (1× H100 unless noted)
-
-Each pilot answers one question that the estimate in §2 depends on; the assumption it replaces is listed in §2.1.
-- **Pure pilot overhead:** ~350–450 SBU, plus ~600 if GRPO is in scope.
-- **Reused:** pilots 4.3 and 4.5 are real runs that count toward Phase 6.
-- **After every pilot,** grep `run_log.txt` for errors: failed calls are scored as zero without stopping the run (F29).
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 4.0 | Does the evaluation code run on Snellius, before any GPU job? *(optional)* | Replay a reference Baseline from the shipped cache with `scripts/replay_test_eval.py` (B's `feat/replay-and-analysis`) in a CPU job, with no GPU and no key (F38). Needs that run's cache directory on Snellius | Replayed score equals the reference score | ~16 | ☐ |
-| 4.1 | Can compute nodes reach W&B and HF? | In a short job: `curl -sI https://api.wandb.ai` and `curl -sI https://huggingface.co` (F13) | Both reachable | ~5 | ☑ A, inside the 1.7 job (job 28902285, `genoa` node `tcn537`): `huggingface.co` 200, `api.wandb.ai` 404 (any HTTP answer means it's reachable) |
-| 4.2 | Does the pipeline work, and how long does the server take to start? | Baseline on HotpotQA with Qwen3-8B, `--dry_run`, **written to the pilot directory** (F18). Time from job start until Arbor answers | `evaluation_results/` exists in the pilot directory. Startup time recorded | ~30 | ☐ |
-| 4.3 | How many tokens per call, and how fast at 32 threads? | All 5 OpenAI-free Baselines (HotpotQA, HoVer, IFBench, LiveBench-Math, AIME) in the **real directory**, split by owner. Keep Qwen3's default chat template and `max_tokens=16384` (F25). Count tokens from Arbor's response log, not from `evaluation_result.txt`, which will show 0 (F33) | Output tokens per call and seconds per rollout for each benchmark. Scores close to §4 | ~250–300 (real runs) | ☐ |
-| 4.4 | How long is one GEPA iteration, and how many runs can share a GPU? | GEPA-family runs on HotpotQA, pilot directory, **without** `--use_cache_from_opt`, `GEPA_USE_WANDB=0`, capped at ~1,500 metric calls with `timeout 30m` per phase. Run 1 (GEPA), then 3 (GEPA, GEPA-MERGE, Abl-SelectBestCandidate), then 6 (those three at seeds 0 and 1) processes against one server, each phase in its own `GEPA_EXPERIMENT_DIR` (F44). Ignore the first full val eval when timing. Iteration times come from the growth of `instruction_proposer_inpouts.jsonl` (one line per reflection, F35) or from W&B `_runtime` if W&B is on | Seconds per iteration and GPU utilization for 1, 3 and 6 runs, giving the packing factor | ~300–400 | ☐ |
-| 4.5 | Does the MIPROv2 estimate hold? | The first real MIPROv2 run, on IFBench (shortest without OpenAI), after its Baseline from 4.3. Compare its wall-clock with §2 and with the authors' 1.1–4.7 h on 4 GPUs (F37) | MIPROv2 correction factor known | ~400 (real run) | ☐ |
-| 4.6 | How long is one GRPO step? *(only if GRPO is in scope)* | GRPO environment, 3 H100, HotpotQA, pilot directory, 10–20 steps (cap from 3.1c) | Seconds per step and per val eval | ~600 | ☐ |
-| 4.7 | What does a rollout cost in API money, and do rate limits bite? *(only with an OpenAI key)* | GPT-4.1-mini Baseline on IFBench (CPU job) and the Qwen3-8B PUPA Baseline, both in the real directory. Read the cost in the OpenAI usage dashboard. Grep `run_log.txt` for rate-limit errors (F29) | $ per rollout for both. No rate-limit errors, or a thread count that avoids them | ~20 + ~€1–2 (real runs) | ☐ |
-
-### Phase 5: Estimate and decide
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 5.1 | Measured estimate | Put the pilot numbers into the cost model and update §2. Add GEPA's budget overshoot (F36). Mark which numbers are measured. Commit as `docs(plan): update cost estimate with pilot measurements` | §2 based on measurements | 0 | ☐ |
-| 5.2 | Packing layout | Choose which runs share a GPU: up to the number found in 4.4, grouping runs of similar length. Write the job list with its dependencies | Job list with SBU per job | 0 | ☐ |
-| 5.3 | Go/no-go and scope | Compare the total with our SBU shares (0.3) and the € budget. Decide extra seeds (7.4), GRPO (a subset?), PUPA and Table 2. Record the decisions in §5 | Decisions recorded | 0 | ☐ |
-
-### Phase 6: Main Qwen3-8B runs without an OpenAI key (HotpotQA, HoVer, IFBench, LiveBench-Math, AIME)
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 6.1 | Baseline ×5 | Already done in pilot 4.3 | 5× `evaluation_results/` | (in 4.3) | ☐ |
-| 6.2 | MIPROv2-Heavy, remaining 4 | IFBench was done in pilot 4.5. One 1-H100 job per benchmark | 5 done | ~2.4k (estimate before 5.1; could be 2–3× higher, F37) | ☐ |
-| 6.3 | GEPA + GEPA-MERGE ×5 | Packed as decided in 5.2 (F3), `--dependency=afterok:<MIPRO job>` (F20). Adding Abl-SelectBestCandidate (Table 3) as a third process on HotpotQA, HoVer and IFBench costs ~650 SBU more; decide in 5.3 | 10 done | ~11.4k (estimate before 5.1, plus up to ~20% overshoot, F36) | ☐ |
-
-### Phase 7: Extensions (decided in 5.3; 7.4 comes first)
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 7.4 | **First extension:** extra seeds for the key cells | `SEEDS` in `scripts/generate_launch_commands.py`. A seed other than 0 reshuffles train/val only (F24). Start with the cells the write-up's main claims rest on: one seed per cell is at noise level, and the artifact shows a 4.7-point swing between two runs of the same method (F27) | Chosen cells have ≥2 seeds | ×1 per seed | ☐ |
-| 7.1 | PUPA with Qwen3-8B | Needs a real OpenAI key (F14). Same chain as Phase 6 | 5 runs done | ~1k + ~€27 (incl. SelectBest) | ☐ |
-| 7.2 | GPT-4.1-mini runs (Table 2) | Real OpenAI key, after pilot 4.7. API-only, so 16-core CPU jobs on `rome` (F31). Must finish before 2027-01-14 (F16) | Up to 30 runs done | ~400 + ~€212–260 (~€255–315 with VAT; §2.3) | ☐ |
-| 7.3 | GRPO | After pilot 4.6. GRPO environment (`pyproject_grpo.toml` in a separate checkout; `flash-attn` build needs a CUDA module). 3 H100s, `arbor_train.yaml` (F28). Cheapest useful subset: HotpotQA + IFBench (Figure 1) | The chosen benchmarks done | ~7k–18.5k per benchmark (~85k for all 6) | ☐ |
-
-### Phase 8: Analysis and write-up
-
-| # | Task | How | Done when | Cost | Status |
-|---|---|---|---|---|---|
-| 8.1 | Analysis of the reference runs | B's scripts in `analysis/` (on `feat/replay-and-analysis`) on `reference_runs_data/`: tables, budget curves, search trees, prompt sizes, generalization gap (§8). `scripts/generate_figures.ipynb` reproduces the paper's figures | Reference tables and figures | 0 | ☑ B (laptop) |
-| 8.2 | Figures and tables from our runs | The same `analysis/` scripts and `scripts/generate_figures.ipynb` on our `experiment_runs_data/` (A's and B's runs combined, §6) | Figures generated | 0 | ☐ |
-| 8.3 | Compare and document deviations | Compare against §4 and the reference runs. Record deviations: hardware, package versions, seeds, thinking mode (F25–F27). Report both the metric-call budget and the calls actually used (F36). Count reflection calls from our own `instruction_proposer_inpouts.jsonl` (F35). Check whether our search trees show the same pattern as the authors' (F39) | Write-up done | 0 | ☐ |
+| Thinking mode in the authors' runs | B | On (cached `reasoning_content`, F25) |
+| Authors' run times on 4-GPU servers | B | GEPA 1.2–6.4 h, MIPROv2 1.1–4.7 h, GRPO 12–24 h on 3 GPUs (F37); per run for HotpotQA and HoVer in §2.2 |
+| Server start-up (job start until Arbor answers) | A, B | 114–238 s on A100 |
+| Output tokens per call, mean (p90) | A, B | HotpotQA 422 (611), HoVer 473 (651), IFBench 742 (1,145), AIME 2,731 (5,572), LiveBench-Math 1,709 (3,609); Qwen tokenizer on Arbor's response log |
+| Test pass per example, 32 threads, one A100 | A, B | HotpotQA 2.9–3.7 s, HoVer 2.7–2.8 s, IFBench 6.3 s, AIME 6.5 s, LiveBench-Math 15.8 s (B's first job; AIME needed only 63 calls for 150 examples, F53). A complete math run with raised timeouts takes about 2 h (F56) |
+| MIPROv2 wall-clock, IFBench | B | Not finished in 3.6 h: bootstrapping 23 min, then 11 of 41 trials in 2 h 43 min; ≈ 10 h for the full run |
+| GEPA iteration time with 1, 2 and 6 runs per server | A | Not measured yet (§2.3) |
+| Mean GPU utilization | A, B | A's Baseline jobs 65–67% (start-up included); B's first job 86% |
+| Run-to-run spread, Baseline | A | SD over 3 seeds: HotpotQA 2.22, HoVer 1.17 points; any two runs agree on 82–90% of examples |
 
 ---
 
-## 2. Cost per table and variant
+## 5. Run log
 
-- **SBUs** come from the course budget, so they're free for me, but the budget is shared and I want to use as few as possible.
-- **OpenAI API costs** are the only out-of-pocket money. They're shown in € at **€0.88 per $**. OpenAI bills in $ and may add **21% Dutch VAT** on a private account.
-- **Uncertainty:** SBU numbers are a first-principles estimate, ±2×. API numbers are ±25%. Both get replaced with measured numbers in step 5.1, after the pilots in Phase 4.
-- **Order of runs:** within a table, a GEPA-family run needs the MIPROv2 run, and MIPROv2 needs the Baseline (F20). So reproducing a GEPA row means paying for those two rows as well.
+One row per job; add new rows at the bottom.
 
-### 2.1 What the numbers are based on
-
-**Known exactly** (from the code and the paper)
-- Rollout budgets per benchmark: Table 1 / `known_max_calls`.
-- GRPO schedule: 500 steps × 48 rollouts, plus a val eval every 20 steps.
-- LM calls per rollout: HotpotQA 4, HoVer 4, IFBench 2, PUPA 2 local plus OpenAI calls, math 1.
-- Concurrency: 32 threads for evaluations, minibatches of 3 in GEPA.
-- The paper's API costs for the GPT-4.1-mini runs (appendix E.3).
-- Prices: H100 = 192 SBU/h. The smallest CPU job is 16 cores = 16 SBU/h (F31). `gpt-4.1-mini` costs $0.40 per 1M input tokens and $1.60 per 1M output tokens.
-
-**Assumed** (the step that measures each one is in brackets)
-- Qwen3 output tokens per call with thinking on (F25): multi-hop modules 700, IFBench 1,200, PUPA 600, math 5,000. [4.3 only: the reference runs have no Qwen token counts, F33]
-- Qwen3-8B decode speed on 1× H100: ≈100 tok/s for one stream, ≈2,250 tok/s across 32 streams. [4.3, 4.4]
-- A GEPA iteration is 2 minibatches plus 1 reflection call, and GEPA spends ≈40% of its budget on full val evals. [4.4]
-- Packing 2–3 GEPA runs on one server slows each one by ≈15%. [4.4]
-- MIPROv2 reaches ≈70% of full throughput. [4.5]
-- GRPO LoRA training takes ≈0.34 s per 1k tokens per sequence. [4.6]
-- Each PUPA rollout makes 4 OpenAI calls (untrusted model, 2 quality judgments, 1 leakage count; F14). Together they come to ≈3.4k input + 0.8k output tokens, about $0.0027. PUPA's splits are 111 train / 111 val / 221 test (F24). [4.7]
-
-### 2.2 Table 1: Qwen3-8B (6 benchmarks, 1 H100 per job)
-
-| Variant | Needs first | SBU | API € | Why |
-|---|---|---|---|---|
-| Baseline | – | ~300 | ~0.5 | Up to 300 test rollouts per benchmark (AIME 150, PUPA 221) on 32 threads, so short; mostly GPU startup. API: PUPA only, 221 rollouts × $0.0027 |
-| MIPROv2 | Baseline | ~3,100 | ~6.5 | 1,839–7,051 rollouts per benchmark in batches of 35, which keeps the GPU busy. API: PUPA's 2,426 + 221 rollouts |
-| GEPA | MIPROv2 | ~10,600 | ~6.5 | Same rollout budget as MIPROv2, but it works on 3 examples at a time and makes one reflection call at a time, so the GPU mostly waits (F3). HotpotQA alone is ≈690 iterations × ≈70 s ≈ 15 h |
-| GEPA+Merge | MIPROv2 | **~1,600** in the same job as GEPA (~10,600 alone) | ~6.5 | Shares GEPA's server; the second process only adds ≈15% wall-clock |
-| GRPO | – | ~84,600 | ~65 | 3 GPUs × 12–32 h per benchmark: 24,000 training rollouts, a LoRA update every 48 rollouts, and 25 val evals. PUPA's reward calls the OpenAI judge for each of ≈27,000 rollouts (24,000 train + 25 × 111 val + 221 test) |
-| **Total** | | **~15,600** without GRPO, **~100,200** with | **~20** without GRPO, **~85** with | |
-
-SBU per benchmark:
-
-| Variant | HotpotQA | HoVer | IFBench | PUPA | AIME-2025 | LiveBench-Math |
-|---|---|---|---|---|---|---|
-| Baseline | 49 | 49 | 46 | 37 | 47 | 64 |
-| MIPROv2 | 776 | 793 | 417 | 223 | 436 | 436 |
-| GEPA | 2,833 | 2,906 | 1,335 | 673 | 1,428 | 1,446 |
-| GEPA+Merge (same job as GEPA) | 425 | 436 | 200 | 101 | 214 | 217 |
-| GRPO | 18,461 | 18,461 | 10,573 | 7,018 | 14,382 | 15,754 |
-
-Cross-check with the authors' run times (F37), and one known addition:
-- **GEPA:** it took 1.2–6.4 h per run on 4-GPU servers. One GPU makes each call about 1.8× slower, which suggests at most ~12 h. So the ~15 h for HotpotQA above is on the safe side.
-- **GRPO:** 12–24 h on 3 GPUs, which matches.
-- **MIPROv2:** 1.1–4.7 h on 4 GPUs. It keeps the GPU busy, so on one GPU it may take up to 2–3× longer than assumed above. Pilot 4.5 settles this.
-- **Not included above:** GEPA-family runs use 2–23% more metric calls than their budget (F36).
-
-### 2.3 Table 2: GPT-4.1-mini (6 benchmarks, API only, 16-core CPU jobs)
-
-| Variant | Needs first | SBU | API € | Why |
-|---|---|---|---|---|
-| Baseline | – | ~12 | ~5 | ≈1,400 test rollouts over the 6 test sets, at $0.002–0.004 each (bottom-up) |
-| MIPROv2 | Baseline | ~55 | ~67 | The paper reports $76 for all 6 benchmarks (appendix E.3). Bootstrapped few-shot demos make prompts longer, so cost is mostly input tokens |
-| GEPA | MIPROv2 | ~290 | ~76 | The paper reports $86. My bottom-up check gives $95, and HotpotQA + HoVer account for about $64 of it. Those programs make 4 calls per rollout with about 1.8k input tokens each, over a ~7k-rollout budget |
-| GEPA+Merge | MIPROv2 | **~30** in the same CPU job as GEPA (~290 alone) | ~59 | The paper reports $67. Cheaper than GEPA, plausibly because merge steps combine existing prompts without a reflection call |
-| GEPA-Qwen-Opt | Table 1 GEPA | ~12 | ~5 | Test-set eval of the Qwen3-8B-optimized programs with GPT-4.1-mini. Needs a small extra script (F30) |
-| **Total** | | **~400** | **~212** from the paper's per-variant figures; **~260** (≈ $296, ~€315 with VAT) by the artifact's own accounting of the shipped GPT runs (§8) | Budget for the higher number. One GEPA run costs $6–25. Plus about €2–5 for pilots |
-
-- **CPU time:** these runs mostly wait on the API, so the cost is small whatever the run time.
-- **Rate limits (F29):** if pilot 4.7 shows rate-limit errors, lower `--num_threads`. That costs a few extra CPU SBU but avoids silently wrong scores.
-- **Not reproducible here:** Trace, TextGrad and MIPROv2-No-Demos aren't in this repo (F30).
-
-### 2.4 Table 3: candidate selection, Qwen3-8B (HotpotQA, IFBench, HoVer, PUPA)
-
-| Variant | Needs first | SBU | API € | Why |
-|---|---|---|---|---|
-| Baseline | – | 0 | 0 | Reused from Table 1 |
-| GEPA | – | 0 | 0 | Reused from Table 1 |
-| SelectBestCandidate | Table 1 MIPROv2 | **~700** as a third process in the Table 1 GEPA jobs (~7,700 alone) | ~6.5 | `Abl-SelectBestCandidate`: same budget as GEPA, only the candidate selection differs. API: PUPA only |
-| BeamSearch | – | – | – | Not in this repo (F30) |
-
-### 2.5 Figures
-
-- **Figure 1** (learning curves) comes from the Table 1 logs, but it needs GRPO on HotpotQA and IFBench: ~29,000 SBU, €0 API.
-- **Figures 2–6** come from the runs above at no extra cost.
-- **Figures 7–8** aren't in this repo.
-
-### 2.6 Summary and how to keep SBUs low
-
-| Scope | SBU | API € |
-|---|---|---|
-| Table 1 without GRPO, plus Table 3 (packed) | ~16,300 | ~27 |
-| Table 2 | ~400 | ~212–260 (~255–315 with VAT) |
-| GRPO for HotpotQA + IFBench (Figure 1) | ~29,000 | 0 |
-| GRPO for the other 4 benchmarks | ~55,600 | ~65 (PUPA judge) |
-| **Everything** | **~101,300** | **~304–352** (~368–426 with VAT) |
-
-Ways to keep SBUs low, biggest saving first:
-1. **Decide GRPO's scope.** It's 84% of all SBUs. The HotpotQA + IFBench subset covers Figure 1 for 29k.
-2. **Run GEPA, GEPA+Merge and SelectBestCandidate in one job per benchmark.** That saves about 16k SBU compared with separate jobs.
-3. **Use one GPU per server** instead of the README's four (F2). Otherwise everything costs about 4× more.
-4. **Chain jobs with `--dependency=afterok`**, so no job sits on a GPU waiting for MIPROv2 (F20).
-5. **Smoke-test with the metric-call cap in a separate directory** (step 3.1), never with a full run.
-
-Add about 25% contingency for pilots and reruns.
-
-### 2.7 For comparison: running the default matrix as is
-
-"As is" means all 72 generated commands, each run in its own job, with the authors' resource layout:
-- 4-GPU tensor-parallel Arbor servers for every Qwen run except GRPO.
-- 3 GPUs for GRPO.
-- GPT-4.1-mini runs on 16-core CPU jobs.
-
-The SBU numbers assume a 4-GPU server is about 3× faster than one GPU for throughput-bound runs and about 1.8× faster for latency-bound runs.
-
-| Variant | SBU, default layout | SBU, this plan | API €, Qwen3-8B (PUPA) | API €, GPT-4.1-mini |
-|---|---|---|---|---|
-| Baseline | ~1,100 | ~300 | ~0.5 | ~5 |
-| MIPROv2-Heavy | ~5,300 | ~3,100 | ~6.5 | ~67 |
-| GEPA | ~24,100 | ~10,600 | ~6.5 | ~76 |
-| GEPA-MERGE | ~24,100 | ~1,600 (packed) | ~6.5 | ~59 |
-| Abl-SelectBestCandidate | ~24,100 | ~1,000 (packed, 6 benchmarks) | ~6.5 | ~76 (not in any paper table) |
-| GRPO | ~84,600 | ~84,600 | ~65 | 0: fails at start (F32) |
-| GPT-4.1-mini CPU jobs, all variants | ~940 | ~410 | | |
-| **Total** | **~164,000** (~79,500 without GRPO) | **~101,600** (~17,000 without GRPO) | **~92** | **~283** |
-
-- **API spend for the full default matrix:** about **€375**, or about **€455 with VAT**. With 25% contingency, about €470 (≈ €565 with VAT).
-- **Not counted above:** two traps that would burn SBUs for nothing in the default setup.
-  - Submitting every command at once leaves the GEPA-family jobs idle on 4 GPUs while they wait for MIPROv2 (F20): about +17,000 SBU.
-  - Following the `num_gpus = 4` metadata (F1) for the GPT-4.1-mini runs would put API-only runs on GPU nodes: about +44,000 SBU.
-- **F32. The `GRPO × gpt-41-mini` commands can't work.** GRPO calls `lm.reinforce()` before its first validation (`dspy/teleprompt/grpo.py` in the fork), and the OpenAI provider isn't reinforceable. So these 6 commands fail with an assertion before any API call.
-  → Drop them from the selection. The same goes for `GPT × Abl-SelectBestCandidate` unless I want it: it costs about €76 and appears in no paper table (Table 3 is Qwen3-8B only).
+| Date | Who | Job ID | Benchmark | Variant | Commit | Wall-clock | SBU | Score | Notes |
+|---|---|---|---|---|---|---|---|---|---|
+| 2026-11-04 | A | 28902285 | HotpotQA, HoVer | BM25 index (1.7) + network check (4.1) | `2378040` | 6 min 18 s | ~2.5 | – | `genoa`, 24 cores, peak 7.9 GB RAM, one core in use |
+| 2026-11-04 | B | 28901861 | IFBench, AIME, LiveBench-Math | Baselines (first try) | `b-tonight` | ~14 min | ~29 | – | H100; Arbor didn't start (not installed in its venv, F41); cancelled |
+| 2026-11-04 | B | 28903967 | IFBench, AIME, LiveBench-Math | dry run + Baselines + MIPROv2 | `7adf8ca` | – | 0 | – | H100; cancelled while pending, estimated start was 2026-11-08 (F47) |
+| 2026-11-04 | B | 28908296–98 | IFBench, AIME, LiveBench-Math | Baselines, one job each | `7adf8ca` | ~10 min each | ~34 | – | `gpu_mig` (A100 3g.20gb); vLLM doesn't fit with the authors' 32,768 context (F51); cancelled |
+| 2026-11-05 | B | 28908434 | IFBench, AIME, LiveBench-Math | dry run (4.2), Baselines (4.3), MIPROv2-Heavy IFBench (4.5) | `7adf8ca` | 5 h 00 min (time limit) | 640 | 36.56 / 19.33 / 33.58 | A100 (`gcn22`), 18 cores; `7adf8ca` = `build/pin-env` before `0ec5585` + `feat/replay-and-analysis`; MIPROv2 cut at trial 12/41; B total so far 703 SBU |
+| 2026-11-05 | B | 28916886 | AIME, LiveBench-Math | Baselines, seed 1 | `7adf8ca` | 43 min | 91 | 26.00 / 53.02 | A100 (`gcn40`); fresh server; parse failures far fewer than seed 0 (F52) |
+| 2026-11-05 | B | 28920832 | IFBench, AIME, LiveBench-Math | Baselines, seed 1, vLLM 0.9.1 | `7adf8ca` | 83 min | 176 | 36.73 / 14.00* / 35.96* | A100; `~/arbor091`; output in `~/vllm091_runs/experiment_runs/seed_1`; 642 requests hit Arbor's 300 s timeout (504), 144 client timeouts; logged examples 278/294, 97/150, 87/126; the two math scores are invalid (F54); B total 1066 SBU |
+| 2026-11-05 | B | 28925784 | AIME, LiveBench-Math | Baselines, seed 1, vLLM 0.9.1, Arbor timeout 1800 s | `7adf8ca` | 8 min | 16 | 13.33* / 37.54* | only 13 requests reached the server, the rest came from `~/.dspy_cache` including the timed-out answers of 28920832 (F55); void |
+| 2026-11-05 | B | 28926616 | AIME, LiveBench-Math | Baselines, seed 1, vLLM 0.9.1, fresh DSPy cache, Arbor timeout 1800 s | `7adf8ca` | 87 min | 186 | 27.33 / 41.46 | A100; clean run (no cache hits); 0 HTTP 504 but 45 examples lost to the OpenAI client's default 600 s timeout (AIME 82/150 logged, LiveBench 104/126); of 144 completed responses 126 parsed (88 with unclosed `<think>`); B total 1268 SBU |
+| 2026-11-05 | B | 28929002 | AIME, LiveBench-Math | final Baselines, seed 0: vLLM 0.9.1, fresh cache, both timeouts 1800 s | `c3ca457` | pending | ≤288 | – | `~/final_baselines` |
+| 2026-11-05 | B | 28929003 | IFBench, AIME, LiveBench-Math | final Baselines, seed 1: same settings | `c3ca457` | pending | ≤352 | – | `~/final_baselines` |
+| 2026-11-05 | B | 28919079 | AIME, LiveBench-Math | Baselines, seed 0, vLLM 0.9.1 | `7adf8ca` | 45 min | 96 | 26.67 / 42.71 | A100 (`gcn23`); `~/arbor091` (vllm 0.9.1, torch 2.7.0, transformers 4.53.3); output in `~/vllm091_runs`; some requests hit Arbor's 300 s timeout (504) and score 0; B total 890 SBU |
+| 2026-11-05 | A | 28918117 | HotpotQA | Baseline (4.3) | `fe389b8` | 17 min 46 s | 38 | 39.67 | A100 (`gcn40`); vLLM 0.8.5.post1; 7 failed examples; 1,190 requests; server ready after 196 s |
+| 2026-11-05 | A | 28918118 | HoVer | Baseline (4.3) | `fe389b8` | 17 min 0 s | 36 | 35.67 | A100 (`gcn23`); vLLM 0.8.5.post1; 0 failed; 1,201 requests; server ready after 160 s |
+| 2026-11-05 | A | 28922239 | HotpotQA | Baseline, run 2 | `9d890e5` | 15 min 43 s | 34 | 40.67 | meant as vLLM 0.9.1 but served 0.8.5.post1 (F63); 6 failed; 1,189 requests; `~/vllm085_rep2_runs` |
+| 2026-11-05 | A | 28922242 | HoVer | Baseline, run 2 | `9d890e5` | 16 min 20 s | 35 | 34.33 | as 28922239; 2 failed; 1,198 requests; `~/vllm085_rep2_runs` |
+| 2026-11-05 | A | 28923152 | HotpotQA | Baseline, vLLM 0.9.1 | `109e564` | 19 min 3 s | 41 | 42.33 | A100 (`gcn49`); vLLM 0.9.1 confirmed in the log; 6 failed; 1,193 requests; `~/vllm091_runs` |
+| 2026-11-05 | A | 28923153 | HoVer | Baseline, vLLM 0.9.1 | `109e564` | 35 min 15 s | 75 | – | failed: vLLM compile-cache collision with 28923152 on `gcn49` (F64); A total so far 261 SBU |
+| 2026-11-05 | A | 28927510 | HoVer | Baseline, seeds 0, 1, 2 (vLLM 0.9.1) | `672c0bb` | 44 min 8 s | 94 | 35.67 / 37.00 / 38.00 | A100 (`gcn71`); its own compile cache worked (F64); 0 failed in all three; 3,601 requests; 0 timeouts; `~/vllm091_runs` |
+| 2026-11-05 | A | 28927513 | HotpotQA | Baseline, seeds 1, 2 (vLLM 0.9.1) | `672c0bb` | 39 min 44 s | 85 | 42.67 / 38.67 | A100 (`gcn43`); 0 and 5 failed; 2,396 requests; 5 timeouts, all retried; `~/vllm091_runs`; A total ~440 SBU |
 
 ---
 
-## 3. Findings and implications
+## 6. Findings
 
-Findings from reading the code, the forks (`gepa_study` branches) and the paper, and from inspecting the Snellius account on 2026-11-04. B checked them against the authors' logs, caches and code the same day:
-- **Confirmed as written:** F1, F3, F5, F10, F12, F14, F15, F17, F18–F24, F27, F28, F29, F30, F32.
-- **Corrected:** F7, F13 and F25, and F27/F29 got additions. These are marked *Check (B)*.
-- **Not checked:** the rest, which are about Snellius, Arbor or OpenAI specifics.
-- **New findings from the check:** F33–F39, in group F.
+Findings from the code, the forks (`gepa_study` branches), the paper, the authors' logs and our own runs. Step and pilot numbers in them (e.g. "step 1.7", "pilot 4.4") refer to the phase plan used until 2026-11-05, which is in git history (`60b8e91`).
+
+**For the optimizer runs, these matter most:**
+- **Chain and directories:** F18, F19, F20 (each step copies the previous step's cache; one directory per chain; never extract the authors' runs into `experiment_runs_data/`).
+- **Budget:** F36 (GEPA uses 2–23% more metric calls than its budget; report both), F21 (`--dry_run` doesn't shrink it; pilots use `GEPA_MAX_METRIC_CALLS`).
+- **Speed and packing:** F3 (GEPA is limited by latency, so runs can share a server), F37 (the authors' run times), F58 (Arbor's 64-token chunks), F44 (timing-test design).
+- **Safety:** F57 (a GEPA run whose calls all fail never ends; the watchdog stops it), F54 and F56 (timeouts on long answers), F55 (check the request count), F63 and F64 (the Snellius job environment, the vLLM compile cache).
+- **Fidelity:** F60 (the post-paper GEPA fix), F59 (context window), F61 (identical GEPA and GEPA+Merge math cells), F62 (the authors' vLLM and server), F65 (format failures vary by run), F35 (count reflections), F39 (search-tree checks), F66 (no W&B account needed).
 
 ### A. Hardware and compute
 
@@ -381,6 +278,8 @@ Findings from reading the code, the forks (`gepa_study` branches) and the paper,
   - LiveBench-Math: about ⅓ each (`livebenchmath_data.py`).
 
   A seed other than 0 reshuffles train and val only; test stays fixed (`run_experiments.py`).
+- **F32. The `GRPO × gpt-41-mini` commands can't work.** GRPO calls `lm.reinforce()` before its first validation (`dspy/teleprompt/grpo.py` in the fork), and the OpenAI provider isn't reinforceable. So these 6 commands fail with an assertion before any API call.
+  → Drop them from the selection. The same goes for `GPT × Abl-SelectBestCandidate`: it costs about €76 and appears in no paper table (Table 3 is Qwen3-8B only).
 
 ### E. Fidelity of the reproduction
 
@@ -410,15 +309,15 @@ Findings from reading the code, the forks (`gepa_study` branches) and the paper,
 - **F34. Target numbers against the shipped runs.** 46 of 58 cells match, 1 differs, and 11 have no run.
   - The one that differs: the paper's GPT-4.1-mini LiveBench-Math GEPA cell (64.13) is the GEPA+Merge run. The shipped GEPA run scores 59.43.
   - There are no reference runs at all for the Qwen3-8B math cells.
-  → B's AIME-2025 and LiveBench-Math results can only be compared with the paper's numbers, not with the authors' logs (see the notes in §4).
+  → B's AIME-2025 and LiveBench-Math results can only be compared with the paper's numbers, not with the authors' logs (see §1).
 - **F35. The appendix's reflection-call counts match only the GEPA+Merge runs.** Plain GEPA on AIME made 100 reflection calls; the appendix table says 24.
   → Count them in our own runs from `instruction_proposer_inpouts.jsonl` in each run directory. The typo in the name is in the code itself (`gepa_artifact/gepa/gepa.py:549`).
 - **F36. GEPA-family runs overshoot their budget.** Every shipped GEPA-family run used 2–23% more metric calls than `max_metric_calls`, because the last validation pass isn't cut off.
-  → Ours will do the same. Report both the budget and the calls actually used, and add up to ~20% to GEPA's SBU estimate (§2, step 5.1).
+  → Ours will do the same. Report both the budget and the calls actually used, and add up to ~20% to GEPA's SBU estimate (§2.2).
 - **F37. The authors' run times, from their logs.**
   - Qwen3-8B on 4-GPU servers: GEPA 1.2–6.4 h, MIPROv2 1.1–4.7 h. GRPO on 3 GPUs: 12–24 h.
   - GPT-4.1-mini runs: 1–4 h, except GEPA on AIME at 9 h.
-  → §2's ~15 h for GEPA on HotpotQA on one H100 is on the safe side, and the GRPO estimate matches. MIPROv2 keeps the GPU busy, so on one GPU it may take up to 2–3× longer than §2 assumes; pilot 4.5 settles this.
+  → The old plan's ~15 h for GEPA on HotpotQA on one H100 is on the safe side, and the GRPO estimate matches. MIPROv2 keeps the GPU busy, so on one GPU it may take up to 2–3× longer than §2 assumes; pilot 4.5 settles this.
 - **F38. Baselines can be replayed for free.** The shipped DSPy caches don't depend on the API key. So a reference Baseline can be replayed on Snellius without a GPU or a key (`scripts/replay_test_eval.py`, on B's `feat/replay-and-analysis`).
   - Optimized candidates still miss the cache, for an unknown reason.
   - A final GEPA test evaluation through the API costs about $1.
@@ -472,7 +371,7 @@ Findings from reading the code, the forks (`gepa_study` branches) and the paper,
   → Report math cells with ≥2 seeds and the format-failure count per run. Count parse failures after every run (`check_run.sh`). Proposal: move the Arbor lock to vLLM 0.9.1 (the authors' version for 22 of 27 runs; needs `transformers<4.54`) before the optimizer runs.
 - **Timeouts and cache are infrastructure, not the method (decision 2026-11-05).** Raising Arbor's `batch_request_timeout_seconds` (300 → 1800 s, F54) and the LM client `timeout` (600 → 1800 s, F56) does not change the model, prompts, sampling parameters or optimizers; it only stops answers from being thrown away and scored 0 because one A100 is slower than the authors' 4-GPU server. A run that silently drops 45 of 276 math examples is a different experiment from the paper's, so the final Baseline numbers are produced with both timeouts raised and a fresh `DSPY_CACHEDIR` per job (F55). We report these three artifact defaults as reproducibility pitfalls. Final Baseline runs: jobs 28929002 (seed 0: AIME, LiveBench-Math) and 28929003 (seed 1: IFBench, AIME, LiveBench-Math) in `~/final_baselines`; IFBench seed 0 is kept from job 28908434 (clean run, no timeouts). Note that the seed does not change the Baseline test prompts, so "seed 0 / seed 1" here are two independent samples of the same evaluation.
 - **F56. With the Arbor timeout raised, the next limit is the client's 600 s default.** Clean run 28926616: 0 HTTP 504, but 45 math examples (68 AIME rows, 22 LiveBench) raised `APITimeoutError` after 600 s and are scored 0. The LM is built in `run_experiments.py` (`dspy.LM(**config, **fixed_config)`, `max_tokens=16384`) without a `timeout`, so litellm/OpenAI's default applies. On one A100 with 32 threads a 16k-token answer can easily queue longer than that. → Add `"timeout": 1800` to `fixed_config` next to `max_tokens` (and keep Arbor's `batch_request_timeout_seconds` ≥ that), or run math on more GPUs (authors: TP=4). Expect a complete math run to take ~2 h on one A100.
-- **F55. All B runs after the first one shared one DSPy disk cache, so they were not independent.** `run_experiments.py` sets `DSPY_CACHEDIR` to a per-run folder under `experiment_cache_dirs/`, but in our setup DSPy still writes to `~/.dspy_cache` (the env var is set after DSPy is already imported, so the per-run folder stays empty). Requests that actually reached the vLLM server per job: 28908434: 2724; 28916886 (seed 1): 196; 28919079 (vLLM 0.9.1): 196; 28920832: 758; 28925784: 13. So the "seed 1" and "vLLM 0.9.1" Baseline scores in §7.1 are mostly replays of job 28908434's answers plus fresh answers only for the examples that had errored before; they do not measure run-to-run variance and F52's conclusion rests on those ~196 regenerated examples. The seed does not change the test prompts, so a rerun with a warm cache never re-queries the model. Job 28925784 even replayed the timed-out answers of 28920832. → Export a fresh `DSPY_CACHEDIR` per job (done for job 28926616: `--export=...,DSPY_CACHEDIR=/scratch-shared/$USER/dspy_cache_fresh_...`) and record the server request count (`inference_responses.jsonl` lines) in every §7.2 row. A: check that your runs do not hit `~/.dspy_cache` either.
+- **F55. All B runs after the first one shared one DSPy disk cache, so they were not independent.** `run_experiments.py` sets `DSPY_CACHEDIR` to a per-run folder under `experiment_cache_dirs/`, but in our setup DSPy still writes to `~/.dspy_cache` (the env var is set after DSPy is already imported, so the per-run folder stays empty). Requests that actually reached the vLLM server per job: 28908434: 2724; 28916886 (seed 1): 196; 28919079 (vLLM 0.9.1): 196; 28920832: 758; 28925784: 13. So the "seed 1" and "vLLM 0.9.1" Baseline scores recorded before job 28926616 are mostly replays of job 28908434's answers plus fresh answers only for the examples that had errored before; they do not measure run-to-run variance and F52's conclusion rests on those ~196 regenerated examples. The seed does not change the test prompts, so a rerun with a warm cache never re-queries the model. Job 28925784 even replayed the timed-out answers of 28920832. → Export a fresh `DSPY_CACHEDIR` per job (done for job 28926616: `--export=...,DSPY_CACHEDIR=/scratch-shared/$USER/dspy_cache_fresh_...`) and record the server request count (`inference_responses.jsonl` lines) in every §5 row. A: check that your runs do not hit `~/.dspy_cache` either.
   → *Check (A):* A's runs aren't affected. Every A job sent its full set of requests to the server (1,189–1,201 per HotpotQA or HoVer Baseline), each run's own cache folder holds 5.6–5.8 MB, and in A's checkout (`feat/pilot-caps`) `dspy` isn't imported before `run_experiments` sets `DSPY_CACHEDIR`. The authors' per-run caches have content too (5.7 MB per Baseline, 136 MB for HotpotQA MIPROv2, 220 MB for HotpotQA GEPA). So the early import is specific to B's checkout (`7adf8ca`).
 - **F54. Arbor's 300 s request timeout can wipe out a math run.** Job 28920832 (vLLM 0.9.1, seed 1, all three B Baselines in one job) lost 53/150 AIME and 39/126 LiveBench-Math examples to HTTP 504 (642 timed-out requests; `batch_request_timeout_seconds=300` in Arbor). Scores 14.00 / 35.96 are therefore meaningless; IFBench (36.73) was unaffected. Job 28919079 with the same server had only a few 504s, so the loss depends on how many long generations land in the same batch window. → Before the next math run, raise `batch_request_timeout_seconds` in the Arbor config (or give the math benchmarks their own job) and treat any run with many 504s as void.
 - **F53. AIME's 5 copies per problem are mostly not independent.** The test set is 30 problems × 5 (150 examples), but our job sent only 63 AIME requests: identical requests are answered from DSPy's cache. In our run, 2 of 26 logged problems have different scores across copies; in the authors' GPT runs 7–9 of 30 do.
@@ -480,75 +379,47 @@ Findings from reading the code, the forks (`gepa_study` branches) and the paper,
 
 ### I. From A's checks of the pilot tooling (2026-11-05)
 
-- **F56. A GEPA run whose LM calls all fail never ends.** A failed call never reaches the metric, so GEPA's metric-call count doesn't grow, and the budget check at the start of each iteration (`gepa.py:369`) never stops the run. GEPA logs "No feedback samples, skipping" and tries again. With no server running, an AIME GEPA dry run did 2,083 iterations in 5 minutes with `total_num_evals` stuck at 2, and wrote 50 MB of log (login node, `feat/pilot-caps`). Baseline and MIPROv2 runs just finish with zeros (F29).
+- **F57. A GEPA run whose LM calls all fail never ends.** A failed call never reaches the metric, so GEPA's metric-call count doesn't grow, and the budget check at the start of each iteration (`gepa.py:369`) never stops the run. GEPA logs "No feedback samples, skipping" and tries again. With no server running, an AIME GEPA dry run did 2,083 iterations in 5 minutes with `total_num_evals` stuck at 2, and wrote 50 MB of log (login node, `feat/pilot-caps`). Baseline and MIPROv2 runs just finish with zeros (F29).
   → `qwen_job.sh` on `feat/pilot-caps` has a watchdog. It stops the job's runs and exits 1 if Arbor exits, if vLLM fails its `/health/` check 3 times in a row, or if Arbor logs nothing for `STALL_MINUTES` (default 20) while runs are active. Tested against a fake server on the login node: crash and stall were both caught. GEPA pilots also get a `timeout`.
-- **F57. Arbor generates text in 64-token chunks and rebuilds the prompt between them.** Arbor's server (`arbor/server/services/inference/vllm_serve.py`) isn't vLLM's OpenAI server.
+- **F58. Arbor generates text in 64-token chunks and rebuilds the prompt between them.** Arbor's server (`arbor/server/services/inference/vllm_serve.py`) isn't vLLM's OpenAI server.
   - It pools requests that have the same sampling parameters and generates `token_chunk_size` = 64 tokens for up to 32 of them per `llm.chat` call. New requests go before ones that are being continued.
   - Each continuation re-sends the conversation plus `{"role": "assistant", "content": <text so far>}` with `continue_final_message=True`. With Qwen3's chat template (the April and the May 2025 revisions behave the same), a response that is still thinking becomes `<|im_start|>assistant\n<think>\n\n</think>\n\n<think>\n<text so far>`. The model sees an empty, closed think block before its own unclosed one. That fits the unclosed `<think>` of F52, which costs only 1–2 points there.
-  - It's a likely reason for the slow rollouts in §7.3 (one generate call every 64 tokens, small batches). Not measured.
+  - It's a likely reason for the slow rollouts in §4 (one generate call every 64 tokens, small batches). Not measured.
   - The chunking has been in Arbor since `d050c8f` (2025-05-31), before our `113fc35`, so the authors very likely ran with it too. To confirm, look for `[LIFECYCLE] Activated new pool` lines in the authors' `arbor_logs.txt`.
-  → Keep Arbor as it is for the reproduction. A larger chunk or vLLM's own server would probably be much faster, but it changes how text is generated. Decide in §5 (cost against fidelity).
+  → Keep Arbor as it is for the reproduction. A larger chunk or vLLM's own server would probably be much faster, but it changes how text is generated. Decide with the scope (§2.4: cost against fidelity).
 
-### J. From A's Baselines and the vLLM check (2026-11-05)
+### J. From A's Baselines, seeds and the vLLM check (2026-11-05 and 06)
 
-- **F58. The paper's context window differs from its own code.** Appendix E.2: "All models are allowed a context window of upto 16384 tokens for inference." The code starts vLLM with a 32,768-token context (every non-GRPO Arbor log, F51) and allows 16,384 output tokens per call (`max_tokens`).
+- **F59. The paper's context window differs from its own code.** Appendix E.2: "All models are allowed a context window of upto 16384 tokens for inference." The code starts vLLM with a 32,768-token context (every non-GRPO Arbor log, F51) and allows 16,384 output tokens per call (`max_tokens`).
   → We follow the code and the logs. Say so in the write-up.
-- **F59. Upstream changed GEPA after the paper's runs.** Commit `29220ba` (2026-02-07, part of our base `cbefbc1`) fixes the seed program's validation subscores being overwritten by the Pareto front: both pointed to the same list (`gepa_utils.py`, now wrapped in `list(...)`). The paper's runs (July 2025) ran without the fix. Baselines and MIPROv2 aren't affected.
+- **F60. Upstream changed GEPA after the paper's runs.** Commit `29220ba` (2026-02-07, part of our base `cbefbc1`) fixes the seed program's validation subscores being overwritten by the Pareto front: both pointed to the same list (`gepa_utils.py`, now wrapped in `list(...)`). The paper's runs (July 2025) ran without the fix. Baselines and MIPROv2 aren't affected.
   → Decide before the GEPA runs: keep the fix (correct code) or revert it (the paper's behaviour).
-- **F60. In all four math cells the paper prints the same score for GEPA and GEPA+Merge:** Qwen3-8B AIME 32.00 and LiveBench-Math 51.95, GPT-4.1-mini 59.33 and 64.13. Where the artifact can show it (GPT-4.1-mini LiveBench-Math), these are two different runs (59.43 and 64.13), and the paper printed the GEPA+Merge score in both cells (F34). For the Qwen math cells there are no shipped runs to check.
-- **F61. The authors' serving setup, from their 24 Arbor logs.**
+- **F61. In all four math cells the paper prints the same score for GEPA and GEPA+Merge:** Qwen3-8B AIME 32.00 and LiveBench-Math 51.95, GPT-4.1-mini 59.33 and 64.13. Where the artifact can show it (GPT-4.1-mini LiveBench-Math), these are two different runs (59.43 and 64.13), and the paper printed the GEPA+Merge score in both cells (F34). For the Qwen math cells there are no shipped runs to check.
+- **F62. The authors' serving setup, from their 24 Arbor logs.**
   - vLLM 0.9.1 in 19 runs and 0.9.2 in 5 (HotpotQA's GEPA, GEPA-MERGE and Abl-SelectBestCandidate, and two GRPO runs). None used our 0.8.5.post1 (F45).
   - Their HotpotQA Baseline server: `tensor_parallel_size=4`, a KV cache of 1.73M tokens (room for 53 full 32,768-token requests), vLLM seed 0. Ours on one A100 40 GB: 1 GPU, 133k tokens (room for 4), seed unset. Both: Flash Attention, no FlashInfer, 32,768-token context, 0.9 GPU memory, prefix caching.
   - Their runs ran 2025-07-05 (HoVer) to 2025-07-08 (HotpotQA). A benchmark's three GEPA-family runs started together.
   → `envs/arbor-vllm091-requirements.txt` (vLLM 0.9.1, torch 2.7.0, transformers 4.53.3, 165 packages) builds `~/arbor-envs/vllm091`. Resolve it with `uv pip compile --no-config`: otherwise uv also applies the main project's pins, because the Arbor fork sits inside our repo. Pass the environment as `qwen_job.sh`'s 2nd argument.
-- **F62. Snellius drops the environment of `sbatch`.** `/run/slurm/conf/cli_filter.lua` sets `--export=NONE` for every job, so a variable set in front of `sbatch` never reaches it.
+- **F63. Snellius drops the environment of `sbatch`.** `/run/slurm/conf/cli_filter.lua` sets `--export=NONE` for every job, so a variable set in front of `sbatch` never reaches it.
   - A's first two "vLLM 0.9.1" jobs (28922239, 28922242) therefore served 0.8.5.post1. They count as second 0.8.5 runs (`~/vllm085_rep2_runs`).
   - A pilot started that way would lose `GEPA_EXPERIMENT_DIR` and `GEPA_MAX_METRIC_CALLS` and run uncapped in the real directory.
   → Per-run variables go at the start of each command line, the Arbor environment is `qwen_job.sh`'s 2nd argument, and anything else goes through `sbatch --export=VAR=value`. Check the job log's `arbor venv:` and `job settings:` lines.
-- **F63. vLLM 0.9 jobs that start together can break each other.** vLLM compiles the model at start-up into `~/.cache/vllm/torch_compile_cache`. Jobs 28923152 and 28923153 started in the same second on `gcn49`; the second read the first's half-written artifact ("vLLM failed to compile the model"), and the warm-up retried for 35 min (75 SBU, no result).
+- **F64. vLLM 0.9 jobs that start together can break each other.** vLLM compiles the model at start-up into `~/.cache/vllm/torch_compile_cache`. Jobs 28923152 and 28923153 started in the same second on `gcn49`; the second read the first's half-written artifact ("vLLM failed to compile the model"), and the warm-up retried for 35 min (75 SBU, no result).
   → `qwen_job.sh` sets `VLLM_CACHE_ROOT` per job and stops the warm-up at the first fatal vLLM message.
-- **F64. HotpotQA loses 5–7 test examples per run to format failures; the authors' Baseline lost none.**
+- **F65. HotpotQA loses 0–7 test examples per run to format failures.**
   - A failed example: one of the program's 4 calls comes back in a format the ChatAdapter can't read, so DSPy raises, the example scores 0 and isn't logged in `test.jsonl`. There's no retry and no fallback parser. Each failed example costs 0.33 points.
-  - Ours: 7 and 6 on vLLM 0.8.5.post1, 5 on 0.9.1. Authors: 0 in the Baseline, 1 in MIPROv2, 6 in GEPA. HoVer: ours 0 and 1, authors 0.
+  - Ours: 7 and 6 on vLLM 0.8.5; 6, 0 and 5 on 0.9.1 (seeds 0–2). Authors: 0 in the Baseline, 1 in MIPROv2, 6 in GEPA. HoVer: 0 and 2 on 0.8.5, 0 in all three 0.9.1 seeds; authors 0.
   - What Qwen wrote in run 1: another step's section name in 4 of 7 (e.g. `[[ ## answer ## ]]` in a summary step), reasoning left inside an unclosed `<think>` in 3, and broken text in 3 (a split header, "the his time working for"). Several have more than one.
-  - Not timeouts: Arbor's 300 s limit returns HTTP 504 with no text, and its client retries 3 times. Our runs had 1–2 per run, none reached DSPy, and every response ended with `stop`. For long math answers it's different (F54).
-  - Any two HotpotQA Baseline runs, ours or the authors', give the same score on 84–90% of examples. Our 0.9.1 run is no closer to the authors' (87.1%) than our 0.8.5 runs are (90.1%, 87.4%).
-  → Keep the authors' parser for the reproduction. Count failed examples after every run (`check_run.sh`) and report them next to the score. Known serving differences that remain: 1 vs 4 GPUs, the vLLM seed, the KV cache (F61).
+  - Not timeouts: Arbor's 300 s limit returns HTTP 504 with no text, and its client retries 3 times. Our runs had 0–5 per run, none reached DSPy, and every response ended with `stop`. For long math answers it's different (F54, F56).
+  - Any two HotpotQA Baseline runs, ours or the authors', give the same score on 84–90% of examples; our three 0.9.1 seeds 86–88% (HoVer 82–86%).
+  - `test.jsonl` can log an example twice (HotpotQA seeds 0 and 2, HoVer's second 0.8.5 run), so count unique `idx_in_split`, as `check_run.sh` does since `b7fc043`.
+  → Keep the authors' parser. Our seed 1 lost none, like the authors' Baseline, so the count varies by run rather than pointing to a setup difference. Report failed examples next to every score. Serving differences that remain: 1 vs 4 GPUs, the vLLM seed and the KV cache (F62).
+- **F66. GEPA runs without a W&B account.** With `WANDB_MODE=disabled`, wandb 0.19.10's `wandb.login(key=..., verify=True)` accepts a dummy key, and `wandb.init` and `wandb.log` do nothing. Those are the only W&B calls GEPA makes (`gepa_utils.py:372–387`, `gepa.py:350–587`). `qwen_job.sh` sets `WANDB_MODE=disabled` and `GEPA_USE_WANDB=0` by default.
+  → W&B is only needed for GRPO (F13).
 
 ---
 
-## 4. Paper target numbers
-
-Transcribed from the arXiv HTML version. Check against the PDF before the final comparison.
-
-**Table 1: Qwen3-8B**
-
-| Optimizer | HotpotQA | IFBench | HoVer | PUPA | AIME-2025 | LiveBench-Math | Aggregate |
-|---|---|---|---|---|---|---|---|
-| Baseline | 42.33 | 36.90 | 35.33 | 80.82 | 27.33 | 48.70 | 45.23 |
-| GRPO | 43.33 | 35.88 | 38.67 | 86.66 | 38.00 | 51.26 | 48.91 |
-| MIPROv2 | 55.33 | 36.22 | 47.33 | 81.55 | 20.00 | 46.60 | 47.84 |
-| GEPA | 62.33 | 38.61 | 52.33 | 91.85 | 32.00 | 51.95 | 54.85 |
-| GEPA+Merge | 64.33 | 28.23 | 51.67 | 86.26 | 32.00 | 51.95 | 52.40 |
-| *Rollout budget, GEPA (+Merge)* | 6871 | 3593 | 7051 | 2426 | 1839 | 1839 | 3936 |
-| *Rollout budget, GRPO* | 24000 | 24000 | 24000 | 24000 | 24000 | 24000 | 24000 |
-
-_Note (F34): the artifact has no reference runs for the Qwen3-8B AIME-2025 and LiveBench-Math cells. Our results there can only be compared with these printed numbers._
-
-**Table 2: GPT-4.1-mini** (rows that can be reproduced with this repo)
-
-| Optimizer | HotpotQA | IFBench | HoVer | PUPA | AIME-2025 | LiveBench-Math | Aggregate |
-|---|---|---|---|---|---|---|---|
-| Baseline | 38.00 | 47.79 | 46.33 | 78.57 | 49.33 | 58.20 | 53.03 |
-| MIPROv2 | 58.00 | 49.15 | 48.33 | 83.37 | 51.33 | 61.84 | 58.67 |
-| GEPA | 69.00 | 52.72 | 51.67 | 94.47 | 59.33 | 64.13 | 65.22 |
-| GEPA+Merge | 65.67 | 55.95 | 56.67 | 96.46 | 59.33 | 64.13 | 66.36 |
-
-_Note (F34): the GEPA LiveBench-Math cell (64.13) matches the shipped GEPA+Merge run. The shipped plain GEPA run scores 59.43._
-
----
-
-## 5. Decisions log
+## 7. Decisions log
 
 | Date | Decision | Why |
 |---|---|---|
@@ -564,160 +435,38 @@ _Note (F34): the GEPA LiveBench-Math cell (64.13) matches the shipped GEPA+Merge
 | 2026-11-04 | Arbor environment on Python 3.12 with vLLM 0.8.5.post1, built from one shared lockfile | uv resolves a different vLLM for other Python versions (F45); one lock keeps our servers identical |
 | 2026-11-04 | Step 1.7 runs on `genoa` (24 cores) | `rome` had no free nodes during the rolling reboot (F47); same price per core-hour |
 | 2026-11-04 | Main environment: pin all 285 package versions of an original run (`constraint-dependencies`) and lock for Python 3.12 only | B's review of PR #2 (F49): the full list exists, and with 8 pins, 58 packages still differed, including two that dspy uses during runs. Every original run used Python 3.12.9 |
-
-## 6. Conventions
-
-- Commits follow [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): summary`, with types `feat`, `fix`, `docs`, `chore`, `build`, `refactor`, `test`.
-- Upstream defaults stay unchanged. Every addition (cap, directory override, job scripts) is opt-in, so the original experiment matrix can still be run as is.
-- Secrets live outside the repo (`~/.config/gepa/secrets.env`).
-
-### Team workflow
-
-- **Branches:**
-  - `main` stays equal to upstream; update it only with `git pull upstream main`.
-  - `reproduction` is the shared branch for the plan, the tooling and the results.
-  - Code changes go through short branches (`feat/...`, `fix/...`) and a pull request into `reproduction`, reviewed by the other person.
-  - Results (§7) are committed straight to `reproduction` after `git pull --rebase`, as `docs(results): ...`.
-- **Who runs which benchmark:** a benchmark's whole chain (Baseline → MIPROv2 → GEPA variants) has to run in one person's experiment directory, because each step copies the previous step's cache (F20).
-
-  | Person | Benchmarks | Estimated SBU (§2, ±2×) |
-  |---|---|---|
-  | A | HotpotQA, HoVer | ~8.3k |
-  | B | IFBench, AIME-2025, LiveBench-Math | ~6.3k |
-- **Same environment:** both use uv 0.13.7 and the committed `uv.lock` (`uv sync --locked`). The Arbor environment is built from `envs/arbor-uv.lock` with `uv sync --locked --python 3.12` (F45) and checked against `envs/arbor-requirements.txt`. The copy is needed because the fork directory is ignored. Every row in §7.2 records the commit it ran on (`git rev-parse --short HEAD`).
-- **Shared budget:** we both draw from `gpuuva090`. Check `budget-overview` before submitting, and log each job's SBU in §7.2.
-- **Raw data:** run directories stay in each person's home.
-  - For the final figures, B packs their `experiment_runs/` into a tarball under `/scratch-shared/<user>/`, readable by group `gpuuva090_access`. Note that this group includes everyone on the course account.
-  - A unpacks it next to their own runs.
-- **No merge conflicts in §7:** each of us edits only their own cells and rows, and adds to §7.2 at the bottom instead of reordering.
-
-### Running a benchmark
-
-Every Qwen3-8B job goes through `scripts/snellius/qwen_job.sh` on one A100. This is the checklist we follow, built from the problems in F50–F64, and what each benchmark needs before its optimizer runs.
-
-**Before submitting**
-
-1. Commit first: the job log records the commit, or "+ uncommitted changes". Don't `git switch`, `pull` or `merge` while a job runs; it reads the code and the commands file from the checkout.
-2. Serve with the authors' vLLM 0.9.1: `qwen_job.sh <commands> $HOME/arbor-envs/vllm091` (F61). Without the 2nd argument the job serves 0.8.5.post1.
-3. Build each command with `make_command.sh <benchmark> <program> <optimizer>`, which checks the names. Put per-run variables at the start of the line (`GEPA_EXPERIMENT_DIR=… GEPA_MAX_METRIC_CALLS=…`), never in front of `sbatch` (F62). Real chain runs add `--use_cache_from_opt` (MIPROv2 ← Baseline, GEPA family ← MIPROv2-Heavy); pilots leave it out (F44).
-4. One experiment directory per serving setup and purpose. A chain runs in the directory whose Baseline was served by the same vLLM, because MIPROv2 copies the Baseline's cache and GEPA copies MIPROv2's (F20). A run that already finished in a directory is skipped.
-5. `mkdir -p logs`, then `bash scripts/snellius/sbu_guard.sh <hours × 128>` and `sbatch -p gpu_a100 -t <limit> -J <name> scripts/snellius/qwen_job.sh …`. Chain the steps with `--dependency=afterok:<job id>`. Lines ending in `&` share one server and `wait` waits for them (pilot 4.4).
-
-**After every job**
-
-1. In `logs/<name>-<id>.out`: `arbor venv: … (vllm 0.9.1)`, `job settings:`, `server ready`, each command's exit code, and no watchdog line (F56).
-2. `bash scripts/snellius/check_run.sh <run name>` (another directory: prefix `GEPA_EXPERIMENT_DIR=<dir>`): score, failed examples (test size − logged), parse failures.
-3. Requests that reached the server, `cat logs/arbor_requests_<id>/*/inference_requests.jsonl | wc -l` (F55), and timeouts, `grep -c "Timeout for chat request" logs/arbor-<id>.log` (F54).
-4. A row in §7.2 with commit, vLLM version, SBU, score, failed examples and request count.
-
-**Problems we hit**
-
-| Problem | Symptom | Handled by | Finding |
-| --- | --- | --- | --- |
-| Environment set in front of `sbatch` dropped | Log shows the default `arbor venv` or `<unset>` settings | 2nd argument, variables at the start of command lines | F62 |
-| Two vLLM 0.9 jobs start together | "vLLM failed to compile the model" | Per-job `VLLM_CACHE_ROOT`; warm-up stops on the first fatal message | F63 |
-| GEPA loops when every call fails | Thousands of "No feedback samples, skipping" iterations, budget unused | Watchdog in `qwen_job.sh`; `timeout` for pilots | F56 |
-| Arbor's 300 s request limit | HTTP 504; the example scores 0 | Matters for long math answers; raise both the server (300 s) and client (600 s) limits, recorded as a patch | F54 |
-| DSPy writing to `~/.dspy_cache` | Far fewer requests reach the server than the run needs | Check the request count after every run | F55 |
-| Format failures | `test.jsonl` has fewer lines than the test set | Keep the parser; report the count | F52, F64 |
-| `--dry_run` crash | `AttributeError: … dev_set` | Fixed on `feat/pilot-caps` | F50 |
-| `gpu_mig` too small | vLLM can't fit the 32,768-token context | Full GPUs only | F51 |
-| Queue | `PENDING (Priority)` for hours; H100 for days | 1-GPU jobs on `gpu_a100` | F47 |
-
-**A's benchmarks** (B adds IFBench, AIME-2025 and LiveBench-Math the same way)
-
-| | HotpotQA | HoVer |
-| --- | --- | --- |
-| Program (`--prog_name`) and calls per example | `HotpotMultiHop`, 4 | `HoverMultiHop`, 4 |
-| Test examples | 300 | 300 |
-| Output tokens per call, mean / p90 | 422 / 611 | 473 / 651 |
-| Baseline on one A100, 32 threads | ~15 min test pass, 34–41 SBU per job | ~15 min test pass, ~35 SBU per job |
-| Our Baselines (failed examples) | 39.67 (7) and 40.67 (6) on vLLM 0.8.5; 42.33 (5) on 0.9.1 | 35.67 (0) and 34.33 (1) on vLLM 0.8.5; 0.9.1 still to run |
-| Authors' scores: Baseline / MIPROv2 / GEPA / GEPA+Merge / SelectBest | 42.33 / 55.33 / 62.33 / 64.33 / 58.33 | 35.33 / 47.33 / 52.33 / 51.67 / 45.33 |
-| Authors' vLLM | 0.9.1; GEPA family 0.9.2 | 0.9.1 |
-| Rollout budget (MIPROv2 and GEPA family) | 6,871 | 7,051 |
-| Authors' metric calls used: MIPROv2 / GEPA / GEPA+Merge | 6,817 / 7,110 / 7,004 | 6,895 / 7,240 / 7,260 |
-| Authors' reflections: GEPA / GEPA+Merge / SelectBest | 132 / 64 / 74 | 93 / 50 / 126 |
-| Authors' run time on 4-GPU servers: MIPROv2 / GEPA / GEPA+Merge / SelectBest | 1.1 / 6.4 / 3.7 / 5.6 h | 4.7 / 5.6 / 1.8 / 2.8 h |
-| Timeouts per Baseline run | 1–2, all retried | 0–1 |
-| Retrieval | Local BM25 over 2017 Wikipedia abstracts; one index for both (step 1.7) | Same |
-| Our run directories | vLLM 0.8.5: `experiment_runs_data/` (run 1), `~/vllm085_rep2_runs` (run 2); vLLM 0.9.1: `~/vllm091_runs` | 0.8.5: the same two; 0.9.1: none yet (job 28923153 failed, F63) |
-
-Open before the first optimizer run: which directory holds the vLLM 0.9.1 chains, whether to keep upstream's GEPA fix (F59), and how many seeds each cell gets.
+| 2026-11-05 | Serve every further run with the authors' vLLM 0.9.1, passed as `qwen_job.sh`'s 2nd argument | 19 of the authors' 24 Arbor logs show 0.9.1 (F62). No measurable score difference from 0.8.5 at Baseline level, but it's the authors' setup |
+| 2026-11-05 | Raise Arbor's request limit and the client's timeout to 1,800 s, and use a fresh DSPy cache per job (B) | Timeouts and the cache are infrastructure, not the method; see the decision in §6 H (F54–F56) |
+| 2026-11-06 | Objective: Table 1 without an API key, 3 seeds per cell, reported as mean ± SD | A's Baselines vary by 1–2 points SD between seeds, and the paper's single runs fall inside that spread |
+| 2026-11-06 | The phase plan is removed from this file; it's in git history (`60b8e91`) | Setup and pilots are done; what remains is filling §1 |
 
 ---
 
-## 7. Results
+## 8. Team workflow and conventions
 
-Scores are the `score` column of `evaluation_results/evaluation_result.txt`: test set, in %. Fill in "ours"; the paper's value is in brackets. The letter after each benchmark says whose it is.
-
-### 7.1 Table 1: Qwen3-8B (without PUPA and GRPO)
-
-| Variant | HotpotQA (A) | HoVer (A) | IFBench (B) | AIME-2025 (B) | LiveBench-Math (B) |
-|---|---|---|---|---|---|
-| Baseline | 39.67; run 2: 40.67; vLLM 0.9.1: 42.33 (42.33) | 35.67; run 2: 34.33 (35.33) | 36.56; vLLM 0.9.1 seed 1: 36.73 (36.90) | 19.33; seed 1: 26.00; vLLM 0.9.1: 26.67; vLLM 0.9.1 seed 1: 14.00*; clean rerun 28926616: 27.33 (27.33) | 33.58; seed 1: 53.02; vLLM 0.9.1: 42.71; vLLM 0.9.1 seed 1: 35.96*; clean rerun 28926616: 41.46 (48.70) |
-| MIPROv2 | – (55.33) | – (47.33) | – (36.22) | – (20.00) | – (46.60) |
-| GEPA | – (62.33) | – (52.33) | – (38.61) | – (32.00) | – (51.95) |
-| GEPA+Merge | – (64.33) | – (51.67) | – (28.23) | – (32.00) | – (51.95) |
-
-_A's Baselines ran on one A100 each: runs 1 and 2 on vLLM 0.8.5.post1 (jobs 28918117/18, 28922239/42), the 0.9.1 run in job 28923152. Failed examples: HotpotQA 7, 6 and 5; HoVer 0 and 1 (F64)._
-_B's Baselines ran on one A100 (job 28908434). Test examples whose answer couldn't be parsed are scored 0: IFBench 10/294, AIME 39/150, LiveBench-Math 56/126 (F52)._
-_All seed-1 and vLLM 0.9.1 cells above were produced with a warm shared cache and are mostly replays of job 28908434 (F55). Job 28926616 is the first clean rerun (fresh cache, vLLM 0.9.1, seed 1): **AIME 27.33, LiveBench-Math 41.46**, with 45 examples scored 0 because the client gave up after 600 s (F56)._
-_* Job 28920832 (vLLM 0.9.1, seed 1): 53/150 AIME and 39/126 LiveBench-Math examples got no answer at all because the requests hit Arbor's 300 s timeout (642 HTTP 504s), so those two cells are invalid, not a model result. The IFBench cell from the same job is fine (278/294 logged). See F54._
-
-### 7.2 Run log (one row per job, add new rows at the bottom)
-
-| Date | Who | Job ID | Benchmark | Variant | Commit | Wall-clock | SBU | Score | Notes |
-|---|---|---|---|---|---|---|---|---|---|
-| 2026-11-04 | A | 28902285 | HotpotQA, HoVer | BM25 index (1.7) + network check (4.1) | `2378040` | 6 min 18 s | ~2.5 | – | `genoa`, 24 cores, peak 7.9 GB RAM, one core in use |
-| 2026-11-04 | B | 28901861 | IFBench, AIME, LiveBench-Math | Baselines (first try) | `b-tonight` | ~14 min | ~29 | – | H100; Arbor didn't start (not installed in its venv, F41); cancelled |
-| 2026-11-04 | B | 28903967 | IFBench, AIME, LiveBench-Math | dry run + Baselines + MIPROv2 | `7adf8ca` | – | 0 | – | H100; cancelled while pending, estimated start was 2026-11-08 (F47) |
-| 2026-11-04 | B | 28908296–98 | IFBench, AIME, LiveBench-Math | Baselines, one job each | `7adf8ca` | ~10 min each | ~34 | – | `gpu_mig` (A100 3g.20gb); vLLM doesn't fit with the authors' 32,768 context (F51); cancelled |
-| 2026-11-05 | B | 28908434 | IFBench, AIME, LiveBench-Math | dry run (4.2), Baselines (4.3), MIPROv2-Heavy IFBench (4.5) | `7adf8ca` | 5 h 00 min (time limit) | 640 | 36.56 / 19.33 / 33.58 | A100 (`gcn22`), 18 cores; `7adf8ca` = `build/pin-env` before `0ec5585` + `feat/replay-and-analysis`; MIPROv2 cut at trial 12/41; B total so far 703 SBU |
-| 2026-11-05 | B | 28916886 | AIME, LiveBench-Math | Baselines, seed 1 | `7adf8ca` | 43 min | 91 | 26.00 / 53.02 | A100 (`gcn40`); fresh server; parse failures far fewer than seed 0 (F52) |
-| 2026-11-05 | B | 28920832 | IFBench, AIME, LiveBench-Math | Baselines, seed 1, vLLM 0.9.1 | `7adf8ca` | 83 min | 176 | 36.73 / 14.00* / 35.96* | A100; `~/arbor091`; output in `~/vllm091_runs/experiment_runs/seed_1`; 642 requests hit Arbor's 300 s timeout (504), 144 client timeouts; logged examples 278/294, 97/150, 87/126; the two math scores are invalid (F54); B total 1066 SBU |
-| 2026-11-05 | B | 28925784 | AIME, LiveBench-Math | Baselines, seed 1, vLLM 0.9.1, Arbor timeout 1800 s | `7adf8ca` | 8 min | 16 | 13.33* / 37.54* | only 13 requests reached the server, the rest came from `~/.dspy_cache` including the timed-out answers of 28920832 (F55); void |
-| 2026-11-05 | B | 28926616 | AIME, LiveBench-Math | Baselines, seed 1, vLLM 0.9.1, fresh DSPy cache, Arbor timeout 1800 s | `7adf8ca` | 87 min | 186 | 27.33 / 41.46 | A100; clean run (no cache hits); 0 HTTP 504 but 45 examples lost to the OpenAI client's default 600 s timeout (AIME 82/150 logged, LiveBench 104/126); of 144 completed responses 126 parsed (88 with unclosed `<think>`); B total 1268 SBU |
-| 2026-11-05 | B | 28929002 | AIME, LiveBench-Math | final Baselines, seed 0: vLLM 0.9.1, fresh cache, both timeouts 1800 s | `c3ca457` | pending | ≤288 | – | `~/final_baselines` |
-| 2026-11-05 | B | 28929003 | IFBench, AIME, LiveBench-Math | final Baselines, seed 1: same settings | `c3ca457` | pending | ≤352 | – | `~/final_baselines` |
-| 2026-11-05 | B | 28919079 | AIME, LiveBench-Math | Baselines, seed 0, vLLM 0.9.1 | `7adf8ca` | 45 min | 96 | 26.67 / 42.71 | A100 (`gcn23`); `~/arbor091` (vllm 0.9.1, torch 2.7.0, transformers 4.53.3); output in `~/vllm091_runs`; some requests hit Arbor's 300 s timeout (504) and score 0; B total 890 SBU |
-| 2026-11-05 | A | 28918117 | HotpotQA | Baseline (4.3) | `fe389b8` | 17 min 46 s | 38 | 39.67 | A100 (`gcn40`); vLLM 0.8.5.post1; 7 failed examples; 1,190 requests; server ready after 196 s |
-| 2026-11-05 | A | 28918118 | HoVer | Baseline (4.3) | `fe389b8` | 17 min 0 s | 36 | 35.67 | A100 (`gcn23`); vLLM 0.8.5.post1; 0 failed; 1,201 requests; server ready after 160 s |
-| 2026-11-05 | A | 28922239 | HotpotQA | Baseline, run 2 | `9d890e5` | 15 min 43 s | 34 | 40.67 | meant as vLLM 0.9.1 but served 0.8.5.post1 (F62); 6 failed; 1,189 requests; `~/vllm085_rep2_runs` |
-| 2026-11-05 | A | 28922242 | HoVer | Baseline, run 2 | `9d890e5` | 16 min 20 s | 35 | 34.33 | as 28922239; 1 failed; 1,198 requests; `~/vllm085_rep2_runs` |
-| 2026-11-05 | A | 28923152 | HotpotQA | Baseline, vLLM 0.9.1 | `109e564` | 19 min 3 s | 41 | 42.33 | A100 (`gcn49`); vLLM 0.9.1 confirmed in the log; 5 failed; 1,193 requests; `~/vllm091_runs` |
-| 2026-11-05 | A | 28923153 | HoVer | Baseline, vLLM 0.9.1 | `109e564` | 35 min 15 s | 75 | – | failed: vLLM compile-cache collision with 28923152 on `gcn49` (F63); A total so far 261 SBU |
-
-### 7.3 Pilot measurements
-
-| Step | Who | Quantity | Measured | Assumed in §2 |
-|---|---|---|---|---|
-| 2.3 | B | Thinking mode in the authors' runs | on (cached `reasoning_content`, F25) | on |
-| 2.3 | B | Authors' run times on 4-GPU servers: GEPA / MIPROv2 / GRPO (3 GPUs) | 1.2–6.4 h / 1.1–4.7 h / 12–24 h (F37) | ≤15 h / ≤4.1 h / 12–32 h on our layout |
-| 4.2 | B | Server startup (job start until Arbor answers) | 238 s on A100 (~0.07 h); A: 114–196 s in 5 jobs | ~0.15 h |
-| 4.3 | A, B | Output tokens per call: HotpotQA / HoVer / IFBench / AIME / LiveBench | 422 / 473 / 742 / 2,731 / 1,709 (mean, Qwen tokenizer on Arbor's response log; p90 611 / 651 / 1,145 / 5,572 / 3,609) | 700 / 700 / 1,200 / 5,000 / 5,000 |
-| 4.3 | A, B | Seconds per rollout at 32 threads: multi-hop / IFBench / math | 2.9 (HotpotQA), 2.8 (HoVer) / 6.3 / 6.5 (AIME), 15.8 (LiveBench) on A100 (B: test-set wall-clock ÷ examples; AIME needed only 63 calls for 150 examples, F53) | ~1.2 / ~1.1 / ~2.2 |
-| 4.4 | A | Seconds per GEPA iteration with 1 / 3 / 6 runs sharing a server | – | ~70 / ~80 / ~90 |
-| 4.4 | A | Mean GPU utilization with 1 / 3 / 6 runs | – | – |
-| 4.5 | B | MIPROv2 wall-clock on IFBench | not finished in 3.6 h on A100: bootstrapping 23 min, then 11 of 41 trials in 2 h 43 min; ≈ 10 h for the full run | ~2.2 h |
-| 4.3–4.5 | B | Mean GPU utilization, whole job 28908434 (A100) | 86% | – |
-| 4.3 | A | Mean GPU utilization, HotpotQA and HoVer Baseline jobs (A100, start-up included) | 65–67% | – |
+- **Branches:** `main` stays equal to upstream. `reproduction` is the shared branch for the plan, the tooling and the results. Code goes through short `feat/...` or `fix/...` branches and a PR into `reproduction`, reviewed by the other person. Results (§1, §4, §5) go straight to `reproduction` after `git pull --rebase`, as `docs(results): ...`.
+- **Findings:** add new ones on `reproduction` after pulling, with the next free number. A finding written on a long-lived branch is renumbered before it's merged (F54–F56 collided twice).
+- **Ownership:** A runs HotpotQA and HoVer, B runs IFBench, AIME-2025 and LiveBench-Math, each in their own experiment directory (F20). Each of us edits only their own cells in §1 and adds their own rows at the bottom of §5.
+- **Same environment:** uv 0.13.7, `uv sync --locked`, and the Arbor environment from `envs/arbor-vllm091-requirements.txt` (§3). Every §5 row records the commit (`git rev-parse --short HEAD`), the vLLM version and the requests that reached the server.
+- **Budget:** both draw from `gpuuva090`. Run `scripts/snellius/sbu_guard.sh` before submitting and log each job's SBU in §5.
+- **Raw data:** run directories stay in each person's home. For the final tables and figures, B packs their `experiment_runs/` into a tarball under `/scratch-shared/<user>/`, readable by group `gpuuva090_access` (everyone on the course account), and A unpacks it next to their own runs.
+- **Commits** follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `docs`, `chore`, `build`, ...). Upstream defaults stay unchanged: every addition is opt-in. Secrets live outside the repo (`~/.config/gepa/secrets.env`).
 
 ---
 
-## 8. Analysis of the reference runs (B, 2026-11-04)
+## 9. Analysis of the reference runs (B, 2026-11-04)
 
-B ran this on a laptop, on the extracted reference data. The scripts are in `analysis/` on `feat/replay-and-analysis`; once that branch is merged, the same scripts serve step 8.2 for our own runs.
+B ran this on a laptop, on the extracted reference data. The scripts are in `analysis/` (merged with PR #1) and take `--runs-dir`, so they also work on our runs.
 
 | What | Result | Used in |
 |---|---|---|
-| Scripts in `analysis/` | Tables, budget curves, search trees, prompt sizes, generalization gap | 8.1, 8.2 |
-| Target numbers vs shipped runs | 46 of 58 cells match, 1 differs (GPT LiveBench-Math GEPA), 11 have no run | F34, §4 |
+| Scripts in `analysis/` | Tables, budget curves, search trees, prompt sizes, generalization gap | the write-up |
+| Target numbers vs shipped runs | 46 of 58 cells match, 1 differs (GPT LiveBench-Math GEPA), 11 have no run | F34, §1 |
 | Thinking mode | On (cached `reasoning_content`) | F25 |
-| Package versions of the original runs | Python 3.12.9, dspy 2.6.23, litellm 1.74.0.post1, openai 1.93.2, pydantic 2.11.7, ujson 5.10.0, cloudpickle 3.1.1, datasets 3.6.0 | F7, step 1.3 |
+| Package versions of the original runs | Python 3.12.9, dspy 2.6.23, litellm 1.74.0.post1, openai 1.93.2, pydantic 2.11.7, ujson 5.10.0, cloudpickle 3.1.1, datasets 3.6.0 | F7, F49 |
 | Run times | Qwen: GEPA 1.2–6.4 h and MIPROv2 1.1–4.7 h on 4 GPUs; GRPO 12–24 h on 3 GPUs. GPT runs 1–4 h (AIME GEPA 9 h) | F37, §2.2 |
-| GPT-4.1-mini cost | All shipped GPT runs ≈ $296 by the artifact's own accounting (≈ €260, more with VAT); one GEPA run $6–25 | §2.3 |
+| GPT-4.1-mini cost | All shipped GPT runs ≈ $296 by the artifact's own accounting (≈ €260, more with VAT); one GEPA run $6–25 | out of scope (Table 2) |
 | Budget overshoot | GEPA-family runs use 2–23% more metric calls than `max_metric_calls` | F36 |
 | Reflection calls | The appendix table matches only the GEPA+Merge runs (plain GEPA on AIME: 100 calls, not 24) | F35 |
 | Search trees | ~19 of ~100 proposals kept; the parent isn't the current best in 64–87% of iterations; 8 of 10 final prompts descend from such a pick; per-example best adds 7–27 points | F39 |
-| Seed noise | 4.7-point swing between two runs of the same method | F27, step 7.4 |
+| Seed noise | 4.7-point swing between two runs of the same method | F27 |
