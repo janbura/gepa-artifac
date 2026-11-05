@@ -1,6 +1,12 @@
+import os
 from pathlib import Path
 
-BASE_EXPERIMENT_DIR = str((Path(__file__).parent.parent / "experiment_runs_data").resolve())
+# where runs and caches are written; can be pointed somewhere else (e.g. a pilot folder).
+# ~ and relative paths are resolved here, so the result does not depend on the start folder
+BASE_EXPERIMENT_DIR = str(Path(os.environ.get(
+    "GEPA_EXPERIMENT_DIR",
+    Path(__file__).parent.parent / "experiment_runs_data",
+)).expanduser().resolve())
 
 MAX_CONTEXT_LENGTH = 8192
 MAX_CONTEXT_LENGTH_TRAINING = 8192
