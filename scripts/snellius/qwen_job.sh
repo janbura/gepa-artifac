@@ -19,6 +19,8 @@
 # Watchdog: if Arbor exits, vLLM stops answering its health check, or Arbor writes no response for
 # STALL_MINUTES (default 20) while runs are active, the job stops its runs and exits 1. Without it,
 # a GEPA run whose LM calls fail loops forever without using up its budget (F54).
+# Optional: ARBOR_VENV=<venv> serves from another Arbor environment, e.g. one with the authors'
+# vLLM 0.9.1 (envs/arbor-vllm091-requirements.txt); default gepa_artifact/utils/arbor/.venv.
 # Optional: PROGRESS_DIRS="<dir> ..." logs once a minute, for every run under those experiment
 # dirs, its metric calls (lines in metric_logs/{train,val}.jsonl) and reflections (lines in
 # instruction_proposer_inpouts.jsonl) to logs/progress-<job>.csv (pilot 4.4, F44).
@@ -37,6 +39,8 @@ nvidia-smi -L
 START=$(date +%s)
 DIRTY=$(git diff --quiet HEAD 2>/dev/null || echo " + uncommitted changes")
 echo "start $(date) on $(hostname), commit $(git rev-parse --short HEAD)$DIRTY, commands: $CMDS"
+ARBOR_VENV=${ARBOR_VENV:-$REPO/gepa_artifact/utils/arbor/.venv}
+echo "arbor venv: $ARBOR_VENV (vllm $("$ARBOR_VENV/bin/python" -c 'import importlib.metadata as m; print(m.version("vllm"))' 2>/dev/null || echo '?'))"
 
 # arbor writes request/response logs to ./storage, keep them out of the repo
 WORK=/scratch-shared/$USER/arbor_$JOB
@@ -44,7 +48,7 @@ mkdir -p "$WORK"
 STOPFILE=$WORK/stopped_by_watchdog
 PORT=$(( 20000 + ${SLURM_JOB_ID:-$$} % 20000 ))
 ALOG=logs/arbor-$JOB.log
-(source "$REPO/gepa_artifact/utils/arbor/.venv/bin/activate" && export PYTHONPATH="$REPO/gepa_artifact/utils/arbor" && cd "$WORK" && exec python -m arbor.cli serve --arbor-config "$REPO/scripts/snellius/arbor_inference_1gpu.yaml" --port $PORT > "$REPO/$ALOG" 2>&1) &
+(source "$ARBOR_VENV/bin/activate" && export PYTHONPATH="$REPO/gepa_artifact/utils/arbor" && cd "$WORK" && exec python -m arbor.cli serve --arbor-config "$REPO/scripts/snellius/arbor_inference_1gpu.yaml" --port $PORT > "$REPO/$ALOG" 2>&1) &
 ARBOR_PID=$!
 nvidia-smi --query-gpu=timestamp,utilization.gpu,memory.used --format=csv -l 30 > "logs/gpu-$JOB.csv" &
 SMI_PID=$!
