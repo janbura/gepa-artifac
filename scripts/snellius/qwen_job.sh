@@ -53,6 +53,9 @@ echo "job settings: STALL_MINUTES=$STALL_MINUTES PROGRESS_DIRS=${PROGRESS_DIRS:-
 WORK=/scratch-shared/$USER/arbor_$JOB
 mkdir -p "$WORK"
 STOPFILE=$WORK/stopped_by_watchdog
+# vLLM >= 0.9 compiles the model into a cache; a shared ~/.cache/vllm lets two jobs that start
+# together read each other's half-written artifacts ("vLLM failed to compile the model"). One per job.
+export VLLM_CACHE_ROOT=$WORK/vllm-cache
 PORT=$(( 20000 + ${SLURM_JOB_ID:-$$} % 20000 ))
 ALOG=logs/arbor-$JOB.log
 (source "$ARBOR_VENV/bin/activate" && export PYTHONPATH="$REPO/gepa_artifact/utils/arbor" && cd "$WORK" && exec python -m arbor.cli serve --arbor-config "$REPO/scripts/snellius/arbor_inference_1gpu.yaml" --port $PORT > "$REPO/$ALOG" 2>&1) &
@@ -85,6 +88,7 @@ READY=""
 for i in $(seq 1 90); do
   kill -0 $ARBOR_PID 2>/dev/null || break
   grep -qiE "out of memory|larger than the maximum number of tokens|no available memory for the cache|larger than the available KV cache memory" "$ALOG" 2>/dev/null && { echo "vllm did not fit on this gpu"; break; }
+  grep -qE "Engine core initialization failed|vLLM failed to compile the model|has no attribute 'chat'" "$ALOG" 2>/dev/null && { echo "vllm failed to start"; break; }
   if curl -s -m 600 "http://localhost:$PORT/v1/chat/completions" -H 'Content-Type: application/json' \
       -d '{"model": "arbor:qwen/qwen3-8b", "messages": [{"role": "user", "content": "Say ok."}], "max_tokens": 64}' | grep -q '"choices"'; then
     READY=1; break
