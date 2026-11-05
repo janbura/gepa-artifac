@@ -24,7 +24,7 @@ Order: set everything up (Phases 0–3), run small pilots that measure the real 
 | 0. Housekeeping | ◐ | **Done:** branch pushed; git identity, local excludes, upstream remote, `.gitignore` of generated files (0.2), B added as collaborator. **Left:** the SBU-share question (0.3). W&B will only be needed for GRPO once `GEPA_USE_WANDB=0` is merged (F13). |
 | 1. Environment | ◐ | **Done by A on Snellius:** 1.1–1.7 (uv 0.13.7, forks, both environments, weights, datasets, BM25 index, F40–F49); `build/pin-env` merged as PR #2. **Left:** B builds their own environments (T4, T5). |
 | 2. Reference data | ☑ | **Done by B on a laptop:** thinking mode was on (F25); run durations measured (F37); cost and token table for the GPT runs (§8); target numbers checked (F34). **No need to redo on Snellius,** except copying the shipped cache there for the replay check (4.0). |
-| 3. Pilot tooling | ◐ | **Done:** 3.1a (`GEPA_EXPERIMENT_DIR`, on B's `feat/replay-and-analysis`); 3.1b (`GEPA_MAX_METRIC_CALLS`, A's `feat/pilot-caps`, which also fixes `--dry_run`, F50). **Left:** 3.2–3.5, and the GPU check of 3.1b. There are no draft job scripts in the repo (`scripts/snellius/` doesn't exist), so B's 3.3 starts from scratch; it must handle F41–F43. |
+| 3. Pilot tooling | ◐ | **Done:** 3.1a (`GEPA_EXPERIMENT_DIR`, PR #1); 3.2–3.5 (`scripts/snellius/`, PR #3); 3.1b (`GEPA_MAX_METRIC_CALLS`, on A's `feat/pilot-caps`, which also fixes `--dry_run`, F50). **Left:** the GPU check of 3.1b, a parallel mode in `qwen_job.sh` for pilot 4.4, and A's review fixes to PR #3. |
 | 4. Pilots | ☐ | All still needed. Pilot 4.3 is the only source of Qwen tokens per call (F33). |
 | 5. Estimate and decide | ☐ | After the pilots. |
 | 6. Main runs | ☐ | The Baselines come from pilot 4.3, and MIPROv2 on IFBench from pilot 4.5. |
@@ -44,19 +44,19 @@ Budget for today is about 1,000–1,100 SBU and €0. B has already done steps 2
 | # | Who | Task | Steps | Done when | Status |
 |---|---|---|---|---|---|
 | T1 | A | Access | Branch `reproduction` is pushed (commit `e47fd9e`). Left: add B as a collaborator on the GitHub fork, and step 0.2 | B can push | ☑ collaborator added; 0.2 in `2378040` |
-| T2 | B | Own checkout on Snellius | `git clone` the fork, then `git switch reproduction` | B is on the branch | ☐ |
+| T2 | B | Own checkout on Snellius | `git clone` the fork, then `git switch reproduction` | B is on the branch | ☑ B: `~/gepa-artifac`, branch `b-tonight` (`7adf8ca`) |
 | T3 | A | Budget | Ask the account contact what each person's SBU share is | Answered | ☐ |
-| T4 | A, then B | Pinned environment | A: 1.1–1.3, with `uv.lock` pinned to the versions of the original runs (F7). Then both run `uv sync --locked`. B does 1.3 only if A hasn't committed `uv.lock` yet | Same versions on both sides | ◐ A done (PR #2 merged; whole environment as in an original run, F49); B to sync |
-| T5 | Both | Arbor environment and weights | 1.4 and 1.6 (repo id `qwen/qwen3-8b`), each in their own checkout. A needs them too, for A's own pilots | `import vllm` works; weights cached | ◐ A done; B to do |
+| T4 | A, then B | Pinned environment | A: 1.1–1.3, with `uv.lock` pinned to the versions of the original runs (F7). Then both run `uv sync --locked`. B does 1.3 only if A hasn't committed `uv.lock` yet | Same versions on both sides | ◐ A done (PR #2 merged; whole environment as in an original run, F49). B synced the lock of `build/pin-env` before `0ec5585`, so B's runs of 2026-11-05 don't have the F49 constraints yet; B re-syncs before the next job |
+| T5 | Both | Arbor environment and weights | 1.4 and 1.6 (repo id `qwen/qwen3-8b`), each in their own checkout. A needs them too, for A's own pilots | `import vllm` works; weights cached | ☑ A and B (B: Arbor freeze diff 0) |
 | T6 | A | BM25 index | 1.7: a short CPU job. Only HotpotQA and HoVer use it | `bm25s_retriever/` exists | ☑ job 28902285, ~2.5 SBU |
-| T7 | A | Metric-call cap | 3.1b on `feat/pilot-caps`, with a PR that B reviews. Skip 2.1–2.4 and 3.1a, which are done | A capped run stops after N calls | ◐ code on `feat/pilot-caps`, checked without a GPU; the stop after N calls is checked in the first GPU dry run (needs T8, T9) |
-| T8 | B | Job tooling | On `feat/slurm-tooling`, with a PR that A reviews: 3.2 one-GPU YAML; 3.3 SLURM template (Arbor from the Arbor environment, scratch directory, free port, wait until the server answers); 3.4 launch filter with the port filled in; 3.5 measurement hooks | Dry-run job works | ☐ |
-| T9 | B | Share the laptop work | Push `feat/replay-and-analysis` (3.1a, `GEPA_USE_WANDB`, replay script, `analysis/`) and open the PR into `reproduction`, rebased on the latest plan | PR open | ◐ PR #1 open, in review |
-| T10 | B | Pilots 4.1 and 4.2 | Network check from a compute node; Baseline dry run into the pilot directory; record the server start-up time | Both pass | ◐ 4.1 done by A, in the 1.7 job; 4.2 left |
-| T11 | A and B | Pilot 4.3: the Table 1 Baselines | Real directory. A: HotpotQA, HoVer. B: IFBench, AIME-2025, LiveBench-Math. Record tokens per call (from Arbor's response log, F33) and seconds per rollout in §7.3 | 5 scores in §7.1 | ☐ |
+| T7 | A | Metric-call cap | 3.1b on `feat/pilot-caps`, with a PR that B reviews. Skip 2.1–2.4 and 3.1a, which are done | A capped run stops after N calls | ◐ code on `feat/pilot-caps`, checked without a GPU; the stop after N calls is checked in the first GPU job (T8 and T9 are merged now) |
+| T8 | B | Job tooling | On `feat/slurm-tooling`, with a PR that A reviews: 3.2 one-GPU YAML; 3.3 SLURM template (Arbor from the Arbor environment, scratch directory, free port, wait until the server answers); 3.4 launch filter with the port filled in; 3.5 measurement hooks | Dry-run job works | ☑ merged as PR #3 (`03208df`); used for B's job 28908434. Left for `feat/pilot-caps`: A's review fixes (`logs/` in `.gitignore`, stdin and last-line handling in `qwen_job.sh`, a name check in `make_command.sh`) and a parallel mode for 4.4 |
+| T9 | B | Share the laptop work | Push `feat/replay-and-analysis` (3.1a, `GEPA_USE_WANDB`, replay script, `analysis/`) and open the PR into `reproduction`, rebased on the latest plan | PR open | ☑ merged as PR #1 (`54bc26e`), with `--source_dir` in both replay scripts |
+| T10 | B | Pilots 4.1 and 4.2 | Network check from a compute node; Baseline dry run into the pilot directory; record the server start-up time | Both pass | ◐ 4.1 done by A. 4.2: the server start-up is measured (§7.3); the dry run itself needs the F50 fix on `feat/pilot-caps` |
+| T11 | A and B | Pilot 4.3: the Table 1 Baselines | Real directory. A: HotpotQA, HoVer. B: IFBench, AIME-2025, LiveBench-Math. Record tokens per call (from Arbor's response log, F33) and seconds per rollout in §7.3 | 5 scores in §7.1 | ◐ B done: IFBench, AIME, LiveBench-Math (§7.1, F52). A: HotpotQA, HoVer left |
 | T12 | A | Pilot 4.4 (overnight) | GEPA-family runs on HotpotQA, 1, 3 and 6 processes sharing one server, set up as in F44. Needs T7, T8 and T9 (`GEPA_USE_WANDB=0`) | Seconds per iteration in §7.3 | ☐ |
-| T13 | B | Pilot 4.5 (overnight) | MIPROv2 on IFBench, as a real run | Wall-clock in §7.2 and §7.3 | ☐ |
-| T14 | Both | Report | Fill in §7.1 and §7.3, then commit as `docs(results): ...` after `git pull --rebase`. After every pilot, grep `run_log.txt` for errors (F29) and check `budget-overview` | §7 up to date | ☐ |
+| T13 | B | Pilot 4.5 (overnight) | MIPROv2 on IFBench, as a real run | Wall-clock in §7.2 and §7.3 | ◐ cut by the 5 h limit at trial 12 of 41; full run ≈ 10 h on one A100 (§7.3) |
+| T14 | Both | Report | Fill in §7.1 and §7.3, then commit as `docs(results): ...` after `git pull --rebase`. After every pilot, grep `run_log.txt` for errors (F29) and check `budget-overview` | §7 up to date | ◐ B's rows filled in (2026-11-05) |
 | T15 | Both | Decide | A ~$1 GPT-4.1-mini pilot (4.7) if an OpenAI key exists; extra seeds (7.4) as the first extension (F27) | Decisions in §5 | ☐ |
 
 ### Phase 0: Housekeeping
@@ -94,11 +94,11 @@ This shows how the authors ran Qwen3-8B (thinking on, F25) and gives reference t
 
 | # | Task | How | Done when | Cost | Status |
 |---|---|---|---|---|---|
-| 3.1 | Separate output directory and budget caps | (a) `GEPA_EXPERIMENT_DIR` overrides `BASE_EXPERIMENT_DIR` (default unchanged). (b) A flag that caps `max_metric_calls` (default unchanged). (c) Only if GRPO is in scope: the same kind of cap for GRPO's `num_train_steps`. Every dry run and pilot goes to a separate directory (F18, F21). Commit as `feat(scripts): add metric-call cap for pilots` | A capped GEPA run stops after N calls and writes nothing to the real directory | 0 | ◐ (a) done by B on `feat/replay-and-analysis`. (b) done by A on `feat/pilot-caps`: env var `GEPA_MAX_METRIC_CALLS=<n>` sets GEPA-family budgets to `min(n, known)`. Unset or empty means unchanged; anything other than a positive integer fails. A cap is refused before any directory is created if `BASE_EXPERIMENT_DIR` resolves to the default `experiment_runs_data/`, symlinked spellings included. The cap is logged in `run_log.txt` and stored as `metric_call_cap` in `config.json` (only when set). Checked on the login node: refusals; AIME GEPA dry run in a scratch directory with cap 20 → `max_metric_calls = 20 (uncapped budget: 1839)`; uncapped run unchanged. Left: a GPU dry run showing the stop, expecting up to one full val eval of overshoot (`gepa.py:369`) |
-| 3.2 | 1-GPU Arbor config | YAML with `inference.gpu_ids: '0'` and `training.gpu_ids: ''`, kept in the repo (e.g. `slurm/arbor_inference_1gpu.yaml`) (F2) | Committed | 0 | ☐ |
-| 3.3 | SLURM job template | Start Arbor **from the Arbor environment (1.4)**, with its venv first on `PATH` and `PYTHONPATH` pointing at the fork (F41), from a per-job scratch directory, on a free port (F9). Set `HF_HUB_OFFLINE=1`. Log `nvidia-smi -L` (F43). Send one warm-up chat request and wait for its reply, which starts vLLM (F42). Run one or more `run_experiments` processes against that `api_base`, then stop Arbor. Chain jobs with `--dependency=afterok` (F20). Commit as `feat(slurm): add Qwen3-8B job script` | Dry-run job succeeds | — | ☐ |
-| 3.4 | Launch-command selection | Helper that filters `launch_commands` by benchmark, optimizer and LM, and fills in the `{portnum}` placeholder (F22) | Prints the chosen commands, ready to run | 0 | ☐ |
-| 3.5 | Measurement hooks | In the job template, log `nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv -l 30` and the start/end time. After each job, record `sacct -j <id> --format=JobID,Elapsed,AllocTRES` and the SBU used (`budget-overview`) in a pilot log (e.g. `pilots/pilot_log.csv`). Qwen tokens: Arbor returns no usage (F33), so count them from Arbor's `storage/logs/<timestamp>/inference_responses.jsonl` (F9) with the Qwen3 tokenizer | Each pilot leaves one row: what ran, wall-clock, SBU, GPU utilization, tokens or iterations | 0 | ☐ |
+| 3.1 | Separate output directory and budget caps | (a) `GEPA_EXPERIMENT_DIR` overrides `BASE_EXPERIMENT_DIR` (default unchanged). (b) A flag that caps `max_metric_calls` (default unchanged). (c) Only if GRPO is in scope: the same kind of cap for GRPO's `num_train_steps`. Every dry run and pilot goes to a separate directory (F18, F21). Commit as `feat(scripts): add metric-call cap for pilots` | A capped GEPA run stops after N calls and writes nothing to the real directory | 0 | ◐ (a) done by B, merged (PR #1). (b) done by A on `feat/pilot-caps`: env var `GEPA_MAX_METRIC_CALLS=<n>` sets GEPA-family budgets to `min(n, known)`. Unset or empty means unchanged; anything other than a positive integer fails. A cap is refused before any directory is created if `BASE_EXPERIMENT_DIR` resolves to the default `experiment_runs_data/`, symlinked spellings included. The cap is logged in `run_log.txt` and stored as `metric_call_cap` in `config.json` (only when set). Checked on the login node: refusals; AIME GEPA dry run in a scratch directory with cap 20 → `max_metric_calls = 20 (uncapped budget: 1839)`; uncapped run unchanged. Left: a GPU dry run showing the stop, expecting up to one full val eval of overshoot (`gepa.py:369`) |
+| 3.2 | 1-GPU Arbor config | YAML with `inference.gpu_ids: '0'` and `training.gpu_ids: ''`, kept in the repo (e.g. `slurm/arbor_inference_1gpu.yaml`) (F2) | Committed | 0 | ☑ B: `scripts/snellius/arbor_inference_1gpu.yaml` (PR #3) |
+| 3.3 | SLURM job template | Start Arbor **from the Arbor environment (1.4)**, with its venv first on `PATH` and `PYTHONPATH` pointing at the fork (F41), from a per-job scratch directory, on a free port (F9). Set `HF_HUB_OFFLINE=1`. Log `nvidia-smi -L` (F43). Send one warm-up chat request and wait for its reply, which starts vLLM (F42). Run one or more `run_experiments` processes against that `api_base`, then stop Arbor. Chain jobs with `--dependency=afterok` (F20). Commit as `feat(slurm): add Qwen3-8B job script` | Dry-run job succeeds | — | ◐ B: `scripts/snellius/qwen_job.sh` (PR #3), used in job 28908434 (server ready after 238 s). It runs the commands one after another; running several against one server (4.4) is left |
+| 3.4 | Launch-command selection | Helper that filters `launch_commands` by benchmark, optimizer and LM, and fills in the `{portnum}` placeholder (F22) | Prints the chosen commands, ready to run | 0 | ☑ B: `scripts/snellius/make_command.sh` builds the command from the names instead of filtering `launch_commands`; the job fills in `{portnum}`. Chain runs need `--use_cache_from_opt` passed by hand |
+| 3.5 | Measurement hooks | In the job template, log `nvidia-smi --query-gpu=utilization.gpu,memory.used --format=csv -l 30` and the start/end time. After each job, record `sacct -j <id> --format=JobID,Elapsed,AllocTRES` and the SBU used (`budget-overview`) in a pilot log (e.g. `pilots/pilot_log.csv`). Qwen tokens: Arbor returns no usage (F33), so count them from Arbor's `storage/logs/<timestamp>/inference_responses.jsonl` (F9) with the Qwen3 tokenizer | Each pilot leaves one row: what ran, wall-clock, SBU, GPU utilization, tokens or iterations | 0 | ☑ B: `qwen_job.sh` logs GPU use every 30 s, start/end and per-command times, and copies Arbor's request log to `logs/` for token counts; `check_run.sh` and `sbu_guard.sh` (PR #3). The pilot log is §7.2 |
 
 ### Phase 4: Pilots for the compute estimate (1× H100 unless noted)
 
@@ -449,14 +449,29 @@ Findings from reading the code, the forks (`gepa_study` branches) and the paper,
   → Short CPU jobs can go to `genoa` when `rome` is full. Expect GPU jobs to queue while the H100 nodes reboot.
 - **F48. IFBench downloads NLP data at run time.** Importing `utils_ifbench/instructions.py` runs `spacy.cli.download('en_core_web_sm')` (line 34), which pip-installs the model into the active venv. The model isn't in `uv.lock`, so a later `uv sync` removes it again. The instruction checkers also call `nltk.download(...)` (`punkt_tab`, `punkt`, `stopwords`, `averaged_perceptron_tagger_eng`) into `~/nltk_data`. `generate_launch_commands` imports IFBench too.
   → IFBench runs need internet on the compute node (4.1). Fetch the NLTK data once on the login node before starting parallel IFBench processes, so they don't race on the same download. Confirmed: the `uv sync --locked` after PR #2 removed `en_core_web_sm` from the venv.
+  → The first time, pip's install output goes to stdout and ends up at the top of `launch_commands` (8 extra lines). Keep only the command lines: `grep '^uv run python -m scripts.run_experiments'`.
 - **F49. The original runs recorded their whole environment, and it wasn't one clean install.** B's review of PR #2: the run's `requirements.txt` (`AIMEBench_CoT_GEPA_gpt-41-mini`, 2025-08-01) has 302 lines, not just the 8 versions of F7.
-  - With only those 8 pinned and `exclude-newer` for the rest, 58 packages still differed. The ones our runs use are `cachetools` 5.5.2 → 6.1.0 (dspy's in-memory cache) and `regex` 2024.11.6 → 2025.7.34 (dspy's JSON adapter). The others included torch 2.3.0 → 2.7.1, transformers and chromadb; `run_experiments` imports torch only on the disabled `launch_arbor` path.
+  - With only those 8 pinned and `exclude-newer` for the rest, 58 packages still differed. The ones our runs use are `cachetools` 5.5.2 → 6.1.0 (dspy's in-memory cache) and `regex` 2024.11.6 → 2025.7.34 (dspy's JSON adapter, which the fork's ChatAdapter no longer falls back to: `chat_adapter.py:42–50` is commented out, so B's pre-F49 runs parse the same way). The others included torch 2.3.0 → 2.7.1, transformers and chromadb; `run_experiments` imports torch only on the disabled `launch_arbor` path.
   - The last 16 lines are setuptools 80.9.0's vendored copies (`setuptools/_vendor/*.dist-info`), not installed packages. That's why `zipp`, `platformdirs`, `packaging`, `importlib_metadata` and `typing_extensions` appear twice.
   - The environment also held leftovers of a torch 2.7 install next to torch 2.3.0: `triton` 3.3.1, `nvidia-cufile-cu12` and `nvidia-cusparselt-cu12`. Because of that, the list can't be locked for Python 3.11.
-  → `[tool.uv] constraint-dependencies` holds the remaining 285 versions (the spaCy model is left out, F48), and `environments` limits the lock to Python 3.12.
-- **F50. Upstream `--dry_run` crashed on every benchmark.** The dry-run block in `run_experiments.py` also trims `benchmark.dev_set`, which no benchmark defines, so every dry run stopped with `AttributeError` before the first LM call. Found while testing 3.1b.
-  → Fixed on `feat/pilot-caps` (the line is skipped when `dev_set` is missing). Pilot 4.2 and every smoke test need this fix. Result: 280 packages at the original version and none different. Not installed are the leftovers above, plus `graphviz` and `pydot`, which nothing depends on. Only one run's file has been compared; B checks whether all runs' files are identical (`md5sum .../files/requirements.txt | sort | uniq -c -w32`).
-  → The first time, pip's install output goes to stdout and ends up at the top of `launch_commands` (8 extra lines). Keep only the command lines: `grep '^uv run python -m scripts.run_experiments'`.
+  → `[tool.uv] constraint-dependencies` holds the remaining 285 versions (the spaCy model is left out, F48), and `environments` limits the lock to Python 3.12. Result: 280 packages at the original version and none different. Not installed are the leftovers above, plus `graphviz` and `pydot`, which nothing depends on. Only one run's file has been compared; B checks whether all runs' files are identical (`md5sum .../files/requirements.txt | sort | uniq -c -w32`).
+
+
+### H. From B's first Qwen runs (2026-11-05)
+
+- **F50. Upstream `--dry_run` crashes on every benchmark.** The dry-run block in `run_experiments.py` also trims `benchmark.dev_set`, which no benchmark defines, so every dry run stops with `AttributeError` before the first LM call. B hit it on IFBench after 44 s (job 28908434); A hit it on AIME while testing 3.1b. Real runs aren't affected.
+  → Fixed on `feat/pilot-caps` (`872e73a`: the line is skipped when `dev_set` is missing). Pilot 4.2 and every smoke test need this fix. B measured the server start-up in job 28908434 instead.
+- **F51. The authors' Qwen runs used a 32,768-token context, not 8,192.** `run_experiments.py:160` sets `launch_arbor = False`, so the `launch_kwargs` of `LM_CONFIGS` (8,192) are never sent. Arbor then starts vLLM on the first chat request with its placeholder `{"max_context_length": 32768}` (Arbor `routes/inference.py:27`). Every shipped non-GRPO `arbor_logs.txt` shows `max_model_len 32768`; the GRPO runs also launch 8,192 for training. Requests ask for `max_tokens` 16,384.
+  → Our warm-up request starts vLLM the same way, so we match the authors. The 20 GB A100 slices (`gpu_mig`) can't serve this: vLLM needs 4.5 GiB of KV cache and has 1.98 GiB. Use full GPUs.
+- **F52. The unparsed math answers are a symptom, not the cause of the gap.** B's Baselines: IFBench 36.56 (paper 36.90), AIME 19.33 (27.33), LiveBench-Math 33.58 (48.70).
+  - Unparsed test examples, scored 0 (F29): IFBench 10/294, AIME 39/150, LiveBench-Math 56/126. Only 3 of 2,721 responses ended by length.
+  - What Qwen does: it opens `<think>` and often never closes it. Then it writes only `[[ ## answer ## ]]`, or no field headers at all, and skips `[[ ## reasoning ## ]]`. The ChatAdapter needs every field, so it rejects the output ("Expected reasoning, answer but got answer").
+  - Scored with the benchmark's own metric and a lenient parse (the text after the last answer header, else the last `\boxed{}`), the rejected answers are almost all wrong anyway: AIME 0 of 21 calls, LiveBench-Math 3.8% mean (46 calls). The parsed ones score 19.0% and 59.8%.
+  - So a lenient parser would add about 1–2 points, not the 8 and 15 we're missing. The broken format shows up on the problems Qwen can't solve: it keeps thinking and never writes a clean answer.
+  - The authors shipped no Qwen math runs (F34), so we can't tell what differs. The IFBench rate matches theirs (18/294).
+  → Next checks: a second seed for the two math Baselines (~110 SBU) to see how much is sampling noise (LiveBench-Math can only detect differences above ~8 points, AIME above ~16; `analysis/significance.py`), and ask the authors for their math settings and outputs.
+- **F53. AIME's 5 copies per problem are mostly not independent.** The test set is 30 problems × 5 (150 examples), but our job sent only 63 AIME requests: identical requests are answered from DSPy's cache. In our run, 2 of 26 logged problems have different scores across copies; in the authors' GPT runs 7–9 of 30 do.
+  → "Average over 5 tries" is closer to one try per problem. Not yet checked why some copies still differ (probably threads that miss the cache at the same time).
 
 ---
 
@@ -544,16 +559,22 @@ Scores are the `score` column of `evaluation_results/evaluation_result.txt`: tes
 
 | Variant | HotpotQA (A) | HoVer (A) | IFBench (B) | AIME-2025 (B) | LiveBench-Math (B) |
 |---|---|---|---|---|---|
-| Baseline | – (42.33) | – (35.33) | – (36.90) | – (27.33) | – (48.70) |
+| Baseline | – (42.33) | – (35.33) | 36.56 (36.90) | 19.33 (27.33) | 33.58 (48.70) |
 | MIPROv2 | – (55.33) | – (47.33) | – (36.22) | – (20.00) | – (46.60) |
 | GEPA | – (62.33) | – (52.33) | – (38.61) | – (32.00) | – (51.95) |
 | GEPA+Merge | – (64.33) | – (51.67) | – (28.23) | – (32.00) | – (51.95) |
+
+_B's Baselines ran on one A100 (job 28908434). Test examples whose answer couldn't be parsed are scored 0: IFBench 10/294, AIME 39/150, LiveBench-Math 56/126 (F52)._
 
 ### 7.2 Run log (one row per job, add new rows at the bottom)
 
 | Date | Who | Job ID | Benchmark | Variant | Commit | Wall-clock | SBU | Score | Notes |
 |---|---|---|---|---|---|---|---|---|---|
 | 2026-11-04 | A | 28902285 | HotpotQA, HoVer | BM25 index (1.7) + network check (4.1) | `2378040` | 6 min 18 s | ~2.5 | – | `genoa`, 24 cores, peak 7.9 GB RAM, one core in use |
+| 2026-11-04 | B | 28901861 | IFBench, AIME, LiveBench-Math | Baselines (first try) | `b-tonight` | ~14 min | ~29 | – | H100; Arbor didn't start (not installed in its venv, F41); cancelled |
+| 2026-11-04 | B | 28903967 | IFBench, AIME, LiveBench-Math | dry run + Baselines + MIPROv2 | `7adf8ca` | – | 0 | – | H100; cancelled while pending, estimated start was 2026-11-08 (F47) |
+| 2026-11-04 | B | 28908296–98 | IFBench, AIME, LiveBench-Math | Baselines, one job each | `7adf8ca` | ~10 min each | ~34 | – | `gpu_mig` (A100 3g.20gb); vLLM doesn't fit with the authors' 32,768 context (F51); cancelled |
+| 2026-11-05 | B | 28908434 | IFBench, AIME, LiveBench-Math | dry run (4.2), Baselines (4.3), MIPROv2-Heavy IFBench (4.5) | `7adf8ca` | 5 h 00 min (time limit) | 640 | 36.56 / 19.33 / 33.58 | A100 (`gcn22`), 18 cores; `7adf8ca` = `build/pin-env` before `0ec5585` + `feat/replay-and-analysis`; MIPROv2 cut at trial 12/41; B total so far 703 SBU |
 
 ### 7.3 Pilot measurements
 
@@ -561,12 +582,13 @@ Scores are the `score` column of `evaluation_results/evaluation_result.txt`: tes
 |---|---|---|---|---|
 | 2.3 | B | Thinking mode in the authors' runs | on (cached `reasoning_content`, F25) | on |
 | 2.3 | B | Authors' run times on 4-GPU servers: GEPA / MIPROv2 / GRPO (3 GPUs) | 1.2–6.4 h / 1.1–4.7 h / 12–24 h (F37) | ≤15 h / ≤4.1 h / 12–32 h on our layout |
-| 4.2 | B | Server startup (job start until Arbor answers) | – | ~0.15 h |
-| 4.3 | A, B | Output tokens per call: HotpotQA / HoVer / IFBench / AIME / LiveBench | – | 700 / 700 / 1,200 / 5,000 / 5,000 |
-| 4.3 | A, B | Seconds per rollout at 32 threads: multi-hop / IFBench / math | – | ~1.2 / ~1.1 / ~2.2 |
+| 4.2 | B | Server startup (job start until Arbor answers) | 238 s on A100 (~0.07 h) | ~0.15 h |
+| 4.3 | A, B | Output tokens per call: HotpotQA / HoVer / IFBench / AIME / LiveBench | – / – / 742 / 2,731 / 1,709 (B: mean, Qwen tokenizer on Arbor's response log; p90 1,145 / 5,572 / 3,609) | 700 / 700 / 1,200 / 5,000 / 5,000 |
+| 4.3 | A, B | Seconds per rollout at 32 threads: multi-hop / IFBench / math | – / 6.3 / 6.5 (AIME), 15.8 (LiveBench) on A100 (B: test-set wall-clock ÷ examples; AIME needed only 63 calls for 150 examples, F53) | ~1.2 / ~1.1 / ~2.2 |
 | 4.4 | A | Seconds per GEPA iteration with 1 / 3 / 6 runs sharing a server | – | ~70 / ~80 / ~90 |
 | 4.4 | A | Mean GPU utilization with 1 / 3 / 6 runs | – | – |
-| 4.5 | B | MIPROv2 wall-clock on IFBench | – | ~2.2 h |
+| 4.5 | B | MIPROv2 wall-clock on IFBench | not finished in 3.6 h on A100: bootstrapping 23 min, then 11 of 41 trials in 2 h 43 min; ≈ 10 h for the full run | ~2.2 h |
+| 4.3–4.5 | B | Mean GPU utilization, whole job 28908434 (A100) | 86% | – |
 
 ---
 

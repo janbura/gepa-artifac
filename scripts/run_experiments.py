@@ -332,7 +332,7 @@ def run_experiment_and_write_results_actual(
                     "knowledgebase_qe": None,
                     "logger": logger,
                     "run_dir": runs_dir,
-                    "use_wandb": True,
+                    "use_wandb": use_wandb,
                     "wandb_api_key": wandb_api_key,
                 })
 
@@ -394,7 +394,7 @@ def run_experiment_and_write_results_actual(
                         logger.log(f"GEPA_MAX_METRIC_CALLS: max_metric_calls = {init_args['max_metric_calls']} (uncapped budget: {num_mipro_invocations}).")
                 
                 if "add_wandb_configs_to_initargs" in optimizer_config.langProBe_configs and optimizer_config.langProBe_configs["add_wandb_configs_to_initargs"]:
-                    init_args["use_wandb"] = True
+                    init_args["use_wandb"] = use_wandb
                     init_args["wandb_api_key"] = wandb_api_key
                     init_args["wandb_run_name"] = run_name + "_seed_" + str(seed)
                     init_args["wandb_project_name"] = "GEPA"
@@ -522,9 +522,12 @@ def parse_arguments():
 
 if __name__ == "__main__":
     assert "OPENAI_API_KEY" in os.environ, "Please set the OPENAI_API_KEY environment variable."
-    assert "WANDB_API_KEY" in os.environ, "Please set the WANDB_API_KEY environment variable."
+    # wandb logging can be switched off with GEPA_USE_WANDB=0 (or false/no/off), useful for offline runs
+    use_wandb = os.environ.get("GEPA_USE_WANDB", "1").strip().lower() not in ("0", "false", "no", "off")
+    if use_wandb:
+        assert "WANDB_API_KEY" in os.environ, "Please set the WANDB_API_KEY environment variable."
     openai_api_key = os.environ["OPENAI_API_KEY"]
-    wandb_api_key = os.environ["WANDB_API_KEY"]
+    wandb_api_key = os.environ.get("WANDB_API_KEY")
     args = parse_arguments()
     run_experiment_and_write_results(
         **args.__dict__,
