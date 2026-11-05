@@ -463,13 +463,12 @@ Findings from reading the code, the forks (`gepa_study` branches) and the paper,
   → Pilot 4.2 can't use the dry run for IFBench. The server start-up was measured in the same job instead.
 - **F51. The authors' Qwen runs used a 32,768-token context, not 8,192.** `run_experiments.py:160` sets `launch_arbor = False`, so the `launch_kwargs` of `LM_CONFIGS` (8,192) are never sent. Arbor then starts vLLM on the first chat request with its placeholder `{"max_context_length": 32768}` (Arbor `routes/inference.py:27`). Every shipped non-GRPO `arbor_logs.txt` shows `max_model_len 32768`; the GRPO runs also launch 8,192 for training. Requests ask for `max_tokens` 16,384.
   → Our warm-up request starts vLLM the same way, so we match the authors. The 20 GB A100 slices (`gpu_mig`) can't serve this: vLLM needs 4.5 GiB of KV cache and has 1.98 GiB. Use full GPUs.
-- **F52. The unparsed math answers are a symptom, not the cause of the gap.** B's Baselines: IFBench 36.56 (paper 36.90), AIME 19.33 (27.33), LiveBench-Math 33.58 (48.70).
-  - Unparsed test examples, scored 0 (F29): IFBench 10/294, AIME 39/150, LiveBench-Math 56/126. Only 3 of 2,721 responses ended by length.
-  - What Qwen does: it opens `<think>` and often never closes it. Then it writes only `[[ ## answer ## ]]`, or no field headers at all, and skips `[[ ## reasoning ## ]]`. The ChatAdapter needs every field, so it rejects the output ("Expected reasoning, answer but got answer").
-  - Scored with the benchmark's own metric and a lenient parse (the text after the last answer header, else the last `\boxed{}`), the rejected answers are almost all wrong anyway: AIME 0 of 21 calls, LiveBench-Math 3.8% mean (46 calls). The parsed ones score 19.0% and 59.8%.
-  - So a lenient parser would add about 1–2 points, not the 8 and 15 we're missing. The broken format shows up on the problems Qwen can't solve: it keeps thinking and never writes a clean answer.
-  - The authors shipped no Qwen math runs (F34), so we can't tell what differs. The IFBench rate matches theirs (18/294).
-  → Next checks: a second seed for the two math Baselines (~110 SBU) to see how much is sampling noise (LiveBench-Math can only detect differences above ~8 points, AIME above ~16; `analysis/significance.py`), and ask the authors for their math settings and outputs.
+- **F52. The math gap is run-to-run variance in output-format compliance, not the model's ability.** B's seed-0 Baselines: IFBench 36.56 (paper 36.90), AIME 19.33 (27.33), LiveBench-Math 33.58 (48.70). A rerun of the two math Baselines with `--seed 1` (job 28916886; identical prompts, parameters and server) gave **AIME 26.0 and LiveBench-Math 53.02**, i.e. the paper's numbers.
+  - What goes wrong: Qwen3 sometimes writes its answer without the `[[ ## reasoning ## ]]` / `[[ ## answer ## ]]` headers (plain "Answer: 13" or `\boxed{}`), or with the answer header only. The ChatAdapter then rejects the output and the example scores 0 (F29). Many of those answers are correct when read by eye.
+  - How often: LiveBench-Math 46 of 119 calls in seed 0 vs 12 of 127 in seed 1; AIME 21 of 63 vs 17 of 69. A difference this large between two identical runs is more than sampling noise would give, and we can't explain it yet.
+  - What it is not: an unclosed `<think>` block by itself parses fine when both headers are inside it; the authors' only unclosed thinks are answers cut by `max_tokens` (finish reason `length`). Prompts are hash-identical across runs, the model files haven't changed since 2025-05-19, both servers lack FlashInfer.
+  - Setup difference to the authors: their `arbor_logs.txt` show vLLM **0.9.1/0.9.2** (July 2025); our Arbor lock gives **0.8.5.post1** (F45). Being tested: job 28919079 reruns both math Baselines with vLLM 0.9.1 (`~/arbor091`, `ARBOR_VENV` in the job template, output in `~/vllm091_runs`).
+  → Report math cells with ≥2 seeds and the format-failure count per run. Count parse failures after every run (`check_run.sh`). Decide after the vLLM 0.9.1 test whether to move the Arbor lock to 0.9.1.
 - **F53. AIME's 5 copies per problem are mostly not independent.** The test set is 30 problems × 5 (150 examples), but our job sent only 63 AIME requests: identical requests are answered from DSPy's cache. In our run, 2 of 26 logged problems have different scores across copies; in the authors' GPT runs 7–9 of 30 do.
   → "Average over 5 tries" is closer to one try per problem. Not yet checked why some copies still differ (probably threads that miss the cache at the same time).
 
@@ -559,7 +558,7 @@ Scores are the `score` column of `evaluation_results/evaluation_result.txt`: tes
 
 | Variant | HotpotQA (A) | HoVer (A) | IFBench (B) | AIME-2025 (B) | LiveBench-Math (B) |
 |---|---|---|---|---|---|
-| Baseline | – (42.33) | – (35.33) | 36.56 (36.90) | 19.33 (27.33) | 33.58 (48.70) |
+| Baseline | – (42.33) | – (35.33) | 36.56 (36.90) | 19.33; seed 1: 26.00 (27.33) | 33.58; seed 1: 53.02 (48.70) |
 | MIPROv2 | – (55.33) | – (47.33) | – (36.22) | – (20.00) | – (46.60) |
 | GEPA | – (62.33) | – (52.33) | – (38.61) | – (32.00) | – (51.95) |
 | GEPA+Merge | – (64.33) | – (51.67) | – (28.23) | – (32.00) | – (51.95) |
@@ -575,6 +574,7 @@ _B's Baselines ran on one A100 (job 28908434). Test examples whose answer couldn
 | 2026-11-04 | B | 28903967 | IFBench, AIME, LiveBench-Math | dry run + Baselines + MIPROv2 | `7adf8ca` | – | 0 | – | H100; cancelled while pending, estimated start was 2026-11-08 (F47) |
 | 2026-11-04 | B | 28908296–98 | IFBench, AIME, LiveBench-Math | Baselines, one job each | `7adf8ca` | ~10 min each | ~34 | – | `gpu_mig` (A100 3g.20gb); vLLM doesn't fit with the authors' 32,768 context (F51); cancelled |
 | 2026-11-05 | B | 28908434 | IFBench, AIME, LiveBench-Math | dry run (4.2), Baselines (4.3), MIPROv2-Heavy IFBench (4.5) | `7adf8ca` | 5 h 00 min (time limit) | 640 | 36.56 / 19.33 / 33.58 | A100 (`gcn22`), 18 cores; `7adf8ca` = `build/pin-env` before `0ec5585` + `feat/replay-and-analysis`; MIPROv2 cut at trial 12/41; B total so far 703 SBU |
+| 2026-11-05 | B | 28916886 | AIME, LiveBench-Math | Baselines, seed 1 | `7adf8ca` | 43 min | 91 | 26.00 / 53.02 | A100 (`gcn40`); fresh server; parse failures far fewer than seed 0 (F52) |
 
 ### 7.3 Pilot measurements
 
