@@ -470,6 +470,7 @@ Findings from reading the code, the forks (`gepa_study` branches) and the paper,
   - Setup difference to the authors: their `arbor_logs.txt` show vLLM **0.9.1/0.9.2** (July 2025); our Arbor lock gives **0.8.5.post1** (F45). Being tested: job 28919079 reruns both math Baselines with vLLM 0.9.1 (`~/arbor091`, `ARBOR_VENV` in the job template, output in `~/vllm091_runs`).
   - Result of the vLLM 0.9.1 test (job 28919079): AIME 26.67, LiveBench-Math 42.71, i.e. also at the paper's level. Both versions can reproduce the paper; run 1 was an outlier. Some long generations hit Arbor's 300 s request timeout (`batch_request_timeout_seconds`) and score 0.
   → Report math cells with ≥2 seeds and the format-failure count per run. Count parse failures after every run (`check_run.sh`). Proposal: move the Arbor lock to vLLM 0.9.1 (the authors' version for 22 of 27 runs; needs `transformers<4.54`) before the optimizer runs.
+- **F54. Arbor's 300 s request timeout can wipe out a math run.** Job 28920832 (vLLM 0.9.1, seed 1, all three B Baselines in one job) lost 53/150 AIME and 39/126 LiveBench-Math examples to HTTP 504 (642 timed-out requests; `batch_request_timeout_seconds=300` in Arbor). Scores 14.00 / 35.96 are therefore meaningless; IFBench (36.73) was unaffected. Job 28919079 with the same server had only a few 504s, so the loss depends on how many long generations land in the same batch window. → Before the next math run, raise `batch_request_timeout_seconds` in the Arbor config (or give the math benchmarks their own job) and treat any run with many 504s as void.
 - **F53. AIME's 5 copies per problem are mostly not independent.** The test set is 30 problems × 5 (150 examples), but our job sent only 63 AIME requests: identical requests are answered from DSPy's cache. In our run, 2 of 26 logged problems have different scores across copies; in the authors' GPT runs 7–9 of 30 do.
   → "Average over 5 tries" is closer to one try per problem. Not yet checked why some copies still differ (probably threads that miss the cache at the same time).
 
@@ -559,12 +560,13 @@ Scores are the `score` column of `evaluation_results/evaluation_result.txt`: tes
 
 | Variant | HotpotQA (A) | HoVer (A) | IFBench (B) | AIME-2025 (B) | LiveBench-Math (B) |
 |---|---|---|---|---|---|
-| Baseline | – (42.33) | – (35.33) | 36.56 (36.90) | 19.33; seed 1: 26.00; vLLM 0.9.1: 26.67 (27.33) | 33.58; seed 1: 53.02; vLLM 0.9.1: 42.71 (48.70) |
+| Baseline | – (42.33) | – (35.33) | 36.56; vLLM 0.9.1 seed 1: 36.73 (36.90) | 19.33; seed 1: 26.00; vLLM 0.9.1: 26.67; vLLM 0.9.1 seed 1: 14.00* (27.33) | 33.58; seed 1: 53.02; vLLM 0.9.1: 42.71; vLLM 0.9.1 seed 1: 35.96* (48.70) |
 | MIPROv2 | – (55.33) | – (47.33) | – (36.22) | – (20.00) | – (46.60) |
 | GEPA | – (62.33) | – (52.33) | – (38.61) | – (32.00) | – (51.95) |
 | GEPA+Merge | – (64.33) | – (51.67) | – (28.23) | – (32.00) | – (51.95) |
 
 _B's Baselines ran on one A100 (job 28908434). Test examples whose answer couldn't be parsed are scored 0: IFBench 10/294, AIME 39/150, LiveBench-Math 56/126 (F52)._
+_* Job 28920832 (vLLM 0.9.1, seed 1): 53/150 AIME and 39/126 LiveBench-Math examples got no answer at all because the requests hit Arbor's 300 s timeout (642 HTTP 504s), so those two cells are invalid, not a model result. The IFBench cell from the same job is fine (278/294 logged). See F54._
 
 ### 7.2 Run log (one row per job, add new rows at the bottom)
 
@@ -576,6 +578,7 @@ _B's Baselines ran on one A100 (job 28908434). Test examples whose answer couldn
 | 2026-11-04 | B | 28908296–98 | IFBench, AIME, LiveBench-Math | Baselines, one job each | `7adf8ca` | ~10 min each | ~34 | – | `gpu_mig` (A100 3g.20gb); vLLM doesn't fit with the authors' 32,768 context (F51); cancelled |
 | 2026-11-05 | B | 28908434 | IFBench, AIME, LiveBench-Math | dry run (4.2), Baselines (4.3), MIPROv2-Heavy IFBench (4.5) | `7adf8ca` | 5 h 00 min (time limit) | 640 | 36.56 / 19.33 / 33.58 | A100 (`gcn22`), 18 cores; `7adf8ca` = `build/pin-env` before `0ec5585` + `feat/replay-and-analysis`; MIPROv2 cut at trial 12/41; B total so far 703 SBU |
 | 2026-11-05 | B | 28916886 | AIME, LiveBench-Math | Baselines, seed 1 | `7adf8ca` | 43 min | 91 | 26.00 / 53.02 | A100 (`gcn40`); fresh server; parse failures far fewer than seed 0 (F52) |
+| 2026-11-05 | B | 28920832 | IFBench, AIME, LiveBench-Math | Baselines, seed 1, vLLM 0.9.1 | `7adf8ca` | 83 min | 176 | 36.73 / 14.00* / 35.96* | A100; `~/arbor091`; output in `~/vllm091_runs/experiment_runs/seed_1`; 642 requests hit Arbor's 300 s timeout (504), 144 client timeouts; logged examples 278/294, 97/150, 87/126; the two math scores are invalid (F54); B total 1066 SBU |
 | 2026-11-05 | B | 28919079 | AIME, LiveBench-Math | Baselines, seed 0, vLLM 0.9.1 | `7adf8ca` | 45 min | 96 | 26.67 / 42.71 | A100 (`gcn23`); `~/arbor091` (vllm 0.9.1, torch 2.7.0, transformers 4.53.3); output in `~/vllm091_runs`; some requests hit Arbor's 300 s timeout (504) and score 0; B total 890 SBU |
 
 ### 7.3 Pilot measurements
