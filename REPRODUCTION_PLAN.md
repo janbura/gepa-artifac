@@ -463,12 +463,13 @@ Findings from reading the code, the forks (`gepa_study` branches) and the paper,
   → Pilot 4.2 can't use the dry run for IFBench. The server start-up was measured in the same job instead.
 - **F51. The authors' Qwen runs used a 32,768-token context, not 8,192.** `run_experiments.py:160` sets `launch_arbor = False`, so the `launch_kwargs` of `LM_CONFIGS` (8,192) are never sent. Arbor then starts vLLM on the first chat request with its placeholder `{"max_context_length": 32768}` (Arbor `routes/inference.py:27`). Every shipped non-GRPO `arbor_logs.txt` shows `max_model_len 32768`; the GRPO runs also launch 8,192 for training. Requests ask for `max_tokens` 16,384.
   → Our warm-up request starts vLLM the same way, so we match the authors. The 20 GB A100 slices (`gpu_mig`) can't serve this: vLLM needs 4.5 GiB of KV cache and has 1.98 GiB. Use full GPUs.
-- **F52. Most of the Qwen math gap is answers that can't be parsed.** B's Baselines: IFBench 36.56 (paper 36.90), AIME 19.33 (27.33), LiveBench-Math 33.58 (48.70).
+- **F52. The unparsed math answers are a symptom, not the cause of the gap.** B's Baselines: IFBench 36.56 (paper 36.90), AIME 19.33 (27.33), LiveBench-Math 33.58 (48.70).
   - Unparsed test examples, scored 0 (F29): IFBench 10/294, AIME 39/150, LiveBench-Math 56/126. Only 3 of 2,721 responses ended by length.
-  - The cause: Qwen opens `<think>`, never closes it, and writes `[[ ## answer ## ]]` and `[[ ## completed ## ]]` inside the thinking. It skips `[[ ## reasoning ## ]]`. The ChatAdapter then rejects the output ("Expected reasoning, answer but got answer"), even when the right answer is there. This happens in 46 of 63 AIME calls and 88 of 119 LiveBench calls.
-  - On the parsed examples alone, AIME is 26.1% (paper Baseline 27.33) and LiveBench-Math about 60%.
-  - The authors shipped no Qwen math runs (F34), so their failure rate is unknown. The IFBench rate matches theirs (18/294).
-  → Decide in §5: ask the authors, report it as a finding, and/or try a lenient parse as an extension (it changes the method, so it isn't part of the reproduction).
+  - What Qwen does: it opens `<think>` and often never closes it. Then it writes only `[[ ## answer ## ]]`, or no field headers at all, and skips `[[ ## reasoning ## ]]`. The ChatAdapter needs every field, so it rejects the output ("Expected reasoning, answer but got answer").
+  - Scored with the benchmark's own metric and a lenient parse (the text after the last answer header, else the last `\boxed{}`), the rejected answers are almost all wrong anyway: AIME 0 of 21 calls, LiveBench-Math 3.8% mean (46 calls). The parsed ones score 19.0% and 59.8%.
+  - So a lenient parser would add about 1–2 points, not the 8 and 15 we're missing. The broken format shows up on the problems Qwen can't solve: it keeps thinking and never writes a clean answer.
+  - The authors shipped no Qwen math runs (F34), so we can't tell what differs. The IFBench rate matches theirs (18/294).
+  → Next checks: a second seed for the two math Baselines (~110 SBU) to see how much is sampling noise (LiveBench-Math can only detect differences above ~8 points, AIME above ~16; `analysis/significance.py`), and ask the authors for their math settings and outputs.
 - **F53. AIME's 5 copies per problem are mostly not independent.** The test set is 30 problems × 5 (150 examples), but our job sent only 63 AIME requests: identical requests are answered from DSPy's cache. In our run, 2 of 26 logged problems have different scores across copies; in the authors' GPT runs 7–9 of 30 do.
   → "Average over 5 tries" is closer to one try per problem. Not yet checked why some copies still differ (probably threads that miss the cache at the same time).
 
