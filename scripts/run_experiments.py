@@ -77,7 +77,7 @@ def create_lm(lm_config):
     provider = ArborProvider() if "openai/arbor" in config['model'] else None
     fixed_config = {
         "max_tokens": 16384,  # overriding the dspy defaults
-        "timeout": 1800,  # 16k-token math answers on one gpu can wait longer than the 600 s client default
+        "timeout": 7200,  # a 16k-token answer can take ~30 min on one gpu and must not be dropped
         "num_retries": 0,
         "provider": provider,
     }
