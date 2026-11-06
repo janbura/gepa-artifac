@@ -18,14 +18,14 @@ Test-set score in %: mean ± SD over seeds, the number of seeds in parentheses, 
 
 | Variant | HotpotQA (A) | HoVer (A) | IFBench (B) | AIME-2025 (B) | LiveBench-Math (B) |
 |---|---|---|---|---|---|
-| Baseline | **41.22 ± 2.22** (3) [42.33] | **36.89 ± 1.17** (3) [35.33] | **36.31 ± 0.36** (2) [36.90] | **25.67 ± 0.47** (2) [27.33] | **50.07 ± 4.11** (2) [48.70] |
+| Baseline | **41.22 ± 2.22** (3) [42.33] | **36.89 ± 1.17** (3) [35.33] | **33.16 ± 4.09** (2) [36.90] | **25.67 ± 0.47** (2) [27.33] | **50.07 ± 4.11** (2) [48.70] |
 | MIPROv2 | – [55.33] | – [47.33] | – [36.22] | – [20.00] | – [46.60] |
 | GEPA | – [62.33] | – [52.33] | – [38.61] | – [32.00] | – [51.95] |
 | GEPA+Merge | – [64.33] | – [51.67] | – [28.23] | – [32.00] | – [51.95] |
 | *Rollout budget, MIPROv2 and GEPA* | *6,871* | *7,051* | *3,593* | *1,839* | *1,839* |
 
 - **A's Baselines per seed** (failed examples in parentheses): HotpotQA 42.33 (6), 42.67 (0), 38.67 (5); HoVer 35.67 (0), 37.00 (0), 38.00 (0). Jobs 28923152, 28927513 and 28927510, all in `~/vllm091_runs`.
-- **B's Baselines per seed** (failed examples in parentheses, all format failures, 0 timeouts): IFBench 36.56 (10/294, job 28908434, vLLM 0.8.5), 36.05 (19/294); AIME 25.33 (67/150), 26.00 (63/150); LiveBench-Math 52.97 (13/126), 47.16 (19/126). Jobs 28929002 (seed 0) and 28929003 (seed 1), `~/final_baselines`; result folders in `results/b_baselines/`. A third seed is still to do.
+- **B's Baselines per seed** (failed examples in parentheses, all format failures, 0 timeouts): IFBench 30.27 (43/294, job 28941949), 36.05 (19/294); the earlier seed-0 run on vLLM 0.8.5 (36.56, 10/294, job 28908434) is no longer counted so that every cell uses vLLM 0.9.1, its folder is in `results/b_baselines/vllm085/`; AIME 25.33 (67/150), 26.00 (63/150); LiveBench-Math 52.97 (13/126), 47.16 (19/126). Jobs 28929002 (seed 0) and 28929003 (seed 1), `~/final_baselines`; result folders in `results/b_baselines/`. A third seed is still to do.
 - **What a Baseline seed is:** the seed doesn't change the test set or the prompts, but each seed has its own run and cache directory, so the model samples every answer afresh. The paper's number lies within 1.3 SD of our mean for both benchmarks, and any two runs agree on 82–90% of examples (F65).
 - **Not counted:** A's two runs on vLLM 0.8.5 (HotpotQA 39.67 and 40.67, HoVer 35.67 and 34.33; §5). B's earlier seed-1 and vLLM 0.9.1 values were mostly cache replays (F55) or lost answers to timeouts (F54, F56). His final Baselines (jobs 28929002 and 28929003, `~/final_baselines`) use vLLM 0.9.1, a fresh cache and both timeouts at 1,800 s; IFBench seed 0 is kept from job 28908434 (vLLM 0.8.5, no timeouts).
 - **The paper's other Table 1 cells:** PUPA 80.82 / 81.55 / 91.85 / 86.26 (Baseline, MIPROv2, GEPA, GEPA+Merge), and a GRPO row of 43.33, 38.67, 35.88, 38.00 and 51.26 in the column order above (PUPA 86.66). The paper prints the same GEPA and GEPA+Merge score for both math benchmarks (F61).
@@ -167,6 +167,8 @@ One row per job; add new rows at the bottom.
 | 2026-11-05 | B | 28926616 | AIME, LiveBench-Math | Baselines, seed 1, vLLM 0.9.1, fresh DSPy cache, Arbor timeout 1800 s | `7adf8ca` | 87 min | 186 | 27.33 / 41.46 | A100; clean run (no cache hits); 0 HTTP 504 but 45 examples lost to the OpenAI client's default 600 s timeout (AIME 82/150 logged, LiveBench 104/126); of 144 completed responses 126 parsed (88 with unclosed `<think>`); B total 1268 SBU |
 | 2026-11-05 | B | 28929002 | AIME, LiveBench-Math | final Baselines, seed 0: vLLM 0.9.1, fresh cache, both timeouts 1800 s | `c3ca457` | 1 h 20 min | 171 | 25.33 / 52.97 | A100; 152 requests; 0 HTTP 504, 0 client timeouts; 6 answers hit the 16,384-token limit; `~/final_baselines` |
 | 2026-11-05 | B | 28929003 | IFBench, AIME, LiveBench-Math | final Baselines, seed 1: same settings | `c3ca457` | 2 h 12 min | 282 | 36.05 / 26.00 / 47.16 | A100; 692 requests; 0 HTTP 504, 0 client timeouts; 4 answers hit the token limit; `~/final_baselines`; B total 1721 SBU |
+| 2026-11-06 | B | 28941949 | IFBench | final Baseline, seed 0 on vLLM 0.9.1 (replaces 28908434) | `c3ca457` | 47 min | 100 | 30.27 | A100; 528 requests; 0 HTTP 504, 0 client timeouts; 43/294 format failures; `~/final_baselines` |
+| 2026-11-06 | B | 28941948 | IFBench, AIME, LiveBench-Math | final Baselines, seed 2 | `c3ca457` | pending | ≤352 | – | queued, estimated start 2026-11-07 21:10 |
 | 2026-11-05 | B | 28919079 | AIME, LiveBench-Math | Baselines, seed 0, vLLM 0.9.1 | `7adf8ca` | 45 min | 96 | 26.67 / 42.71 | A100 (`gcn23`); `~/arbor091` (vllm 0.9.1, torch 2.7.0, transformers 4.53.3); output in `~/vllm091_runs`; some requests hit Arbor's 300 s timeout (504) and score 0; B total 890 SBU |
 | 2026-11-05 | A | 28918117 | HotpotQA | Baseline (4.3) | `fe389b8` | 17 min 46 s | 38 | 39.67 | A100 (`gcn40`); vLLM 0.8.5.post1; 7 failed examples; 1,190 requests; server ready after 196 s |
 | 2026-11-05 | A | 28918118 | HoVer | Baseline (4.3) | `fe389b8` | 17 min 0 s | 36 | 35.67 | A100 (`gcn23`); vLLM 0.8.5.post1; 0 failed; 1,201 requests; server ready after 160 s |
