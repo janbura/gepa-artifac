@@ -63,6 +63,10 @@ STOPFILE=$WORK/stopped_by_watchdog
 # vLLM >= 0.9 compiles the model into a cache; a shared ~/.cache/vllm lets two jobs that start
 # together read each other's half-written artifacts ("vLLM failed to compile the model"). One per job.
 export VLLM_CACHE_ROOT=$WORK/vllm-cache
+# HotpotQA/HoVer memoize their BM25 searches in SQLite (WAL), which breaks when processes on different
+# nodes share one file; every job gets its own cache (deterministic search, so results don't change)
+export GEPA_RETRIEVER_CACHE=${GEPA_RETRIEVER_CACHE:-$WORK/retriever_cache}
+echo "retriever cache: $GEPA_RETRIEVER_CACHE"
 PORT=$(( 20000 + ${SLURM_JOB_ID:-$$} % 20000 ))
 ALOG=logs/arbor-$JOB.log
 (source "$ARBOR_VENV/bin/activate" && export PYTHONPATH="$REPO/gepa_artifact/utils/arbor" && cd "$WORK" && exec python -m arbor.cli serve --arbor-config "$REPO/scripts/snellius/arbor_inference_1gpu.yaml" --port $PORT > "$REPO/$ALOG" 2>&1) &

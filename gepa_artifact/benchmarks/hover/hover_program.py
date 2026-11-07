@@ -86,7 +86,10 @@ def init_retriever():
             initialized = True
 
 # Initialize cache with a dedicated directory
-cache = Cache(os.path.join(os.path.dirname(__file__), "retriever_cache"))
+# GEPA_RETRIEVER_CACHE moves it (opt-in): diskcache keeps it in SQLite with WAL, which must not be
+# shared by processes on different machines, so cluster jobs give every job its own folder.
+# BM25 is deterministic, so this only changes speed, never the results.
+cache = Cache(os.environ.get("GEPA_RETRIEVER_CACHE") or os.path.join(os.path.dirname(__file__), "retriever_cache"))
 @cache.memoize()
 def search(query: str, k: int) -> list[str]:
     init_retriever()

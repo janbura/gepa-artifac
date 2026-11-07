@@ -74,7 +74,13 @@ PY
       DEN=$(tr '\r' '\n' < $R/run_log.txt | grep -o 'Average Metric: [0-9.]* / [0-9]*' | tail -1 | awk '{print $NF}')
       E=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep -c 'ERROR dspy.utils.parallelizer')
       EF=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -c 'Failed to parse\|Expected dict_keys')
-      echo "| ${B}_${O} | $S | $SC | ${DEN:-?} / $N | $(( N - ${DEN:-0} )) | $E ($EF) | $(stat -c %y $R/evaluation_results/evaluation_result.txt | cut -c1-16) |"
+      FLAG=""; [ "$E" -gt "$EF" ] && FLAG=" OTHER-ERRORS"
+      echo "| ${B}_${O} | $S | $SC | ${DEN:-?} / $N | $(( N - ${DEN:-0} )) | $E ($EF)$FLAG | $(stat -c %y $R/evaluation_results/evaluation_result.txt | cut -c1-16) |"
+      [ -n "$FLAG" ] && echo "  - first error that is not a format failure: $(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | head -1 | cut -c1-300)"
+      case "$O" in
+        MIPROv2-Heavy) echo "  - MIPROv2: $(grep -h 'Default program score' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / $(grep -h 'Returning best identified program' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / saved programs $(ls $R/optimizer_logs/evaluated_programs 2>/dev/null | wc -l)" ;;
+        GEPA|GEPA-MERGE) echo "  - GEPA: iterations $(grep -o 'Iteration [0-9]*:' $R/run_log.txt | tail -1 | grep -o '[0-9]*'), reflections $(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l), metric log lines train $(cat $R/metric_logs/train.jsonl 2>/dev/null | wc -l) / val $(cat $R/metric_logs/val.jsonl 2>/dev/null | wc -l), merges $(grep -c 'Merged programs' $R/run_log.txt), candidates $(ls $R/prog_candidates 2>/dev/null | wc -l)" ;;
+      esac
     else
       echo "| ${B}_${O} | $S | NO RESULT | – | – | – | – |"
     fi
@@ -83,6 +89,7 @@ PY
   V=OK
   grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|HTTP 500: [1-9]|HTTP 504: [1-9]|chunk-call timeouts \(F70\): [1-9]|result mismatches \(F68/F72\): [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
   grep -qE "unanswered [1-9]" "$F" && V=CHECK
+  grep -q "OTHER-ERRORS" "$F" && V=CHECK
   [ "$V" = OK ] || BAD=1
   echo "| $J | $(date '+%F %T') | $V | $(grep -m1 '^- job:' "$F" | cut -c8-) | $(grep '^| .*_' "$F" | awk -F'|' '{printf "%s s%s=%s; ", $2, $3, $4}') |" >> $OUT/SUMMARY.md
 done
