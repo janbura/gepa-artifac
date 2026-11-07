@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 # Post-run check of one qwen_job.sh job (section 2.4 of the plan), written to ~/repro_checks/<job>.md
 # and one line in ~/repro_checks/SUMMARY.md. Runs on its own after the job (sbatch --dependency=afterany),
-# so the result is there even if nobody is logged in.
+# so the result is there even if nobody is logged in. Exits 1 if any checked job gets the verdict CHECK,
+# so a job submitted with --dependency=afterok:<check job> only starts after a clean run (the gate).
 #   usage: check_job.sh <job id> [<job id> ...]
 set -u
+BAD=0
 OUT=$HOME/repro_checks; mkdir -p "$OUT"
 size_of() { case "$1" in HotpotQABench|hoverBench) echo 300;; IFBench) echo 294;; AIMEBench) echo 150;; LiveBenchMathBench) echo 126;; *) echo 0;; esac; }
 
@@ -81,5 +83,7 @@ PY
   V=OK
   grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|HTTP 500: [1-9]|HTTP 504: [1-9]|chunk-call timeouts \(F70\): [1-9]|result mismatches \(F68/F72\): [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
   grep -qE "unanswered [1-9]" "$F" && V=CHECK
+  [ "$V" = OK ] || BAD=1
   echo "| $J | $(date '+%F %T') | $V | $(grep -m1 '^- job:' "$F" | cut -c8-) | $(grep '^| .*_' "$F" | awk -F'|' '{printf "%s s%s=%s; ", $2, $3, $4}') |" >> $OUT/SUMMARY.md
 done
+exit $BAD
