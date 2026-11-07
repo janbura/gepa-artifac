@@ -61,6 +61,10 @@ Written after checking our Baselines against the authors' runs and the code (fin
 
 | Mistake | Who | Cost | Rule now | Finding |
 |---|---|---|---|---|
+| First Qwen job on an H100 without Arbor installed in its venv | B | 29 SBU | the job script checks the Arbor environment and logs its vLLM version | F41 |
+| Jobs on `gpu_mig` (A100 slices): vLLM cannot fit the 32,768-token context | B | 34 SBU | full GPUs only | F51 |
+| An H100 job estimated to start 4 days later; cancelled | B | a day of waiting | 1-GPU A100 jobs; H100 only where the KV cache matters | F47 |
+| `--dry_run` crashed on IFBench, and a dry run in the real directory would mark the real run as done | A, B | hours | dry runs and pilots in their own experiment directory; fix on `feat/pilot-caps` | F18, F50 |
 | Set environment variables in front of `sbatch`; two "vLLM 0.9.1" jobs served 0.8.5 | A | 2 runs, ~70 SBU | per-run variables at the start of the command line, job-wide ones with `--export`; the job log prints the vLLM version | F63 |
 | Two vLLM 0.9 jobs started in the same second and broke each other's compile cache | A | 75 SBU, no result | `VLLM_CACHE_ROOT` per job | F64 |
 | A GEPA test without a server looped 2,083 times | A | login-node time | watchdog in the job script; `timeout` for pilots | F57 |
@@ -115,7 +119,7 @@ After the job:
 
 ### 2.6 Cost and time (expected; pessimistic ×1.3)
 
-Basis: the authors' request and token counts per run (notes §3), 80–95 % of predictor calls fresh for MIPROv2 (the authors' HotpotQA MIPROv2 log is a restarted run and is not used, F79), our measured speeds (585 tok/s short answers, 130–175 tok/s long answers on one A100 with 32 threads; about 50 tok/s per stream), B's partial IFBench MIPROv2 run (11 of 41 trials in 2 h 43 min at 8 threads).
+Basis (recomputed by `analysis/cost_model.py`, which prints this table from the inputs below): the authors' request and token counts per run (notes §3), 80–95 % of predictor calls fresh for MIPROv2 (the authors' HotpotQA MIPROv2 log is a restarted run and is not used, F79), our measured speeds (585 tok/s short answers, 130–175 tok/s long answers on one A100 with 32 threads; about 50 tok/s per stream), B's partial IFBench MIPROv2 run (11 of 41 trials in 2 h 43 min at 8 threads).
 
 | Run type | Hours per run (A100) | SBU per run | Runs | SBU |
 |---|---|---|---|---|
