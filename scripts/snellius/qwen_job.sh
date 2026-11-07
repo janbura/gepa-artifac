@@ -47,6 +47,13 @@ echo "start $(date) on $(hostname), commit $(git rev-parse --short HEAD)$DIRTY, 
 ARBOR_VENV=${2:-${ARBOR_VENV:-$REPO/gepa_artifact/utils/arbor/.venv}}
 [ -x "$ARBOR_VENV/bin/python" ] || { echo "no Arbor environment at $ARBOR_VENV"; exit 1; }
 echo "arbor venv: $ARBOR_VENV (vllm $("$ARBOR_VENV/bin/python" -c 'import importlib.metadata as m; print(m.version("vllm"))' 2>/dev/null || echo '?'))"
+# Without the four Arbor timeout edits (F67, F70, F72) and the client timeout (F56) long answers are
+# dropped or mixed up, so the job refuses to start: run scripts/snellius/apply_arbor_timeouts.sh first.
+V=$REPO/gepa_artifact/utils/arbor/arbor/server/services/inference
+if ! grep -q "timeout=7200)" "$V/vllm_client.py" || ! grep -q "default=21600," "$V/vllm_serve.py"    || grep -q "timeout=60.0)" "$V/vllm_serve.py" || ! grep -q '"timeout": 7200' scripts/run_experiments.py; then
+  echo "timeout edits missing (F56, F67, F70, F72): run scripts/snellius/apply_arbor_timeouts.sh and check scripts/run_experiments.py"; exit 1
+fi
+echo "timeouts: client 7200 s, forwarder 7200 s, worker 21600 s, chunk call 600 s"
 echo "job settings: STALL_MINUTES=$STALL_MINUTES PROGRESS_DIRS=${PROGRESS_DIRS:-<unset>} GEPA_EXPERIMENT_DIR=${GEPA_EXPERIMENT_DIR:-<unset>} GEPA_MAX_METRIC_CALLS=${GEPA_MAX_METRIC_CALLS:-<unset>}"
 
 # arbor writes request/response logs to ./storage, keep them out of the repo
