@@ -11,3 +11,11 @@ Copied from `~/final_baselines` on Snellius (without the DSPy caches). See secti
 IFBench seeds 0-2 are rerunning with a 4 h limit (F69), their folders will be added here.
 
 Each run folder has config.json, evaluation_results/ (the score), metric_logs/test.jsonl (one line per scored example, failed examples are missing) and the run logs. run_log_stderr.txt.gz is the raw stderr, gzipped because of the progress bars.
+
+## Arbor request logs and dataset revisions
+
+`arbor_logs/<job id>/inference_{requests,responses}.jsonl.gz` are the Arbor server's logs of the three final math jobs (28957882 seed 0, 28957884 seed 1, 28941948 seed 2): one line per request and per answer, so "no request dropped" can be checked (199/199, 201/201, 201/201 lines) and the raw answers are available for the serving-behaviour analysis.
+
+Datasets as cached on Snellius for these runs (Hugging Face revisions): `MathArena/aime_2025` @ c94da77eb22bbd6439e62a323bec18493a421302, `AI-MO/aimo-validation-aime` @ 13f9e12f613e720c2a2b2f345dd04b998a29494d, `livebench/math` @ bb66571c8ccf32d3df9e6f48b920d3770ff4aacb. The LiveBench-Math split is a seeded shuffle of the whole dataset, so a newer revision would change the test set.
+
+Failed examples per run (test size minus the progress bar's denominator in run_log.txt): AIME 19 / 21 / 25 of 150, LiveBench-Math 21 / 12 / 20 of 126. All are answers that never reached the output fields (136 of the 140 failing completions still have an unclosed `<think>`, 96 are longer than 20,000 characters).
