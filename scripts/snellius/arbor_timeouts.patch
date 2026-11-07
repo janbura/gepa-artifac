@@ -7,7 +7,7 @@ index ad78d1b..14ecab7 100644
              try:
                  async with httpx.AsyncClient() as client:
 -                    response = await client.post(url, json=json_body, timeout=600)
-+                    response = await client.post(url, json=json_body, timeout=7200)
++                    response = await client.post(url, json=json_body, timeout=21600)
  
                      if response.status_code == INFERENCE_BLOCKED_STATUS:
                          retries += 1
@@ -20,7 +20,7 @@ index 19a9155..8e24264 100644
      )
      batch_request_timeout_seconds: int = field(
 -        default=300,
-+        default=21600,
++        default=864000,
          metadata={"help": "Timeout in seconds for a single request waiting for its turn and completion."},
      )
      token_chunk_size: int = field(
