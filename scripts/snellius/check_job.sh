@@ -8,6 +8,32 @@ set -u
 BAD=0
 OUT=$HOME/repro_checks; mkdir -p "$OUT"
 size_of() { case "$1" in HotpotQABench|hoverBench) echo 300;; IFBench) echo 294;; AIMEBench) echo 150;; LiveBenchMathBench) echo 126;; *) echo 0;; esac; }
+# pre-registered seed-0 gate (REPRODUCTION_PLAN.md 2.4, commit 9a4fb0c): <benchmark>_<optimizer> paper SD_run
+GATE="HotpotQABench_Baseline 42.33 1.48
+HotpotQABench_MIPROv2-Heavy 55.33 3.35
+HotpotQABench_GEPA 62.33 3.33
+HotpotQABench_GEPA-MERGE 64.33 3.32
+hoverBench_Baseline 35.33 1.61
+hoverBench_MIPROv2-Heavy 47.33 3.44
+hoverBench_GEPA 52.33 3.44
+hoverBench_GEPA-MERGE 51.67 3.44
+IFBench_Baseline 36.90 1.63
+IFBench_MIPROv2-Heavy 36.22 3.41
+IFBench_GEPA 38.61 3.42
+IFBench_GEPA-MERGE 28.23 3.36
+AIMEBench_Baseline 27.33 3.93
+AIMEBench_MIPROv2-Heavy 20.00 4.63
+AIMEBench_GEPA 32.00 5.09
+AIMEBench_GEPA-MERGE 32.00 5.09
+LiveBenchMathBench_Baseline 48.70 2.71
+LiveBenchMathBench_MIPROv2-Heavy 46.60 4.04
+LiveBenchMathBench_GEPA 51.95 4.04
+LiveBenchMathBench_GEPA-MERGE 51.95 4.04"
+gate() {  # gate <benchmark>_<optimizer> <score> -> "d=..; z=..; inside|FLAG|PAUSE"
+  echo "$GATE" | awk -v k="$1" -v sc="$2" '$1 == k { d = sc - $2; z = d / $3; a = (z < 0) ? -z : z;
+    v = (a > 3.64) ? "PAUSE" : ((a > 2.77) ? "FLAG" : "inside");
+    printf "paper %s, d %+.2f, z %+.2f (gate +-%.1f, pause +-%.1f): %s", $2, d, z, 2.77 * $3, 3.64 * $3, v }'
+}
 
 for J in "$@"; do
   F=$OUT/$J.md
@@ -77,6 +103,7 @@ PY
       FLAG=""; [ "$E" -gt "$EF" ] && FLAG=" OTHER-ERRORS"
       echo "| ${B}_${O} | $S | $SC | ${DEN:-?} / $N | $(( N - ${DEN:-0} )) | $E ($EF)$FLAG | $(stat -c %y $R/evaluation_results/evaluation_result.txt | cut -c1-16) |"
       [ -n "$FLAG" ] && echo "  - first error that is not a format failure: $(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | head -1 | cut -c1-300)"
+      echo "  - match with the paper: $(gate ${B}_${O} $SC)"
       case "$O" in
         MIPROv2-Heavy) echo "  - MIPROv2: $(grep -h 'Default program score' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / $(grep -h 'Returning best identified program' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / saved programs $(ls $R/optimizer_logs/evaluated_programs 2>/dev/null | wc -l)" ;;
         GEPA|GEPA-MERGE) echo "  - GEPA: iterations $(grep -o 'Iteration [0-9]*:' $R/run_log.txt | tail -1 | grep -o '[0-9]*'), reflections $(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l), metric log lines train $(cat $R/metric_logs/train.jsonl 2>/dev/null | wc -l) / val $(cat $R/metric_logs/val.jsonl 2>/dev/null | wc -l), merges $(grep -c 'Merged programs' $R/run_log.txt), candidates $(ls $R/prog_candidates 2>/dev/null | wc -l)" ;;
@@ -92,7 +119,9 @@ PY
   grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|chunk-call timeouts \(F70\): [1-9]|connection errors: [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
   grep -qE "unanswered [1-9]" "$F" && V=CHECK
   grep -q "OTHER-ERRORS" "$F" && V=CHECK
-  [ "$V" = OK ] || BAD=1
+  grep -q "): PAUSE" "$F" && V=CHECK
+  grep -q "): FLAG" "$F" && [ "$V" = OK ] && V=OK-FLAG
+  [ "$V" = CHECK ] && BAD=1
   echo "| $J | $(date '+%F %T') | $V | $(grep -m1 '^- job:' "$F" | cut -c8-) | $(grep '^| .*_' "$F" | awk -F'|' '{printf "%s s%s=%s; ", $2, $3, $4}') |" >> $OUT/SUMMARY.md
 done
 exit $BAD
