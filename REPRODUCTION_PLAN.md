@@ -608,6 +608,8 @@ Findings from the code, the forks (`gepa_study` branches), the paper, the author
 | 2026-11-07 | Keep upstream's F60 fix (B, A to confirm) | It has no effect under `track_scores_on='val'` (F81) |
 | 2026-11-07 | GRPO: log analysis + signal measurement + one limited HoVer run instead of the full row (B, proposal for the supervisor) | The shipped logs already explain the small gains (F83); a full row costs ~13k SBU per benchmark |
 | 2026-11-07 | Split the optimizer runs by optimizer: A runs MIPROv2-Heavy on all five benchmarks, B runs GEPA and GEPA+Merge on all five; runs are handed over by copying run and cache folders (§2.5) | B's choice; the chain only needs the source run's folders in the same directory |
+| 2026-11-07 | gpt-oss-120b is in scope as an extension, run by B after Table 1 (one seed, five benchmarks, Baseline + MIPROv2 + GEPA + GEPA+Merge, ~7,000 SBU, feasibility test first) | B's choice; a second open model tests whether the findings generalise |
+| 2026-11-07 | B owns the H100 speed test (job 28971148) and decides H100 vs A100 for the math GEPA jobs from it | The test is B's IFBench Baseline on gpu_h100 |
 
 ---
 
