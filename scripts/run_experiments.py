@@ -81,6 +81,10 @@ def create_lm(lm_config):
         "num_retries": 0,
         "provider": provider,
     }
+    # the timeout ends up in the DSPy cache key, and the shipped caches were written without one,
+    # so the replay scripts set GEPA_REPLAY_CACHE=1 to drop it again
+    if os.environ.get("GEPA_REPLAY_CACHE") == "1":
+        fixed_config.pop("timeout")
     config = {k:v for k, v in config.items() if k != "name"}
     return dspy.LM(**config, **fixed_config)
 
