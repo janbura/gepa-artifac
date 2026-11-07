@@ -113,6 +113,7 @@ def main():
     for name, pred in program.named_predictors():
         print(f"predictor {name}: {len(pred.signature.instructions)} chars of instruction, {len(pred.demos)} demos")
 
+    os.environ["GEPA_REPLAY_CACHE"] = "1"  # keep the cache keys the same as in the shipped runs
     lm = create_lm(lm_config)
     dspy.configure(lm=lm, adapter=dspy.settings.adapter)
 

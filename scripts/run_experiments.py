@@ -5,9 +5,29 @@ import time
 import json
 import traceback
 import random
+from pathlib import Path
 
 from gepa_artifact.utils.capture_stream_logger import Logger
 from .experiment_configs import BASE_EXPERIMENT_DIR, get_benchmarks, get_optimizers, get_max_invocations
+
+# The directory real runs go to when GEPA_EXPERIMENT_DIR is not set (same as experiment_configs.py).
+DEFAULT_EXPERIMENT_DIR = (Path(__file__).parent.parent / "experiment_runs_data").resolve()
+
+def get_metric_call_cap():
+    """
+    Opt-in cap on GEPA's metric-call budget, for pilots: GEPA_MAX_METRIC_CALLS=<positive int>.
+    Returns None when the variable is unset or empty, which keeps the original budgets.
+    """
+    raw = os.environ.get("GEPA_MAX_METRIC_CALLS", "").strip()
+    if not raw:
+        return None
+    try:
+        cap = int(raw)
+    except ValueError:
+        cap = 0
+    if cap <= 0:
+        raise ValueError(f"GEPA_MAX_METRIC_CALLS must be a positive integer, got {raw!r}.")
+    return cap
 
 def write_evaluation_result_to_path(evaluation_result, file_path):
     os.makedirs(file_path, exist_ok=True)
@@ -57,9 +77,14 @@ def create_lm(lm_config):
     provider = ArborProvider() if "openai/arbor" in config['model'] else None
     fixed_config = {
         "max_tokens": 16384,  # overriding the dspy defaults
+        "timeout": 7200,  # a 16k-token answer can take ~30 min on one gpu and must not be dropped
         "num_retries": 0,
         "provider": provider,
     }
+    # the timeout ends up in the DSPy cache key, and the shipped caches were written without one,
+    # so the replay scripts set GEPA_REPLAY_CACHE=1 to drop it again
+    if os.environ.get("GEPA_REPLAY_CACHE") == "1":
+        fixed_config.pop("timeout")
     config = {k:v for k, v in config.items() if k != "name"}
     return dspy.LM(**config, **fixed_config)
 
@@ -94,6 +119,19 @@ def run_experiment_and_write_results_actual(
     seed=0,
 ):
     base_experiment_dir = BASE_EXPERIMENT_DIR
+
+    # A capped run must never land in the real experiment directory: its evaluation_results/ would make
+    # the real run skip as done, and its cache would be reused. Checked before any directory is created.
+    metric_call_cap = get_metric_call_cap()
+    if metric_call_cap is not None:
+        if Path(base_experiment_dir).resolve() == DEFAULT_EXPERIMENT_DIR:
+            raise ValueError(
+                f"GEPA_MAX_METRIC_CALLS={metric_call_cap} is set, but runs would be written to the default "
+                f"experiment directory {DEFAULT_EXPERIMENT_DIR}. Set GEPA_EXPERIMENT_DIR to a separate "
+                "pilot directory, or unset GEPA_MAX_METRIC_CALLS for a real run."
+            )
+        print(f"GEPA_MAX_METRIC_CALLS={metric_call_cap}: GEPA-family budgets are capped (other optimizers are unaffected).")
+
     lm_name = lm_config["name"]
     print(f"Running {benchmark_name} with {prog_name} and {optim_name} on {lm_name}")
     runs_dir_basepath = os.path.join(base_experiment_dir, "experiment_runs", f"seed_{seed}")
@@ -254,7 +292,8 @@ def run_experiment_and_write_results_actual(
         if dry_run:
             benchmark.train_set = benchmark.train_set[:2]
             benchmark.val_set = benchmark.val_set[:2]
-            benchmark.dev_set = benchmark.dev_set[:2]
+            if hasattr(benchmark, "dev_set"):  # no benchmark defines dev_set, so this line crashed every dry run
+                benchmark.dev_set = benchmark.dev_set[:2]
             benchmark.test_set = benchmark.test_set[:2]
             print(f"Dry run: only using 2 examples from each set.")
 
@@ -317,6 +356,7 @@ def run_experiment_and_write_results_actual(
                         "optimizer_config": optimizer_config,
                         "metric_lm_name": metric_lm_name,
                         "metric_lm": metric_lm,
+                        **({"metric_call_cap": metric_call_cap} if metric_call_cap is not None else {}),
                     }, f, default=json_encoder)
 
             if directory_existed:
@@ -354,6 +394,9 @@ def run_experiment_and_write_results_actual(
                     num_mipro_invocations = get_max_invocations(benchmark_name, prog_name, metric_lm_name, opt=optimizer_config.langProBe_configs.get("max_metric_calls_source_opt_name"))
                     assert num_mipro_invocations is not None, f"Could not find max invocations for {benchmark_name}, {prog_name}, {metric_lm_name}"
                     init_args["max_metric_calls"] = num_mipro_invocations
+                    if metric_call_cap is not None:
+                        init_args["max_metric_calls"] = min(metric_call_cap, num_mipro_invocations)
+                        logger.log(f"GEPA_MAX_METRIC_CALLS: max_metric_calls = {init_args['max_metric_calls']} (uncapped budget: {num_mipro_invocations}).")
                 
                 if "add_wandb_configs_to_initargs" in optimizer_config.langProBe_configs and optimizer_config.langProBe_configs["add_wandb_configs_to_initargs"]:
                     init_args["use_wandb"] = use_wandb
