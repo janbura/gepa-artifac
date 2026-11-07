@@ -76,7 +76,7 @@ Test-set score in %: mean ± SD over seeds, the number of seeds in parentheses, 
 
 ## 3. Running a benchmark
 
-Every Qwen3-8B job goes through `scripts/snellius/qwen_job.sh` on one A100. This checklist is built from the problems in F50–F66.
+Every Qwen3-8B job goes through `scripts/snellius/qwen_job.sh` on one A100. This checklist is built from the problems in F50–F73.
 
 **Environments** (once per person)
 
@@ -98,7 +98,7 @@ Every Qwen3-8B job goes through `scripts/snellius/qwen_job.sh` on one A100. This
 
 1. In `logs/<name>-<id>.out`: `arbor venv: … (vllm 0.9.1)`, `job settings:`, `server ready`, each command's exit code, and no watchdog line (F57).
 2. `SEED=<s> GEPA_EXPERIMENT_DIR=<dir> bash scripts/snellius/check_run.sh <run name>`: score, failed examples (test size − unique examples logged), parse failures.
-3. Requests that reached the server, `cat logs/arbor_requests_<id>/*/inference_requests.jsonl | wc -l` (F55), and timeouts, `grep -c "Timeout for chat request" logs/arbor-<id>.log` (F54).
+3. Every request answered: `inference_requests.jsonl` and `inference_responses.jsonl` in `logs/arbor_requests_<id>/*/` have the same number of lines (F55, F67). And `grep -cE 'Timeout for chat request|httpx.ReadTimeout|500 Internal Server Error|504 Gateway|LLM result|chunk chat after|Timeout waiting for worker' logs/arbor-<id>.log` is 0 (F54, F67, F68, F70). A worker timeout also mixes answers between requests, so a run with one is void (F72).
 4. A row in §5 with commit, vLLM version, SBU, score, failed examples and request count.
 
 **Problems we hit**
@@ -108,8 +108,12 @@ Every Qwen3-8B job goes through `scripts/snellius/qwen_job.sh` on one A100. This
 | Environment set in front of `sbatch` dropped | The log shows the default `arbor venv` or `<unset>` settings | 2nd argument; variables at the start of command lines | F63 |
 | Two vLLM 0.9 jobs start together | "vLLM failed to compile the model" | Per-job `VLLM_CACHE_ROOT`; the warm-up stops at the first fatal message | F64 |
 | GEPA loops when every call fails | Thousands of "No feedback samples, skipping" iterations, budget unused | Watchdog in `qwen_job.sh`; `timeout` for pilots | F57 |
-| Arbor's 300 s and the client's 600 s limits | HTTP 504 or `APITimeoutError`; the example scores 0 | Long math answers; B raises both to 1,800 s (§2.4) | F54, F56 |
-| DSPy writing to `~/.dspy_cache` | Far fewer requests reach the server than the run needs | Check the request count after every run | F55 |
+| Arbor's 300 s worker, 600 s forwarder and 600 s client limits | HTTP 504, HTTP 500 with `httpx.ReadTimeout` in the Arbor log, or `APITimeoutError`; the example scores 0 | All three raised: client and forwarder 7,200 s, worker 21,600 s (B since 2026-11-06) | F54, F56, F67 |
+| Worker timeout mixes answers between requests | `Timeout for chat request` in the Arbor log; answers that jump mid-sentence to another example | Worker timeout longer than the job; a run with one is void | F72 |
+| 60 s limit per chunk call | `timeout for continue-chunk chat after 60s`; later answers swapped | Raised to 600 s (B) | F70 |
+| IFBench longer than the job limit | `TIMEOUT` in sacct, no `evaluation_results` | `-t 04:00:00` for IFBench | F69 |
+| Timeout in the DSPy cache key | Replays or chain steps miss the cache | `GEPA_REPLAY_CACHE=1` in the replay scripts; one `create_lm` per chain | F73 |
+| A rerun replays its own run folder's DSPy cache | Far fewer requests reach the server than the run needs | Move `experiment_runs/seed_<s>/<run>` and `experiment_cache_dirs/seed_<s>/<run>` before a rerun | F55 (corrected) |
 | Format failures | Fewer unique examples logged than the test set has | Keep the parser; report the count | F52, F65 |
 | An example logged twice in `test.jsonl` | Line count above the unique count | `check_run.sh` counts unique examples | F65 |
 | `--dry_run` crash | `AttributeError: … dev_set` | Fixed on `feat/pilot-caps` | F50 |
@@ -128,7 +132,7 @@ Every Qwen3-8B job goes through `scripts/snellius/qwen_job.sh` on one A100. This
 | Authors' scores: Baseline / MIPROv2 / GEPA / GEPA+Merge / SelectBest | 42.33 / 55.33 / 62.33 / 64.33 / 58.33 | 35.33 / 47.33 / 52.33 / 51.67 / 45.33 |
 | Authors' vLLM | 0.9.1; GEPA family 0.9.2 | 0.9.1 |
 | Authors' reflections: GEPA / GEPA+Merge / SelectBest | 132 / 64 / 74 | 93 / 50 / 126 |
-| Timeouts per Baseline run | 0–5, all retried | 0–1 |
+| Timeouts per Baseline run | 0–5, all retried; each one can mix answers (F72) | 0–1 (F72) |
 | Retrieval | Local BM25 over 2017 Wikipedia abstracts; one index for both (F23) | Same |
 | Our run directories | vLLM 0.9.1: `~/vllm091_runs` (seeds 0–2); 0.8.5: `experiment_runs_data/`, `~/vllm085_rep2_runs` | The same |
 
@@ -395,7 +399,7 @@ Findings from the code, the forks (`gepa_study` branches), the paper, the author
   - It pools requests that have the same sampling parameters and generates `token_chunk_size` = 64 tokens for up to 32 of them per `llm.chat` call. New requests go before ones that are being continued.
   - Each continuation re-sends the conversation plus `{"role": "assistant", "content": <text so far>}` with `continue_final_message=True`. With Qwen3's chat template (the April and the May 2025 revisions behave the same), a response that is still thinking becomes `<|im_start|>assistant\n<think>\n\n</think>\n\n<think>\n<text so far>`. The model sees an empty, closed think block before its own unclosed one. That fits the unclosed `<think>` of F52, which costs only 1–2 points there.
   - It's a likely reason for the slow rollouts in §4 (one generate call every 64 tokens, small batches). Not measured.
-  - The chunking has been in Arbor since `d050c8f` (2025-05-31), before our `113fc35`, so the authors very likely ran with it too. To confirm, look for `[LIFECYCLE] Activated new pool` lines in the authors' `arbor_logs.txt`.
+  - The chunking has been in Arbor since `d050c8f` (2025-05-31), before our `113fc35`, so the authors very likely ran with it too. To confirm, look for `[LIFECYCLE] Activated new pool` lines in the authors' `arbor_logs.txt`. B, 2026-11-07: they are in all 24 (F71).
   → Keep Arbor as it is for the reproduction. A larger chunk or vLLM's own server would probably be much faster, but it changes how text is generated. Decide with the scope (§2.4: cost against fidelity).
 
 ### J. From A's Baselines, seeds and the vLLM check (2026-11-05 and 06)
@@ -440,16 +444,24 @@ Findings from the code, the forks (`gepa_study` branches), the paper, the author
 - **F67 confirmed (2026-11-07).** B's six jobs with the three 7200 s timeouts (28941948, 28952775, 28957882–85) dropped nothing. The math jobs have as many responses as requests, the IFBench jobs lack only the requests still running when Slurm stopped them (F69), and all six have 0 `httpx.ReadTimeout`, 0 worker timeouts and 0 HTTP 500/504.
 - **F69. With nothing dropped, IFBench needs more than 1 h 30 on one A100.** The answers that run to the 16,384-token limit now take 63–79 min each (17–19 per run), and IFBench chains two calls per example. All three IFBench jobs were stopped by Slurm at 276–283 of 294 examples with 11–18 requests still running. A run writes `evaluation_results` only at the end, so nothing was kept. AIME + LiveBench-Math took 1 h 45 to 2 h 16 (limit 2 h 45).
   → IFBench runs with `-t 04:00:00` (jobs 28969642–44). Size the optimizer runs' limits on these times, not on the old truncated runs.
-- **F70. Three more hazards in Arbor and in B's job script, found by a code audit on 2026-11-06. None of them fired, and all are fixed for the IFBench reruns.**
+- **F70. Two more hazards in Arbor and in B's job script, found by a code audit on 2026-11-06. Neither fired in any run, and both are fixed for the IFBench reruns.** A third one did fire (F72).
   - Each 64-token chunk call has a hard-coded 60 s limit (`vllm_serve.py:870, 929, 960`). On expiry the worker's late reply stays in the pipe, and every later call reads the previous call's outputs, so answers are silently swapped between requests for the rest of the job. On the A100-40GB the KV cache holds 137,040 tokens (the authors had 1,735,712 with TP=4), so 32 long contexts are re-prefilled on every call. The longest call in B's six jobs took 32 s. The limit is now 600 s.
-  - If the worker's own request timeout fires during a chunk call, the outputs of that call are shifted onto the other requests (index bug in the result loop). The worker default is now 21,600 s, longer than any job. Client and forwarder stay at 7,200 s, so a request over 2 h shows up as an `APITimeoutError` instead of a silent swap.
   - B's `slurm/qwen_job.sh` ran `pkill -u $USER -f vllm_serve` on exit, which also kills the vLLM worker of any other B job on the same node. No two B jobs ever ran on one node at the same time (sacct). The script now kills only processes with its own `SLURM_JOB_ID`, and it refuses to start if the timeout edits are missing. A's `scripts/snellius/qwen_job.sh` has no such `pkill`.
   → After every run, `grep -cE 'timeout for (first|continue)-chunk chat after|Timeout waiting for worker response|LLM result count mismatch|Timeout for chat request' logs/arbor-<job>.log` must be 0. A: make the two `vllm_serve.py` edits as well (lines 870, 929 and 960 `timeout=600.0`, line 414 `default=21600`).
 - **F71. The artifact changes answers in three ways that raise no error. The authors ran the same code, so this is part of what we reproduce.** Report it, don't fix it.
   - `top_k=20` never reaches vLLM. Arbor's `OAChatCompletionRequest` has no `top_k` field, and `create_pool_signature` drops sampling keys that come in `extra_body` (`vllm_serve.py:100-112, 492-545`). vLLM therefore samples with temperature 0.6 and top_p 0.95 only.
-  - Every 64-token continuation goes back through Qwen3's chat template. While the model is still thinking, the prompt becomes `<|im_start|>assistant\n<think>\n\n</think>\n\n<think>\n` followed by its partial reasoning. That is an empty think block, Qwen3's marker for "thinking off", in front of the model's own reasoning (rendered with the model's tokenizer on Snellius). After `</think>` the continuation matches what was generated, and the returned text doesn't show the inserted block. The template error of F68 comes from the same step.
+  - The empty think block in front of the model's reasoning in every 64-token continuation, as A described in F58. Checked: rendered with the model's tokenizer on Snellius, and all 24 of the authors' Qwen logs contain `[LIFECYCLE] Activated new pool`, so they generated the same way. After `</think>` the continuation matches what was generated, and the returned text doesn't show the inserted block.
   - DSPy's `ParallelExecutor` resubmits an example once 3 or fewer are left and it has run for 120 s, and scores the copy that finishes first (`dspy/utils/parallelizer.py:24-25, 174-191`). The slowest examples at the end of a run are therefore biased toward shorter answers. B's math jobs sent 43–45 repeated prompts each; this count covers these resubmissions and the AIME copies sent before the first answer was cached.
   - Reported by the audit but not checked yet: the forwarder sends a request again from scratch after a worker 500/504 (up to 3 attempts); each chunk re-tokenises the decoded text; LiveBench-Math's AMPS_Hard check scores 0 when sympy needs more than 8 s.
+- **F72. When Arbor's worker timeout fires, answer text goes to the wrong requests.** After a chunk call, `vllm_serve.py:986-991` (and the same loop at 1051) matches the results to the requests with a counter that skips requests already marked done. The timeout handler (`vllm_serve.py:1398-1401`) marks a request done while its chunk call is still running. The counter then gives every later request in that call the previous request's 64 tokens, and the last result is dropped. Nothing is logged, and an answer that still parses is scored with another example's text.
+  - Seen in B's truncated job 28929002. After worker timeouts at 20:18:16, the AIME answer about the right triangle `BKLC` jumps mid-sentence to the `x1 = 25/11` sequence problem, then to the 16-chairs problem, and ends with another problem's `[[ ## answer ## ]] 7`.
+  - It can happen once per `Timeout for chat request` line in the Arbor log. B's final runs: 0. B's truncated runs: 27 (28929002) and 3 (28941949). The authors' four Qwen Baselines: 0, so their Baseline scores are unaffected. Their optimizer runs: HotpotQA GEPA 53, Abl-SelectBestCandidate 28, GEPA-MERGE 18, MIPROv2 1; IFBench GEPA 52, MIPROv2 3, Abl-SelectBestCandidate 3; HoVer GEPA 3; PUPA 0. Some of their GEPA-family runs therefore worked with partly mixed answers (not checked whether during the search or the final test pass). Worth reporting.
+  - A's HotpotQA Baselines had up to 5 worker timeouts per run (300 s default, §3 table), so answers finished after them may contain another example's text. The "broken text" format failures of F65 would fit this.
+  → Keep the worker timeout longer than the job (B: `default=21600` at `vllm_serve.py:414`, so it can't fire). Treat a run with any `Timeout for chat request` as void. A: count them for jobs 28923152, 28927513 and 28927510 (`grep -c 'Timeout for chat request' logs/arbor-<job>.log`); a rerun with the edits costs 34–94 SBU per job (§3 table).
+- **F73. The client timeout is part of DSPy's cache key.** `dspy/clients/lm.py:95` leaves only `api_key`, `api_base` and `base_url` out of the key (`dspy/clients/cache.py:95`), so B's `"timeout": 7200` in `create_lm` changed every key.
+  - The replay scripts no longer found the authors' cached answers. Fixed in `7a8dbad` on `feat/replay-and-analysis`: they set `GEPA_REPLAY_CACHE=1`, which drops the timeout again, and real runs keep it. Checked: 30 AIME test examples of `AIMEBench_CoT_Baseline_gpt-41-mini` all come from the cache with their stored scores.
+  - A chain reuses the Baseline's cache only if every step runs with the same `create_lm` (F20). B's chains keep the timeout in every step. A's runs have no timeout (`feat/pilot-caps`), so if A adds it before MIPROv2, MIPROv2 regenerates the Baseline's calls instead of reading them.
+  → A: decide before the optimizer runs. Long reflection and MIPROv2 calls need the timeouts as much as B's math runs did (F67). Adding all of them now and rerunning the Baselines with them keeps each chain consistent and also clears F72.
 
 ---
 
@@ -470,9 +482,12 @@ Findings from the code, the forks (`gepa_study` branches), the paper, the author
 | 2026-11-04 | Step 1.7 runs on `genoa` (24 cores) | `rome` had no free nodes during the rolling reboot (F47); same price per core-hour |
 | 2026-11-04 | Main environment: pin all 285 package versions of an original run (`constraint-dependencies`) and lock for Python 3.12 only | B's review of PR #2 (F49): the full list exists, and with 8 pins, 58 packages still differed, including two that dspy uses during runs. Every original run used Python 3.12.9 |
 | 2026-11-05 | Serve every further run with the authors' vLLM 0.9.1, passed as `qwen_job.sh`'s 2nd argument | 19 of the authors' 24 Arbor logs show 0.9.1 (F62). No measurable score difference from 0.8.5 at Baseline level, but it's the authors' setup |
-| 2026-11-05 | Raise Arbor's request limit and the client's timeout to 1,800 s, and use a fresh DSPy cache per job (B) | Timeouts and the cache are infrastructure, not the method; see the decision in §6 H (F54–F56) |
+| 2026-11-05 | Raise Arbor's request limit and the client's timeout to 1,800 s, and use a fresh DSPy cache per job (B) *(replaced on 2026-11-06, see below; the cache export had no effect, F55)* | Timeouts and the cache are infrastructure, not the method; see the decision in §6 H (F54–F56) |
 | 2026-11-06 | Objective: Table 1 without an API key, 3 seeds per cell, reported as mean ± SD | A's Baselines vary by 1–2 points SD between seeds, and the paper's single runs fall inside that spread |
 | 2026-11-06 | The phase plan is removed from this file; it's in git history (`60b8e91`) | Setup and pilots are done; what remains is filling §1 |
+| 2026-11-06 | Raise all request limits (B): client and forwarder 7,200 s, worker 21,600 s, chunk call 600 s | The 1,800 s values still left a 600 s forwarder limit that dropped answers (F67), and a worker timeout mixes answers between requests (F72). None of this changes the method |
+| 2026-11-07 | A run with any worker timeout is void. Before a rerun, move the run folder and its cache folder. IFBench jobs get 4 h (B) | F72; the cache is per run folder, not shared (F55, corrected); IFBench needs more than 1 h 30 (F69) |
+| 2026-11-07 | Keep the dropped `top_k`, the 64-token continuations with the empty think block and DSPy's straggler resubmission, and report them (B) | The authors ran the same code (F58, F71) |
 
 ---
 
