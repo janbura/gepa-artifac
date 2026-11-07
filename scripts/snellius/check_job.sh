@@ -87,7 +87,9 @@ PY
   done
   } > "$F" 2>&1
   V=OK
-  grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|HTTP 500: [1-9]|HTTP 504: [1-9]|chunk-call timeouts \(F70\): [1-9]|result mismatches \(F68/F72\): [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
+  # void (CHECK): a lost or possibly mixed answer, or a crash. Internal HTTP 500/504 and F68 batch failures that
+  # the forwarder retried successfully (every request answered, no client error) are only reported (F68 policy).
+  grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|chunk-call timeouts \(F70\): [1-9]|connection errors: [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
   grep -qE "unanswered [1-9]" "$F" && V=CHECK
   grep -q "OTHER-ERRORS" "$F" && V=CHECK
   [ "$V" = OK ] || BAD=1
