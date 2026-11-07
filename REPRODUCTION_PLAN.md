@@ -98,6 +98,8 @@ After the job:
 
 ### 2.5 The run plan
 
+**Who runs what (decided 2026-11-07).** Split by optimizer, not by benchmark: A runs MIPROv2-Heavy on all five benchmarks, B runs GEPA and GEPA+Merge on all five. Each person keeps the Baselines they already have. Hand-over, because a chain only works inside one experiment directory (F20, F82): (1) B copies his Baseline run folders and their cache folders (`experiment_runs/seed_s/<run>` and `experiment_cache_dirs/seed_s/<run>`) for IFBench, AIME and LiveBench-Math into A's directory before A's MIPROv2 runs on them; (2) after each MIPROv2 run, A copies its run folder and cache folder into a group-readable place (`/scratch-shared/<A>/handover/`, `chmod -R g+rX`, group `gpuuva090_access`), and B copies them into his directory before the GEPA job of that benchmark and seed. Both copies keep the same seed and the same `create_lm` (F73). Scratch has no confirmed retention policy (F8), so copy into home right away.
+
 **Chains and directories.** Each benchmark and seed is one chain in one experiment directory: A's `~/vllm091_runs` (after the Baseline reruns of §2.2), B's `~/final_baselines`. The chain exists only to copy DSPy caches (the GEPA budget is hard-coded, F74), but it makes MIPROv2's base evaluation and GEPA's base val pass identical to the Baseline run and it is what the authors did.
 
 **Jobs.** One optimizer run per job, chained with `--dependency=afterok`, except the GEPA-family runs of one benchmark, which share one server:
@@ -605,6 +607,7 @@ Findings from the code, the forks (`gepa_study` branches), the paper, the author
 | 2026-11-07 | Keep the artifact's effective thread counts (MIPROv2 8, GEPA cpu_count) and the AIME budget of 1839 (B, proposal) | The authors ran with them (F76, F75); speed only |
 | 2026-11-07 | Keep upstream's F60 fix (B, A to confirm) | It has no effect under `track_scores_on='val'` (F81) |
 | 2026-11-07 | GRPO: log analysis + signal measurement + one limited HoVer run instead of the full row (B, proposal for the supervisor) | The shipped logs already explain the small gains (F83); a full row costs ~13k SBU per benchmark |
+| 2026-11-07 | Split the optimizer runs by optimizer: A runs MIPROv2-Heavy on all five benchmarks, B runs GEPA and GEPA+Merge on all five; runs are handed over by copying run and cache folders (§2.5) | B's choice; the chain only needs the source run's folders in the same directory |
 
 ---
 
