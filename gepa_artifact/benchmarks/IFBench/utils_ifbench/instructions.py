@@ -31,7 +31,10 @@ import io
 
 from . import instructions_util
 
-download('en_core_web_sm')
+# only download the model when it is missing: the unconditional download needed github at every
+# import (all benchmarks import this file) and crashed the run when github was slow; same model either way
+if not spacy.util.is_package('en_core_web_sm'):
+    download('en_core_web_sm')
 
 logger = logging.getLogger(__name__)
 
