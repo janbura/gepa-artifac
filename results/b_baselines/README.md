@@ -19,3 +19,10 @@ Each run folder has config.json, evaluation_results/ (the score), metric_logs/te
 Datasets as cached on Snellius for these runs (Hugging Face revisions): `MathArena/aime_2025` @ c94da77eb22bbd6439e62a323bec18493a421302, `AI-MO/aimo-validation-aime` @ 13f9e12f613e720c2a2b2f345dd04b998a29494d, `livebench/math` @ bb66571c8ccf32d3df9e6f48b920d3770ff4aacb. The LiveBench-Math split is a seeded shuffle of the whole dataset, so a newer revision would change the test set.
 
 Failed examples per run (test size minus the progress bar's denominator in run_log.txt): AIME 19 / 21 / 25 of 150, LiveBench-Math 21 / 12 / 20 of 126. All are answers that never reached the output fields (136 of the 140 failing completions still have an unclosed `<think>`, 96 are longer than 20,000 characters).
+
+## Added 2026-11-08
+
+- IFBench Baselines seeds 0, 1, 2 (jobs 28969642, 28969643, 28969644; A100): 34.69, 33.33, 36.22 (failed 23, 27, 21 of 294).
+- HotpotQA and HoVer Baselines seed 0 (job 28978612; A100; the checkout and directory of all later optimizer runs): 39.33 and 38.00.
+- `h100_test/`: IFBench seed 2 again on an H100 (job 28971148), 34.52; a hardware check, not part of the table.
+- `arbor_logs/<job>/` has the server logs of these jobs, `../checks/<job>.md` the post-run check reports.
