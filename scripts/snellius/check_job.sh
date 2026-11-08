@@ -39,7 +39,10 @@ for J in "$@"; do
   F=$OUT/$J.md
   # which checkout ran it: the job log is in <repo>/logs/<name>-<id>.out
   JL=$(ls $HOME/gepa-repro/logs/*-$J.out $HOME/gepa-artifac/logs/*-$J.out 2>/dev/null | grep -v "/arbor-" | head -1)
-  [ -n "$JL" ] || { echo "| $J | no job log found |" >> $OUT/SUMMARY.md; continue; }
+  if [ -z "$JL" ]; then  # cancelled before it started, e.g. because a dependency failed: the chain must stop here
+    echo "| $J | $(date '+%F %T') | CHECK | never ran: $(sacct -j $J -X -n -o JobName,State | tr -s ' ') |  |" >> $OUT/SUMMARY.md
+    BAD=1; continue
+  fi
   REPO=$(dirname "$(dirname "$JL")")
   AL=$REPO/logs/arbor-$J.log
   {
@@ -59,6 +62,7 @@ for J in "$@"; do
   echo "- worker timeouts (void the run, F72): $(grep -c 'Timeout for chat request' "$AL")"
   echo "- forwarder timeouts: $(grep -c '^httpx.ReadTimeout' "$AL"), HTTP 500: $(grep -c '500 Internal Server Error' "$AL"), HTTP 504: $(grep -c '504 Gateway' "$AL")"
   echo "- chunk-call timeouts (F70): $(grep -cE 'chunk chat after|Timeout waiting for worker' "$AL"), result mismatches (F68/F72): $(grep -c 'LLM result' "$AL"), connection errors: $(grep -cE 'ConnectError|Connection refused' "$AL")"
+  echo "- context-length errors: $(grep -ciE 'maximum context length|maximum model length|longer than the maximum|ContextWindowExceeded|exceeds the max' "$AL")"
   python3 - "$AL" <<'PY'
 import re, sys, datetime, collections
 T = re.compile(r"(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d),")
@@ -106,7 +110,8 @@ PY
       [ "${NO_GATE:-0}" = 1 ] || echo "  - match with the paper: $(gate ${B}_${O} $SC)"  # NO_GATE=1 for test runs on 2 examples
       case "$O" in
         MIPROv2-Heavy) echo "  - MIPROv2: $(grep -h 'Default program score' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / $(grep -h 'Returning best identified program' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / saved programs $(ls $R/optimizer_logs/evaluated_programs 2>/dev/null | wc -l)" ;;
-        GEPA|GEPA-MERGE) echo "  - GEPA: iterations $(grep -o 'Iteration [0-9]*:' $R/run_log.txt | tail -1 | grep -o '[0-9]*'), reflections $(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l), metric log lines train $(cat $R/metric_logs/train.jsonl 2>/dev/null | wc -l) / val $(cat $R/metric_logs/val.jsonl 2>/dev/null | wc -l), merges $(grep -c 'Merged programs' $R/run_log.txt), candidates $(ls $R/prog_candidates 2>/dev/null | wc -l)" ;;
+        GEPA|GEPA-MERGE) [ "$(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l)" -gt 0 ] || echo "  - NO-REFLECTIONS: GEPA made no reflection, so it optimized nothing"
+                         echo "  - GEPA: iterations $(grep -o 'Iteration [0-9]*:' $R/run_log.txt | tail -1 | grep -o '[0-9]*'), reflections $(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l), metric log lines train $(cat $R/metric_logs/train.jsonl 2>/dev/null | wc -l) / val $(cat $R/metric_logs/val.jsonl 2>/dev/null | wc -l), merges $(grep -c 'Merged programs' $R/run_log.txt), candidates $(ls $R/prog_candidates 2>/dev/null | wc -l)" ;;
       esac
     else
       echo "| ${B}_${O} | $S | NO RESULT | – | – | – | – |"
@@ -119,6 +124,9 @@ PY
   grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|chunk-call timeouts \(F70\): [1-9]|connection errors: [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
   grep -qE "unanswered [1-9]" "$F" && V=CHECK
   grep -q "OTHER-ERRORS" "$F" && V=CHECK
+  grep -q "^- job: .*, state COMPLETED," "$F" || V=CHECK
+  grep -qE "context-length errors: [1-9]" "$F" && V=CHECK
+  grep -q "NO-REFLECTIONS" "$F" && V=CHECK
   grep -q "): PAUSE" "$F" && V=CHECK
   grep -q "): FLAG" "$F" && [ "$V" = OK ] && V=OK-FLAG
   [ "$V" = CHECK ] && BAD=1
