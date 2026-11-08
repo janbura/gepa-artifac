@@ -646,6 +646,7 @@ Findings from the code, the forks (`gepa_study` branches), the paper, the author
 | 2026-11-08 | IFBench, AIME and LiveBench-Math run on H100, HotpotQA and HoVer on A100 | F87: 4–5× faster and ~2.5× cheaper for long answers |
 | 2026-11-08 | Seeds 1–2 of MIPROv2 (and the HotpotQA/HoVer Baselines) are queued now, each gated on the seed-0 MIPROv2 check of its benchmark; GEPA seeds 1–2 follow after the seed-0 GEPA costs are known | Finish as soon as possible without the laptop having to be awake; seed 0 is still checked first |
 | 2026-11-08 | `sbu_guard.sh` runs with a worst-case cap of 80,000, because it counts pending jobs at their full limit (2× the expected time); the expected total is tracked separately and kept under the 50,000 budget | The two numbers measure different things |
+| 2026-11-08 | The final verdict of the match rule (§2.4) is computed by `analysis/table1_verdict.py`, committed with its checks (`analysis/check_table1_verdict.py`) before any MIPROv2 or GEPA result exists; it reads only `evaluation_result.txt` and prints a provisional table until all 18 targets have their runs | The analysis is fixed before the data; the frozen SD values and the paper numbers are written in the script, not chosen later |
 
 ---
 
