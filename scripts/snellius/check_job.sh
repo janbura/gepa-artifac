@@ -6,7 +6,7 @@
 #   usage: check_job.sh <job id> [<job id> ...]
 set -u
 BAD=0
-OUT=$HOME/repro_checks; mkdir -p "$OUT"
+OUT=${CHECK_OUT:-$HOME/repro_checks}; mkdir -p "$OUT"  # CHECK_OUT only for testing this script
 size_of() { case "$1" in HotpotQABench|hoverBench) echo 300;; IFBench) echo 294;; AIMEBench) echo 150;; LiveBenchMathBench) echo 126;; *) echo 0;; esac; }
 # pre-registered seed-0 gate (REPRODUCTION_PLAN.md 2.4, commit 9a4fb0c): <benchmark>_<optimizer> paper SD_run
 GATE="HotpotQABench_Baseline 42.33 1.48
@@ -58,11 +58,18 @@ for J in "$@"; do
   echo "## Server (Arbor) log"
   RQ=$(ls -d $REPO/logs/arbor_requests_$J/* /scratch-shared/$USER/arbor_$J/storage/logs/* 2>/dev/null | head -1)
   NQ=$(cat "$RQ"/inference_requests.jsonl 2>/dev/null | wc -l); NR=$(cat "$RQ"/inference_responses.jsonl 2>/dev/null | wc -l)
-  echo "- requests $NQ, responses $NR, unanswered $((NQ-NR)) (must be 0 unless the job hit its time limit)"
+  # the forwarder gives a client request up after 3 attempts (vllm_client.py, MAX_INFERENCE_RETRIES = 3), and every attempt
+  # that is too long logs one worker error, so a request rejected for length leaves 3 such lines and one "Request failed after"
+  CTXL=$(grep -c 'Error in chat: The decoder prompt' "$AL"); F3=$(grep -c 'Request failed after' "$AL")
+  CTX=$((CTXL / 3)); [ "$F3" -lt "$CTX" ] && CTX=$F3
+  UNEX=$((NQ-NR-CTX)); [ $UNEX -lt 0 ] && UNEX=0
+  echo "- requests $NQ, responses $NR, unanswered $((NQ-NR)), of which rejected as longer than max_model_len $CTX (worker errors $CTXL, requests given up $F3), unexplained $UNEX (must be 0 unless the job hit its time limit)"
   echo "- worker timeouts (void the run, F72): $(grep -c 'Timeout for chat request' "$AL")"
   echo "- forwarder timeouts: $(grep -c '^httpx.ReadTimeout' "$AL"), HTTP 500: $(grep -c '500 Internal Server Error' "$AL"), HTTP 504: $(grep -c '504 Gateway' "$AL")"
   echo "- chunk-call timeouts (F70): $(grep -cE 'chunk chat after|Timeout waiting for worker' "$AL"), result mismatches (F68/F72): $(grep -c 'LLM result' "$AL"), connection errors: $(grep -cE 'ConnectError|Connection refused' "$AL")"
-  echo "- context-length errors: $(grep -ciE 'maximum context length|maximum model length|longer than the maximum|ContextWindowExceeded|exceeds the max' "$AL")"
+  # a request longer than max_model_len is part of the artifact's behaviour: the authors' three IFBench GEPA-family runs
+  # each had one rejected reflection call (that iteration is skipped). Reported, not a void (plan 2.4 addendum, 2026-11-08)
+  echo "- context-length lines in the server log (reported only): $(grep -ciE 'maximum context length|maximum model length|longer than the maximum|ContextWindowExceeded|exceeds the max' "$AL"); rejected requests: $CTX"
   python3 - "$AL" <<'PY'
 import re, sys, datetime, collections
 T = re.compile(r"(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d),")
@@ -104,13 +111,21 @@ PY
       DEN=$(tr '\r' '\n' < $R/run_log.txt | grep -o 'Average Metric: [0-9.]* / [0-9]*' | tail -1 | awk '{print $NF}')
       E=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep -c 'ERROR dspy.utils.parallelizer')
       EF=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -c 'Failed to parse\|Expected dict_keys')
-      FLAG=""; [ "$E" -gt "$EF" ] && FLAG=" OTHER-ERRORS"
+      EI=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | grep -c 'InternalServerError')
+      FLAG=""; [ "$E" -gt $((EF + EI)) ] && FLAG=" OTHER-ERRORS"
       echo "| ${B}_${O} | $S | $SC | ${DEN:-?} / $N | $(( N - ${DEN:-0} )) | $E ($EF)$FLAG | $(stat -c %y $R/evaluation_results/evaluation_result.txt | cut -c1-16) |"
       [ -n "$FLAG" ] && echo "  - first error that is not a format failure: $(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | head -1 | cut -c1-300)"
-      [ "${NO_GATE:-0}" = 1 ] || echo "  - match with the paper: $(gate ${B}_${O} $SC)"  # NO_GATE=1 for test runs on 2 examples
+      [ "$EI" -gt 0 ] && echo "  - client InternalServerErrors: $EI (allowed only up to the requests rejected for length)"
+      if [ "${NO_GATE:-0}" != 1 ]; then  # NO_GATE=1 for test runs
+        if [ "$S" = 0 ]; then echo "  - match with the paper: $(gate ${B}_${O} $SC)"
+        else echo "  - compared with the paper (the gate is for seed 0 only): $(gate ${B}_${O} $SC | sed -E 's/\): (inside|FLAG|PAUSE)$/): not gated/')"; fi
+      fi
       case "$O" in
         MIPROv2-Heavy) echo "  - MIPROv2: $(grep -h 'Default program score' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / $(grep -h 'Returning best identified program' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / saved programs $(ls $R/optimizer_logs/evaluated_programs 2>/dev/null | wc -l)" ;;
         GEPA|GEPA-MERGE) [ "$(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l)" -gt 0 ] || echo "  - NO-REFLECTIONS: GEPA made no reflection, so it optimized nothing"
+                         EP=$(grep -c 'Exception during instruction proposal' $R/run_log.txt); NP=$(grep -cE '^Iteration [0-9]+: Proposed new instruction' $R/run_log.txt)
+                         echo "  - GEPA proposals: $NP, failed proposals: $EP (authors: at most 1 per run)"
+                         [ "$EP" -ge 10 ] && [ "$EP" -gt "$NP" ] && echo "  - REFLECTION-FAILS: most proposals failed"
                          echo "  - GEPA: iterations $(grep -o 'Iteration [0-9]*:' $R/run_log.txt | tail -1 | grep -o '[0-9]*'), reflections $(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l), metric log lines train $(cat $R/metric_logs/train.jsonl 2>/dev/null | wc -l) / val $(cat $R/metric_logs/val.jsonl 2>/dev/null | wc -l), merges $(grep -c 'Merged programs' $R/run_log.txt), candidates $(ls $R/prog_candidates 2>/dev/null | wc -l)" ;;
       esac
     else
@@ -122,10 +137,13 @@ PY
   # void (CHECK): a lost or possibly mixed answer, or a crash. Internal HTTP 500/504 and F68 batch failures that
   # the forwarder retried successfully (every request answered, no client error) are only reported (F68 policy).
   grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|chunk-call timeouts \(F70\): [1-9]|connection errors: [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
-  grep -qE "unanswered [1-9]" "$F" && V=CHECK
+  grep -qE "unexplained [1-9]" "$F" && V=CHECK
   grep -q "OTHER-ERRORS" "$F" && V=CHECK
   grep -q "^- job: .*, state COMPLETED," "$F" || V=CHECK
-  grep -qE "context-length errors: [1-9]" "$F" && V=CHECK
+  ISE=$(grep -o 'client InternalServerErrors: [0-9]*' "$F" | awk '{s += $3} END {print s + 0}')
+  RJ=$(grep -o 'rejected as longer than max_model_len [0-9]*' "$F" | awk '{print $NF + 0}')
+  [ "$ISE" -gt "${RJ:-0}" ] && V=CHECK
+  grep -q "REFLECTION-FAILS" "$F" && V=CHECK
   grep -q "NO-REFLECTIONS" "$F" && V=CHECK
   grep -q "): PAUSE" "$F" && V=CHECK
   grep -q "): FLAG" "$F" && [ "$V" = OK ] && V=OK-FLAG
