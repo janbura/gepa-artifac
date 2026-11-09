@@ -22,6 +22,7 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 | seed_0 AIME MIPROv2 | 28994833 | 44.67 | 20.00 | gate PAUSE (F97); technically clean; the user chose to continue AIME |
 | seed_1 LiveBench-Math MIPROv2 | 28995006 | 52.16 | 46.60 | OK (no gate for seeds 1-2) |
 | seed_2 LiveBench-Math MIPROv2 | 28995016 | 46.05 | 46.60 | OK |
+| seed_1 IFBench MIPROv2 | 28995008 | 41.50 | 36.22 | OK (no gate for seeds 1-2) |
 | seed_2 IFBench Baseline | 28971148 | 34.52 | 36.90 | OK (H100 test run, reused, not rerun) |
 | seed_0 LiveBench-Math GEPA | 29003749 | 50.91 | 51.95 | OK, inside |
 | seed_0 LiveBench-Math GEPA+Merge | 29003749 | 52.94 | 51.95 | OK, inside (0 merges: one predictor) |
