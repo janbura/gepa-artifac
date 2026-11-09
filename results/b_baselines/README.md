@@ -1,3 +1,5 @@
+> **2026-11-09:** these Baselines ran on A100s. Table 1 now uses H100 runs only, so they are the hardware check, not table values (see `../table1_h100/README.md`). The exception is `h100_test/` (IFBench seed 2 on an H100), which is also copied to `../table1_h100/seed_2/` as the Table 1 value of that cell.
+
 # B's Baseline runs (Qwen3-8B, one A100, vLLM 0.9.1)
 
 Copied from `~/final_baselines` on Snellius (without the DSPy caches). See section 1, the run log and F67-F71 in REPRODUCTION_PLAN.md.

@@ -2,7 +2,7 @@
 # written on 2026-11-08, before any MIPROv2 or GEPA result existed, so the analysis is fixed before the data.
 #   python analysis/table1_verdict.py <dir with seed_0, seed_1, seed_2> [more dirs] [--out file.md]
 # every score is read from evaluation_results/evaluation_result.txt (never summed from test.jsonl)
-import sys, os, math, json
+import sys, os, math, json, gzip
 from statistics import NormalDist
 
 BENCHES = ["HotpotQA", "HoVer", "IFBench", "AIME", "LiveBench"]
@@ -84,9 +84,13 @@ def t_quantile(q, df):
 def count_failed(d, b):
     # failed examples never reach the metric, so they are missing from test.jsonl; re-sent stragglers add lines
     f = os.path.join(d, "metric_logs", "test.jsonl")
-    if not os.path.exists(f):
+    if os.path.exists(f):
+        lines = open(f, encoding="utf-8")
+    elif os.path.exists(f + ".gz"):  # the copies in results/ are gzipped
+        lines = gzip.open(f + ".gz", "rt", encoding="utf-8")
+    else:
         return None
-    idx = [json.loads(l)["idx_in_split"] for l in open(f, encoding="utf-8") if l.strip()]
+    idx = [json.loads(l)["idx_in_split"] for l in lines if l.strip()]
     if b == "AIME":
         # 30 problems x 5 copies share one index: count at most 5 copies per problem
         return TEST_SIZE[b] - sum(min(idx.count(i), 5) for i in set(idx))
