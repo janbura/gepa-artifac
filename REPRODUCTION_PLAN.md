@@ -20,8 +20,8 @@ Test-set score in %: mean ± SD over seeds, the number of seeds in parentheses, 
 |---|---|---|---|---|---|
 | Baseline | **41.22 ± 2.99** (3) [42.33] | **38.00 ± 0.33** (3) [35.33] | **34.75 ± 1.45** (3) [36.90] | **30.67 ± 0.67** (3) [27.33] | **49.50 ± 0.64** (3) [48.70] |
 | MIPROv2 | 60.33 (1) [55.33] | 47.00 (1) [47.33] | 35.54 (1) [36.22] | 44.67 (1) [20.00], paused (F97) | **48.90 ± 3.08** (3) [46.60] |
-| GEPA | – [62.33] | – [52.33] | – [38.61] | – [32.00] | – [51.95] |
-| GEPA+Merge | – [64.33] | – [51.67] | – [28.23] | – [32.00] | – [51.95] |
+| GEPA | – [62.33] | – [52.33] | – [38.61] | – [32.00] | 50.91 (1) [51.95] |
+| GEPA+Merge | – [64.33] | – [51.67] | – [28.23] | – [32.00] | 52.94 (1) [51.95] |
 | *Rollout budget, MIPROv2 and GEPA* | *6,871* | *7,051* | *3,593* | *1,839* | *1,839* |
 
 - **B's MIPROv2 per seed** (failed test examples in parentheses): HotpotQA s0 60.33 (job 28994825, A100, 14 h 05); HoVer s0 47.00 (28994830, A100, 14 h 57); IFBench s0 35.54 (28994839, H100, 6 h 08); LiveBench-Math 48.48 / 52.16 / 46.05 for seeds 0 / 1 / 2 (28994837 / 28995006 / 28995016, H100, about 4 h 20 each); AIME s0 44.67 (42/150; 28994833, H100, 10 h 24), outside the pre-registered pause line (F97). Seed-0 cells inside the gate: HotpotQA d +5.00 (z +1.49), HoVer −0.33, IFBench −0.68, LiveBench-Math +1.88. Run folders and check reports: `results/b_runs/`, `results/checks/`.
@@ -311,7 +311,9 @@ One row per job; add new rows at the bottom.
 | 2026-11-08 | B | 29005552 / 29005554 | AIME | MIPROv2 seeds 1, 2 resubmitted with 24 h (were 28995004 / 28995014 with 16 h), same commands and dependency (28994835), new checks 29005553 / 29005555 | `6ea0b87` | pending | – | – | about twice the measured seed-0 time; LiveBench and IFBench seeds 1–2 keep 16 h (their seed-0 runs take about 5 and 6 h) |
 | 2026-11-09 | B | 28994825 / 28994830 / 28994839 / 28994837 / 28994833 | all five | MIPROv2 seed 0 finished | `6ea0b87` | 14 h 05 / 14 h 57 / 6 h 08 / 4 h 19 / 10 h 24 | 1,803 / 1,913 / 1,179 / 830 / 1,998 | 60.33 / 47.00 / 35.54 / 48.48 / 44.67 | all requests answered, 0 timeouts, only format errors; four inside the gate, AIME paused (F97) and its dependents were cancelled |
 | 2026-11-09 | B | 28995006 / 28995016 | LiveBench-Math | MIPROv2 seeds 1, 2 | `6ea0b87` | 4 h 34 / 4 h 30 | 878 / 863 | 52.16 / 46.05 | checks OK |
-| 2026-11-09 | B | 29003749 / 28994883 | LiveBench-Math, IFBench | GEPA + GEPA+Merge seed 0 started 05:49 / 06:02 (H100) | `6ea0b87` | running | – | LiveBench GEPA 50.91 (GEPA+Merge still running) | monitors running; GEPA's reflections work (LiveBench 30 proposals, 0 failed) |
+| 2026-11-09 | B | 29003749 | LiveBench-Math | GEPA + GEPA+Merge seed 0 (H100) | `6ea0b87` | 5 h 32 | 1,061 | 50.91 / 52.94 | 4,130 requests = responses, 0 over-long; 30 / 43 proposals, 0 / 1 failed; 0 merges (one predictor); both inside the gate (d −1.04 / +0.99) |
+| 2026-11-09 | B | 28994883 | IFBench | GEPA + GEPA+Merge seed 0 (H100), started 06:02 | `6ea0b87` | running | – | – | |
+| 2026-11-09 | B | 29014519 / 29014522 / 29014525 / 29014528 | LiveBench-Math, IFBench | GEPA + GEPA+Merge seeds 1 and 2, as pairs (F94), H100, 14 h / 14 h / 18 h / 18 h; IFBench pairs wait for the IFBench GEPA seed-0 check and their MIPROv2 seed check | `6ea0b87` | pending | – | – | user approved 2026-11-09 11:20 |
 | 2026-11-07 | B | 28971148 | IFBench | Baseline seed 2 on **gpu_h100** (pilot for the KV-cache question, §2.5), `GEPA_EXPERIMENT_DIR=$HOME/h100_pilot` | `cdef468` | pending | ≤768 | – | measures tokens/s with the 94 GB card; its result also serves as a 4th IFBench sample |
 | 2026-11-05 | B | 28919079 | AIME, LiveBench-Math | Baselines, seed 0, vLLM 0.9.1 | `7adf8ca` | 45 min | 96 | 26.67 / 42.71 | A100 (`gcn23`); `~/arbor091` (vllm 0.9.1, torch 2.7.0, transformers 4.53.3); output in `~/vllm091_runs`; some requests hit Arbor's 300 s timeout (504) and score 0; B total 890 SBU |
 | 2026-11-05 | A | 28918117 | HotpotQA | Baseline (4.3) | `fe389b8` | 17 min 46 s | 38 | 39.67 | A100 (`gcn40`); vLLM 0.8.5.post1; 7 failed examples; 1,190 requests; server ready after 196 s |
