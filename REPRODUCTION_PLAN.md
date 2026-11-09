@@ -175,6 +175,27 @@ From the four shipped Qwen GRPO runs (HotpotQA, HoVer, IFBench, PUPA; scripts in
 - Most groups carry no signal: 65.7 % (HotpotQA), 56.4 % (HoVer) and 76.0 % (IFBench) of the 12-rollout groups have identical rewards, so their advantages are exactly zero; only 35 / 44 / 24 % of the 24,000 rollouts are in a group with a signal. PUPA, the only continuous reward, has 38 % zero groups and the only clear gain. Training reward rises on the 150 training examples (HotpotQA 45 → 54 % over 13 epochs) while validation stays flat.
 - The trainer learns on a reconstruction of the parsed output fields behind an empty `<think></think>` block, not on the sampled text with its reasoning (mean trained completion 129–344 tokens); all four runs show KL spikes of 1e3–5e6; every module of a 4-module program gets the program-level reward. The in-run test evaluations of the HotpotQA and IFBench GRPO runs failed (checkpoint server did not start, score 0/300 and 0/294 in the logs); the paper's 43.33 and 35.88 come from an evaluation that is not shipped.
 - Hardware per the logs: vLLM with tensor parallel 2 on two 80 GB GPUs plus one training GPU; 12–24 h; per step 61–129 s of rollouts plus a validation every 20 steps.
+- Added by A on 2026-11-09 (F101, F102):
+  - Figure 1's GRPO line is the running maximum of these validations (`cummax()` in `scripts/generate_figures.ipynb`), so it rises by construction.
+  - On HotpotQA, HoVer and IFBench the trainer is slower than the rollouts. Only 50 / 59 / 56 % of the groups are ever trained, late and without an off-policy correction, and the rest is dropped at the end (PUPA: 96 %).
+  - Of the zero-advantage groups, about half (HotpotQA, HoVer) and most (IFBench) are examples solved in all 12 rollouts.
+  - The trained text keeps the visible `reasoning` field but drops the hidden thinking, about 300 tokens per call.
+
+Candidate fixes (A, 2026-11-09). These are recorded only: nothing is implemented or decided. Each would be opt-in and go in as a patch with an apply script, like `scripts/snellius/apply_arbor_timeouts.sh`, because the DSPy and Arbor forks are untracked clones.
+- **Group filter: don't send groups whose 12 rewards are all equal.**
+  - Where: `grpo.py:987-1002`, before `job.step` at `:1007`. The existing check at `:960` compares whole data points, so it never fires.
+  - The rollouts, reward and hyperparameters stay the same, and so does the policy-gradient term. Only the KL pull of those groups and their trainer time are dropped.
+  - Predicted trainer time per step, with the authors' zero-group shares: HotpotQA 120 s per 166 s step, HoVer 62 per 82, IFBench 79 per 170. The trainer would keep up (F101). This assumes the zero-group share stays as in the authors' runs; it shifts as the model trains, so it has to be measured in the run itself.
+  - SBU per run stays the same, because the rollouts set the run length.
+  - This is dynamic sampling (DAPO) without the resampling. It would be reported as "GRPO + group filter", next to the shipped GRPO.
+- **Thinking off: `chat_template_kwargs={"enable_thinking": False}` in Arbor's two `LLM.chat` calls.**
+  - Where: `vllm_serve.py:854` (first chunk) and `:913` (continuation).
+  - Sampled and trained text then match without touching the trainer, and the F58 double `<think>` goes away.
+  - This changes the method. All Qwen runs of the paper think, so this arm needs its own no-thinking Baseline and can't be compared with the Table 1 cells.
+  - Calls get about 3× shorter, so the trainer falls further behind unless the group filter is on too.
+- **Trained thinking: keep thinking and train on it.**
+  - How: carry the `reasoning_content` that litellm splits off to `grpo.py:913-924` (DSPy drops it before the trace) and put it in the completion message. The Qwen3 template renders it inside the think block.
+  - It stays faithful to the evaluation setup, but it touches DSPy's LM, adapter and trace code, and sequences 3× longer slow the trainer further.
 
 Plan: (1) report the analysis above as a finding of the reproduction (no SBU); (2) measure the zero-advantage fraction on our server for HoVer and HotpotQA (12 samples per train example, about 200 SBU) to show it is a property of the task and the model, not of the authors' run; (3) a 10-step smoke test of the GRPO path (GRPO environment from `pyproject_grpo.toml` with the `datasets` pin F40, flash-attn, the training YAML, W&B key; about 400 SBU); (4) HoVer, 208 steps = 10,000 rollouts, 11 validations, on two H100s (about 2,000–2,700 SBU), reporting the test score of the selected, the base and the last checkpoint; (5) HotpotQA the same if the budget allows (3,700–5,600). IFBench is skipped (its val/test come from different files and 76 % of its groups have no signal). Decision for the supervisor: (4) and (5) are the parts that cost.
 
@@ -193,6 +214,7 @@ Each run keeps `metric_logs/test.jsonl`, Arbor's request and response logs, timi
 - **A:** Baseline reruns with the timeouts (recommended, 240 SBU) or keep the current Baselines and accept that MIPROv2 regenerates the base pass; the F60 reading.
 - **Both:** keep the artifact's effective thread counts (8 for MIPROv2, CPU count for GEPA) as planned, or pass 32 everywhere (speed only, one config line).
 - **B:** H100 for the math GEPA-family jobs after the pilot.
+- **A:** for the GRPO candidate fixes of §2.7: whether the limited HoVer run (step 4) also gets an arm with the group filter, and whether a no-thinking arm with its own Baseline is worth its cost. Nothing is implemented until then.
 - **Supervisor:** GRPO steps (4) and (5) of §2.7; gpt-oss-120b; the course deadline.
 
 ---
@@ -648,6 +670,38 @@ Findings from the code, the forks (`gepa_study` branches), the paper, the author
   - Ours (10 server logs of optimizer jobs so far): LiveBench MIPROv2 seed 1 (28995006): 8 batch failures after one 'continue_final_message' rejection, all recovered, so valid, as in the authors' runs. IFBench GEPA seed 0 (28994883, running): 3, from its one over-long reflection (32,946 tokens), the same as the authors' IFBench GEPA runs. IFBench MIPROv2 seed 2 (28995018): 102, started at 07:11:57 by MIPROv2 prompts of about 34,500 tokens (10 of them, each tried 3 times; the first count mismatch follows the first rejection by 6 ms), plus a 'continue_final_message' event at 09:40 that recovered; 35 calls were lost, more than in any of the authors' runs. So the void of F99 stands. The other 7 logs have none.
   - On a count mismatch Arbor marks the whole sub-batch as failed and hands out no answers (`vllm_serve.py:978-984`), so these events lose calls but do not mix answers between requests (unlike the worker timeouts of F72).
   → No change to the rules (§2.4) or to Arbor (part of the artifact, F68). For the report: batch failures per run and the calls they lost, ours against the authors' (the numbers above).
+
+### M. From A's analysis of the authors' GRPO runs (2026-11-09)
+
+All numbers come from the four shipped seed-0 GRPO runs in `reference_runs_data/` (HotpotQA, HoVer, IFBench, PUPA).
+
+- **F101. The GRPO trainer is slower than the rollouts: 40–50 % of the rollouts are never trained on (HotpotQA, HoVer, IFBench), and the rest is trained late.**
+  - **How the data moves.** DSPy sends every 12-rollout group as its own request (`lm_local_arbor.py:147`) and does not wait for the trainer: 'Invoking GRPO training step' and 'step … completed' carry the same second in `run_log_stderr.txt`.
+  - Arbor queues the groups, and the trainer takes them in order, 20 sequences per optimizer step (`grpo_training.py:465-475`). That is batch 1 × gradient accumulation 20, fewer than 2 groups per step.
+  - **The counts.** `arbor_logs.txt` has one 'Time since last step' line per optimizer step, which gives the trainer's throughput. The groups sent are at most 500 steps × 4 examples × the program's predictors.
+
+  | Run | Optimizer steps (mean s) | Groups trained / sent | Rollout step / trainer time for its groups |
+  |---|---|---|---|
+  | HotpotQA | 2,389 (35.1) | 3,981 / 8,000 (50 %) | 166 s / 337 s (49 %) |
+  | HoVer | 2,820 (15.0) | 4,700 / 8,000 (59 %) | 82 s / 144 s (57 %) |
+  | IFBench | 1,346 (63.6) | 2,243 / 4,000 (56 %) | 170 s / 305 s (56 %) |
+  | PUPA | 2,315 (22.7) | 3,858 / 4,000 (96 %) | 104 s / 109 s (95 %) |
+
+  - In all four runs the trained share equals the ratio of the two speeds.
+  - **The tail is dropped.** Whatever is still queued when step 500 ends is never trained. For HoVer that is about the last 200 steps of rollouts.
+  - **What is trained is stale.** At step 400 the HoVer trainer works on rollouts from about step 235. With `num_iterations=1` the old log-probabilities are the current ones (`grpo_training.py:236-250`), so the importance ratio is 1 and stale data is treated as on-policy (`clip_ratio` is 0.0 in every logged step).
+  - PUPA is the only run whose trainer kept up, and also the only clear gain. That is a correlation: PUPA also has the continuous reward.
+  - → Fewer groups per step would let the trainer keep up without changing the rollouts (the group filter, §2.7).
+- **F102. What Figure 1 shows, and what the trainer learns on (adds to F83).**
+  - **Figure 1's GRPO line is the running maximum of the validation scores.** `scripts/generate_figures.ipynb` reads the score after every 20 steps, places it at 48 × 20 × k rollouts (validation calls not counted) and plots `cummax()`. The line rises by construction; the validations themselves are flat (F83).
+  - **The trained text.** `grpo.py:913-924` rebuilds each answer from its parsed fields (`format_finetune_data`). Arbor renders it with the Qwen3 chat template (`grpo_training.py:136`), which writes an empty `<think>\n\n</think>\n\n` in front of it; this was checked by rendering one example with the Qwen3 tokenizer.
+  - All HotpotQA and HoVer modules are `ChainOfThought` (`hotpot_program.py:15-18`, `hover_program.py:309-314`), so the visible `reasoning` field is trained. What is dropped is the hidden thinking, about 300 tokens per call: trained completions are about 130–160 tokens (trainer logs), against 422 (HotpotQA) and 473 (HoVer) sampled per call in our Baselines (§4).
+  - So the reward of a thinking-mode answer is credited to a no-thinking text: the model is updated in no-thinking mode and evaluated in thinking mode.
+  - **KL.** The logged KL values are means over 100 optimizer steps. They exceed 1e3 in 5 of 27 HoVer logs, up to 5.1e6. At those steps the loss is the KL term (HoVer: KL 2.27e6, loss 2.27e4 = 0.01 × KL). That the text mismatch causes the spikes is a hypothesis, not checked.
+  - **Zero-advantage groups by kind.** A recounted them by grouping `metric_logs/train.jsonl` by `idx_in_split`; F83's slightly different shares come from another grouping.
+    - HotpotQA 64.3 % (670 all wrong, 611 all right); HoVer 56.9 % (702 / 445); IFBench 74.2 % (211 / 1,134, plus 130 with another shared score); PUPA 36.4 %.
+    - So about half of the HotpotQA and HoVer zero groups, and most of IFBench's, are examples already solved in all 12 rollouts.
+  - **All of them are sent to the trainer.** `grpo.py:987-1002` pads and appends every group. The 'no diversity' check at `grpo.py:960` compares whole data points (prompt, completion and reward), so it never fired in the four runs, and it only warns.
 
 ## 7. Decisions log
 
