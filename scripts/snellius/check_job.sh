@@ -117,7 +117,8 @@ PY
       [ -n "$FLAG" ] && echo "  - first error that is not a format failure: $(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | head -1 | cut -c1-300)"
       [ "$EI" -gt 0 ] && echo "  - client InternalServerErrors: $EI (allowed only up to the requests rejected for length)"
       if [ "${NO_GATE:-0}" != 1 ]; then  # NO_GATE=1 for test runs
-        if [ "$S" = 0 ]; then echo "  - match with the paper: $(gate ${B}_${O} $SC)"
+        if [ "$S" = 0 ] && [ "$O" = Baseline ]; then echo "  - match with the paper: $(gate ${B}_${O} $SC | sed -E 's/\): PAUSE$/): FLAG (a Baseline cell is only flagged, plan 2.4)/')"
+        elif [ "$S" = 0 ]; then echo "  - match with the paper: $(gate ${B}_${O} $SC)"
         else echo "  - compared with the paper (the gate is for seed 0 only): $(gate ${B}_${O} $SC | sed -E 's/\): (inside|FLAG|PAUSE)$/): not gated/')"; fi
       fi
       case "$O" in
@@ -138,6 +139,7 @@ PY
   # the forwarder retried successfully (every request answered, no client error) are only reported (F68 policy).
   grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|chunk-call timeouts \(F70\): [1-9]|connection errors: [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
   grep -qE "unexplained [1-9]" "$F" && V=CHECK
+  grep -qE "skipped runs: [1-9]" "$F" && V=CHECK  # the result in the folder is an old one
   grep -q "OTHER-ERRORS" "$F" && V=CHECK
   grep -q "^- job: .*, state COMPLETED," "$F" || V=CHECK
   ISE=$(grep -o 'client InternalServerErrors: [0-9]*' "$F" | awk '{s += $3} END {print s + 0}')
