@@ -26,3 +26,5 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 | seed_2 IFBench Baseline | 28971148 | 34.52 | 36.90 | OK (H100 test run, reused, not rerun) |
 | seed_0 LiveBench-Math GEPA | 29003749 | 50.91 | 51.95 | OK, inside |
 | seed_0 LiveBench-Math GEPA+Merge | 29003749 | 52.94 | 51.95 | OK, inside (0 merges: one predictor) |
+| seed_0 IFBench GEPA | 28994883 | 33.67 | 38.61 | OK, inside (one over-long reflection rejected, allowed) |
+| seed_0 IFBench GEPA+Merge | 28994883 | 36.56 | 28.23 | OK, inside (1 merge) |
