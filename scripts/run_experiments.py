@@ -29,6 +29,23 @@ def get_metric_call_cap():
         raise ValueError(f"GEPA_MAX_METRIC_CALLS must be a positive integer, got {raw!r}.")
     return cap
 
+def get_grpo_train_steps():
+    """
+    Opt-in number of GRPO training steps, for smoke tests and shorter runs: GEPA_GRPO_TRAIN_STEPS=<positive int>.
+    Each step uses 4 train examples x 12 rollouts = 48 rollouts, so 208 steps are about 10,000 rollouts.
+    Returns None when the variable is unset or empty, which keeps the original 500 steps.
+    """
+    raw = os.environ.get("GEPA_GRPO_TRAIN_STEPS", "").strip()
+    if not raw:
+        return None
+    try:
+        steps = int(raw)
+    except ValueError:
+        steps = 0
+    if steps <= 0:
+        raise ValueError(f"GEPA_GRPO_TRAIN_STEPS must be a positive integer, got {raw!r}.")
+    return steps
+
 def write_evaluation_result_to_path(evaluation_result, file_path):
     os.makedirs(file_path, exist_ok=True)
     file_name = f"evaluation_result"
@@ -131,6 +148,17 @@ def run_experiment_and_write_results_actual(
                 "pilot directory, or unset GEPA_MAX_METRIC_CALLS for a real run."
             )
         print(f"GEPA_MAX_METRIC_CALLS={metric_call_cap}: GEPA-family budgets are capped (other optimizers are unaffected).")
+
+    # Same rule for a shortened GRPO run: it must not look like the full 500-step run.
+    grpo_train_steps = get_grpo_train_steps()
+    if grpo_train_steps is not None:
+        if Path(base_experiment_dir).resolve() == DEFAULT_EXPERIMENT_DIR:
+            raise ValueError(
+                f"GEPA_GRPO_TRAIN_STEPS={grpo_train_steps} is set, but runs would be written to the default "
+                f"experiment directory {DEFAULT_EXPERIMENT_DIR}. Set GEPA_EXPERIMENT_DIR to a separate "
+                "directory, or unset GEPA_GRPO_TRAIN_STEPS for a real run."
+            )
+        print(f"GEPA_GRPO_TRAIN_STEPS={grpo_train_steps}: GRPO runs {grpo_train_steps} training steps (other optimizers are unaffected).")
 
     lm_name = lm_config["name"]
     print(f"Running {benchmark_name} with {prog_name} and {optim_name} on {lm_name}")
@@ -357,6 +385,7 @@ def run_experiment_and_write_results_actual(
                         "metric_lm_name": metric_lm_name,
                         "metric_lm": metric_lm,
                         **({"metric_call_cap": metric_call_cap} if metric_call_cap is not None else {}),
+                        **({"grpo_train_steps": grpo_train_steps} if grpo_train_steps is not None and "num_train_steps" in (optimizer_config.init_args if optimizer_config is not None else {}) else {}),
                     }, f, default=json_encoder)
 
             if directory_existed:
@@ -397,7 +426,11 @@ def run_experiment_and_write_results_actual(
                     if metric_call_cap is not None:
                         init_args["max_metric_calls"] = min(metric_call_cap, num_mipro_invocations)
                         logger.log(f"GEPA_MAX_METRIC_CALLS: max_metric_calls = {init_args['max_metric_calls']} (uncapped budget: {num_mipro_invocations}).")
-                
+
+                if grpo_train_steps is not None and "num_train_steps" in init_args:
+                    logger.log(f"GEPA_GRPO_TRAIN_STEPS: num_train_steps = {grpo_train_steps} (configured: {init_args['num_train_steps']}).")
+                    init_args["num_train_steps"] = grpo_train_steps
+
                 if "add_wandb_configs_to_initargs" in optimizer_config.langProBe_configs and optimizer_config.langProBe_configs["add_wandb_configs_to_initargs"]:
                     init_args["use_wandb"] = use_wandb
                     init_args["wandb_api_key"] = wandb_api_key
