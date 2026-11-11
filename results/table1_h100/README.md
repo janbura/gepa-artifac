@@ -20,6 +20,8 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 | seed_0 IFBench MIPROv2 | 28994839 | 35.54 | 36.22 | OK, inside the seed-0 gate |
 | seed_0 LiveBench-Math MIPROv2 | 28994837 | 48.48 | 46.60 | OK, inside |
 | seed_0 AIME MIPROv2 | 28994833 | 44.67 | 20.00 | gate PAUSE (F97); technically clean; the user chose to continue AIME |
+| seed_1 AIME MIPROv2 | 29014358 | 26.00 | 20.00 | OK |
+| seed_2 AIME MIPROv2 | 29014360 | 32.00 | 20.00 | OK |
 | seed_1 LiveBench-Math MIPROv2 | 28995006 | 52.16 | 46.60 | OK (no gate for seeds 1-2) |
 | seed_2 LiveBench-Math MIPROv2 | 28995016 | 46.05 | 46.60 | OK |
 | seed_1 IFBench MIPROv2 | 28995008 | 41.50 | 36.22 | OK (no gate for seeds 1-2) |
