@@ -36,6 +36,8 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 | seed_0 IFBench GEPA+Merge | 28994883 | 36.56 | 28.23 | OK, inside (1 merge) |
 | seed_1 IFBench GEPA | 29014525 | 31.29 | 38.61 | OK |
 | seed_1 IFBench GEPA+Merge | 29014525 | 36.73 | 28.23 | OK (4 merges) |
+| seed_0 AIME GEPA | 29014355 | 34.67 | 32.00 | OK, inside |
+| seed_0 AIME GEPA+Merge | 29014355 | 24.67 | 32.00 | OK, inside (0 merges: one predictor) |
 | seed_0 HotpotQA Baseline | 29014995 | 39.33 | 42.33 | OK, inside |
 | seed_1 HotpotQA Baseline | 29014995 | 38.00 | 42.33 | OK |
 | seed_2 HotpotQA Baseline | 29014995 | 39.00 | 42.33 | OK |
