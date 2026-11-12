@@ -45,14 +45,18 @@ for J in "$@"; do
   echo "- chunk-call timeouts (F70): $(grep -cE 'chunk chat after|Timeout waiting for worker' "$AL"), result mismatches (F68/F72): $(grep -c 'LLM result' "$AL"), connection errors: $(grep -cE 'ConnectError|Connection refused' "$AL")"
   echo
   echo "## External model server (gpt-oss-120b) log"
-  NE=$(grep -c 'POST /v1/chat/completions' "$EL"); NB=$(grep 'POST /v1/chat/completions' "$EL" | grep -vc '" 200')
+  [ -f "$EL" ] || echo "- NO-EXTERNAL-LOG: $EL is missing (the job ended before the external server started)"
+  NE=$(grep -c 'POST /v1/chat/completions' "$EL" 2>/dev/null); NE=${NE:-0}
+  NB=$(grep 'POST /v1/chat/completions' "$EL" 2>/dev/null | grep -vc '" 200')
   echo "- chat requests $NE, not answered with HTTP 200: $NB"
   [ "$NE" -gt 0 ] || echo "- NO-EXTERNAL-REQUESTS: the runs never reached the external model"
-  echo "- error lines (reported only, the shutdown at the end can write some): $(grep -cE ' ERROR |Traceback' "$EL")"
+  echo "- error lines (reported only, the shutdown at the end can write some): $(grep -cE ' ERROR |Traceback' "$EL" 2>/dev/null)"
   python3 - "$EL" <<'PY'
-import re, sys
+import os, re, sys
 # vLLM logs its throughput about every 10 s while it works
-gen = [float(m.group(1)) for l in open(sys.argv[1], errors="replace") for m in [re.search(r"Avg generation throughput: ([0-9.]+) tokens/s", l)] if m]
+gen = []
+if os.path.exists(sys.argv[1]):
+    gen = [float(m.group(1)) for l in open(sys.argv[1], errors="replace") for m in [re.search(r"Avg generation throughput: ([0-9.]+) tokens/s", l)] if m]
 if gen:
     print(f"- about {sum(gen) * 10 / 1e6:.2f} M tokens generated; busy log lines {sum(g > 0 for g in gen)}, mean {sum(gen) / len(gen):.0f} tok/s over all lines")
 PY
@@ -97,7 +101,7 @@ PY
   } > "$F" 2>&1
   V=OK
   grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|chunk-call timeouts \(F70\): [1-9]|connection errors: [1-9]|NO RESULT|watchdog lines: [1-9]|external watchdog lines: [1-9]" "$F" && V=CHECK
-  grep -qE "unexplained [1-9]|not answered with HTTP 200: [1-9]|NO-EXTERNAL-REQUESTS|SMOKE TEST FAILED" "$F" && V=CHECK
+  grep -qE "unexplained [1-9]|not answered with HTTP 200: [1-9]|NO-EXTERNAL-REQUESTS|NO-EXTERNAL-LOG|SMOKE TEST FAILED" "$F" && V=CHECK
   grep -qE "skipped runs: [1-9]" "$F" && V=CHECK
   grep -q "OTHER-ERRORS" "$F" && V=CHECK
   grep -q "^- job: .*, state COMPLETED," "$F" || V=CHECK
