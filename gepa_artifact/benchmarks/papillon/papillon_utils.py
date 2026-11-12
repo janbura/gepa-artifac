@@ -1,4 +1,22 @@
+import os
+
 import dspy
+
+
+def external_lm():
+    # The paper uses gpt-4.1-mini (OpenAI API) twice: as the untrusted external model in PAPILLON
+    # and as the judge below. We have no OpenAI key, so we serve another model ourselves and point
+    # to it with these variables. With none of them set this is the original setting.
+    model = os.environ.get("PUPA_EXTERNAL_MODEL", "openai/gpt-4.1-mini")
+    kwargs = {}
+    if os.environ.get("PUPA_EXTERNAL_API_BASE"):
+        kwargs["api_base"] = os.environ["PUPA_EXTERNAL_API_BASE"]
+        kwargs["api_key"] = os.environ.get("PUPA_EXTERNAL_API_KEY", "local")
+    if os.environ.get("PUPA_EXTERNAL_MAX_TOKENS"):
+        # a reasoning model counts its hidden reasoning in max_tokens (dspy's default is 1000)
+        kwargs["max_tokens"] = int(os.environ["PUPA_EXTERNAL_MAX_TOKENS"])
+    return dspy.LM(model=model, **kwargs)
+
 
 class JudgeQuality(dspy.Signature):
     """
@@ -42,7 +60,7 @@ class LLMJudge(dspy.Module):
 
 
 llm_judge = LLMJudge()
-openai_lm = dspy.LM(model="openai/gpt-4.1-mini")
+openai_lm = external_lm()
 llm_judge.set_lm(openai_lm)
 
 def compute_metrics(gold, pred, trace=None):
