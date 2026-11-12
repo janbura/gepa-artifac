@@ -360,6 +360,7 @@ One row per job; add new rows at the bottom.
 | 2026-11-05 | A | 28923153 | HoVer | Baseline, vLLM 0.9.1 | `109e564` | 35 min 15 s | 75 | – | failed: vLLM compile-cache collision with 28923152 on `gcn49` (F64); A total so far 261 SBU |
 | 2026-11-05 | A | 28927510 | HoVer | Baseline, seeds 0, 1, 2 (vLLM 0.9.1) | `672c0bb` | 44 min 8 s | 94 | 35.67 / 37.00 / 38.00 | A100 (`gcn71`); its own compile cache worked (F64); 0 failed in all three; 3,601 requests; 0 timeouts; `~/vllm091_runs` |
 | 2026-11-05 | A | 28927513 | HotpotQA | Baseline, seeds 1, 2 (vLLM 0.9.1) | `672c0bb` | 39 min 44 s | 85 | 42.67 / 38.67 | A100 (`gcn43`); 0 and 5 failed; 2,396 requests; 5 timeouts, all retried; `~/vllm091_runs`; A total ~440 SBU |
+| 2026-11-12 | B | 29193231–29193252 | PUPA (§2.10) | gpt-oss-120b as external model and judge, 2 H100 per job, checkout `~/gepa-pupa`: pilot 29193231 (smoke test + Baselines seeds 0–2, 4 h, after the vLLM install job 29193018), MIPROv2 seeds 0/1/2 29193236 / 29193240 / 29193248 (16 h, after the pilot check), GEPA pairs 29193238 / 29193245 / 29193251 (20 h, after their MIPROv2 check); checks (`check_pupa.sh`, `~/pupa_checks`) 29193232, 29193237, 29193239, 29193243, 29193246, 29193250, 29193252 | `8c443c0` | pending | – | – | weights downloaded by job 29192592 (61 GiB, revision b5c939de) |
 
 ---
 
