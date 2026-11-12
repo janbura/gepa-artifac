@@ -25,6 +25,7 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 | seed_1 LiveBench-Math MIPROv2 | 28995006 | 52.16 | 46.60 | OK (no gate for seeds 1-2) |
 | seed_2 LiveBench-Math MIPROv2 | 28995016 | 46.05 | 46.60 | OK |
 | seed_1 IFBench MIPROv2 | 28995008 | 41.50 | 36.22 | OK (no gate for seeds 1-2) |
+| seed_2 IFBench MIPROv2 | 29114232 | 40.82 | 36.22 | OK (third attempt; F99, F102) |
 | seed_0 HotpotQA MIPROv2 | 29015003 | 56.33 | 55.33 | OK, inside |
 | seed_1 HotpotQA MIPROv2 | 29015005 | 60.33 | 55.33 | OK |
 | seed_2 HotpotQA MIPROv2 | 29015007 | 58.33 | 55.33 | OK |
