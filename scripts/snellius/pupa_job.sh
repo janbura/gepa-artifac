@@ -4,7 +4,7 @@
 #SBATCH --ntasks=1
 #SBATCH --gpus=2
 #SBATCH --output=logs/%x-%j.out
-# PUPA without an OpenAI key (plan section 2.5): serves the external model (gpt-oss-120b) with vLLM on
+# PUPA without an OpenAI key (plan section 2.10): serves the external model (gpt-oss-120b) with vLLM on
 # the second GPU of the job, then runs qwen_job.sh unchanged (Arbor + Qwen3-8B on the first GPU) with
 # the same arguments. The runs reach the external model through PUPA_EXTERNAL_* (papillon_utils.py).
 # Submit from the repo root (logs/ must exist there):
@@ -49,7 +49,7 @@ echo "external server ready: ${READY:-no} after $(( $(date +%s) - START )) s"
 [ -n "$READY" ] || { echo "external server did not start"; tail -50 "$ELOG"; exit 1; }
 
 export PUPA_EXTERNAL_MODEL=openai/$EXT_NAME PUPA_EXTERNAL_API_BASE=http://localhost:$EXT_PORT/v1 PUPA_EXTERNAL_API_KEY=local
-# gpt-oss counts its hidden reasoning in max_tokens; 4000 instead of dspy's 1000 (plan 2.5)
+# gpt-oss counts its hidden reasoning in max_tokens; 4000 instead of dspy's 1000 (plan 2.10)
 export PUPA_EXTERNAL_MAX_TOKENS=4000
 echo "runs use: PUPA_EXTERNAL_MODEL=$PUPA_EXTERNAL_MODEL PUPA_EXTERNAL_API_BASE=$PUPA_EXTERNAL_API_BASE PUPA_EXTERNAL_MAX_TOKENS=$PUPA_EXTERNAL_MAX_TOKENS"
 

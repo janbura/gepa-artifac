@@ -3,10 +3,11 @@ import os
 import dspy
 
 
-def external_lm():
+def external_lm(role="judge"):
     # The paper uses gpt-4.1-mini (OpenAI API) twice: as the untrusted external model in PAPILLON
-    # and as the judge below. We have no OpenAI key, so we serve another model ourselves and point
-    # to it with these variables. With none of them set this is the original setting.
+    # (role "answer") and as the judge below (role "judge"). We have no OpenAI key, so we serve
+    # another model ourselves and point to it with these variables. With none of them set this is
+    # the original setting.
     model = os.environ.get("PUPA_EXTERNAL_MODEL", "openai/gpt-4.1-mini")
     kwargs = {}
     if os.environ.get("PUPA_EXTERNAL_API_BASE"):
@@ -15,7 +16,24 @@ def external_lm():
     if os.environ.get("PUPA_EXTERNAL_MAX_TOKENS"):
         # a reasoning model counts its hidden reasoning in max_tokens (dspy's default is 1000)
         kwargs["max_tokens"] = int(os.environ["PUPA_EXTERNAL_MAX_TOKENS"])
-    return dspy.LM(model=model, **kwargs)
+    if os.environ.get("PUPA_EXTERNAL_TEMPERATURE"):
+        kwargs["temperature"] = float(os.environ["PUPA_EXTERNAL_TEMPERATURE"])
+    if os.environ.get("PUPA_EXTERNAL_TOP_P"):
+        kwargs["top_p"] = float(os.environ["PUPA_EXTERNAL_TOP_P"])
+    # reasoning effort of gpt-oss, separately per role. It has to go in extra_body: litellm refuses a
+    # reasoning_effort argument for a model it doesn't know, and PAPILLON would hide that error.
+    # A variable that is set but empty (e.g. a missing file in the command line) stops the run.
+    var = "PUPA_ANSWER_REASONING_EFFORT" if role == "answer" else "PUPA_JUDGE_REASONING_EFFORT"
+    if var in os.environ:
+        effort = os.environ[var].strip()
+        if effort not in ("low", "medium", "high"):
+            raise ValueError(f"{var} must be low, medium or high, got {effort!r}")
+        kwargs["extra_body"] = {"reasoning_effort": effort}
+    lm = dspy.LM(model=model, **kwargs)
+    if model != "openai/gpt-4.1-mini":
+        shown = {k: v for k, v in lm.kwargs.items() if k != "api_key"}
+        print(f"external lm ({role}): {model} {shown}", flush=True)
+    return lm
 
 
 class JudgeQuality(dspy.Signature):
@@ -60,7 +78,7 @@ class LLMJudge(dspy.Module):
 
 
 llm_judge = LLMJudge()
-openai_lm = external_lm()
+openai_lm = external_lm("judge")
 llm_judge.set_lm(openai_lm)
 
 def compute_metrics(gold, pred, trace=None):

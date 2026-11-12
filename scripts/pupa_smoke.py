@@ -1,10 +1,12 @@
-# Quick technical test of PUPA with our own external model (plan section 2.5), run before the real
-# PUPA runs. It runs PAPILLON and its judge on the first val examples and counts what would make the
-# runs wrong without any error message: exceptions (PAPILLON.forward hides them and returns empty
-# strings), empty answers of the external model and answers cut at max_tokens.
+# Quick technical test of PUPA with our own external model (plan section 2.10 and its addendum of
+# 2026-11-12), run before the real PUPA runs. It runs PAPILLON and its judge on the val examples and
+# counts what would make the runs wrong without any error message: exceptions (PAPILLON.forward hides
+# them and returns empty strings), external answers that are empty or None (vLLM returns no content
+# when gpt-oss stops inside its reasoning) and answers cut at max_tokens.
 # The scores are printed for information only, they are not used for anything.
-#   python -m scripts.pupa_smoke --port <arbor port> [--n 20]
-# Exit code 0 = passed: no exception, no empty external answer, at most 1 answer cut at max_tokens.
+#   python -m scripts.pupa_smoke --port <arbor port> [--n 111] [--threads 32]
+# Passed (exit 0) when the external and judge calls that were cut or came back empty are at most 1 % of
+# those calls, and the examples with an exception in the program or the judge are at most 1 % of them.
 import argparse
 import collections
 import statistics
@@ -18,8 +20,8 @@ from gepa_artifact.benchmarks.papillon import papillon_utils
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--port", required=True)
-parser.add_argument("--n", type=int, default=20)
-parser.add_argument("--threads", type=int, default=10)
+parser.add_argument("--n", type=int, default=111)
+parser.add_argument("--threads", type=int, default=32)
 args = parser.parse_args()
 
 # Qwen3-8B with the same settings as the runs (lm_config of the commands + create_lm in run_experiments.py)
@@ -37,8 +39,6 @@ qwen = dspy.LM(
 dspy.configure(lm=qwen)
 
 print("code from:", papillon_utils.__file__)
-print("external model:", untrusted_lm.model, {k: v for k, v in untrusted_lm.kwargs.items() if k != "api_key"})
-print("judge model:", papillon_utils.openai_lm.model, {k: v for k, v in papillon_utils.openai_lm.kwargs.items() if k != "api_key"})
 
 bench = Papillon()
 examples = bench.val_set[: args.n]
@@ -58,7 +58,9 @@ def run_one(ex):
     except Exception as e:
         out["forward_error"] = repr(e)[:300]
         return out
-    out["empty_external"] = not str(llm_response).strip()
+    # None would reach Qwen as the text "None" without any error
+    out["empty_external"] = llm_response is None or not str(llm_response).strip()
+    out["external_chars"] = len(llm_response or "")
     pred = dspy.Prediction(llm_request=llm_request, llm_response=llm_response, response=response)
     try:
         m = papillon_utils.compute_metrics(ex, pred)
@@ -69,19 +71,23 @@ def run_one(ex):
     return out
 
 
-def finish_reasons(lm):
+def call_stats(lm):
     reasons = collections.Counter()
+    empty = 0
     tokens = []
     for h in lm.history:
         try:
-            reasons[h["response"].choices[0].finish_reason] += 1
+            choice = h["response"].choices[0]
+            reasons[choice.finish_reason] += 1
+            if not (choice.message.content or "").strip():
+                empty += 1
         except Exception:
             reasons["unknown"] += 1
         try:
             tokens.append(int(h["usage"]["completion_tokens"]))
         except Exception:
             pass
-    return reasons, tokens
+    return reasons, empty, tokens
 
 
 def med(xs):
@@ -93,22 +99,28 @@ with ThreadPoolExecutor(args.threads) as pool:
     results = list(pool.map(run_one, examples))
 wall = time.time() - t_start
 
-ext_reasons, ext_tokens = finish_reasons(untrusted_lm)
-judge_reasons, judge_tokens = finish_reasons(papillon_utils.openai_lm)
+ext_reasons, ext_empty, ext_tokens = call_stats(untrusted_lm)
+judge_reasons, judge_empty, judge_tokens = call_stats(papillon_utils.openai_lm)
 forward_errors = [r["forward_error"] for r in results if r["forward_error"]]
 judge_errors = [r["judge_error"] for r in results if r["judge_error"]]
-empty = sum(r["empty_external"] for r in results)
-cut = ext_reasons["length"] + judge_reasons["length"]
+empty_examples = sum(r["empty_external"] for r in results)
+calls = len(untrusted_lm.history) + len(papillon_utils.openai_lm.history)
+bad_calls = ext_reasons["length"] + judge_reasons["length"] + ext_empty + judge_empty
+bad_examples = len(forward_errors) + len(judge_errors)
 scores = [r["score"] for r in results if "score" in r]
 secs = [r["seconds"] for r in results if "seconds" in r]
+chars = [r["external_chars"] for r in results if "external_chars" in r]
 
 print(f"examples {len(examples)}, wall time {wall:.0f} s, seconds per example median {med(secs):.0f}")
-print(f"external calls: finish reasons {dict(ext_reasons)}, completion tokens median {med(ext_tokens)}, max {max(ext_tokens, default=0)}")
-print(f"judge calls: finish reasons {dict(judge_reasons)}, completion tokens median {med(judge_tokens)}, max {max(judge_tokens, default=0)}")
-print(f"program errors {len(forward_errors)}, judge errors {len(judge_errors)}, empty external answers {empty}, answers cut at max_tokens {cut}")
+print(f"external calls: finish reasons {dict(ext_reasons)}, empty {ext_empty}, completion tokens median {med(ext_tokens)}, "
+      f"max {max(ext_tokens, default=0)}; visible answer characters median {med(chars)}, max {max(chars, default=0)}")
+print(f"judge calls: finish reasons {dict(judge_reasons)}, empty {judge_empty}, completion tokens median {med(judge_tokens)}, "
+      f"max {max(judge_tokens, default=0)}")
+print(f"program errors {len(forward_errors)}, judge errors {len(judge_errors)}, examples with an empty or None external "
+      f"answer {empty_examples}; calls cut or empty {bad_calls} of {calls}")
 for e in (forward_errors + judge_errors)[:5]:
     print("  error:", e)
 print(f"mean score on these val examples (information only): {statistics.mean(scores) if scores else 0:.3f}")
-ok = not forward_errors and not judge_errors and empty == 0 and cut <= 1
+ok = bad_calls <= 0.01 * max(1, calls) and bad_examples <= 0.01 * len(examples) and empty_examples <= 0.01 * len(examples)
 print("SMOKE TEST", "PASSED" if ok else "FAILED")
 raise SystemExit(0 if ok else 1)

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
-# Post-run check of one pupa_job.sh job (plan section 2.5), made from check_job.sh (Table 1): writes
+# Post-run check of one pupa_job.sh job (plan section 2.10), made from check_job.sh (Table 1): writes
 # ~/pupa_checks/<job>.md and one line in ~/pupa_checks/SUMMARY.md with OK or CHECK, and exits 1 on CHECK,
 # so a job submitted with --dependency=afterok:<check job> only starts after a clean run.
 # Changes to check_job.sh: the PUPA checkout (~/gepa-pupa), test size 221, no seed-0 gate (there is no
-# comparable paper value, plan 2.5), the smoke test line, and the external model server: every chat
+# comparable paper value, plan 2.10), the smoke test line, and the external model server: every chat
 # request must be answered with HTTP 200 and the external watchdog must not have stopped the runs.
 #   usage: check_pupa.sh <job id> [<job id> ...]
 set -u
@@ -30,8 +30,12 @@ for J in "$@"; do
   echo "- $(grep -m1 '^runs use:' "$JL")"
   echo "- $(grep -m1 '^timeouts:' "$JL")"
   echo "- watchdog lines: $(grep -c '=== watchdog' "$JL"), external watchdog lines: $(grep -c '=== external watchdog' "$JL"), skipped runs: $(grep -c 'already exists. Skipping' "$JL")"
+  CAL=$(grep -m1 -o -E 'JUDGE CALIBRATION (PASSED|FAILED).*' "$JL" | cut -c1-500)
+  echo "- judge calibration: ${CAL:-not in this job}"
   echo "- smoke test: $(grep -m1 -o 'SMOKE TEST [A-Z]*' "$JL" || echo 'not in this job')"
   grep -E '^(external calls|judge calls|program errors|examples [0-9])' "$JL" | sed 's/^/  - /'
+  SET=$(grep -h -o -E 'external lm \((answer|judge)\): .*' "$JL" | sort -u | head -6 | tr '\n' ';' | cut -c1-900)
+  echo "- external model settings printed in the job log: ${SET:-none}"
   echo
   echo "## Qwen server (Arbor) log"
   RQ=$(ls -d $REPO/logs/arbor_requests_$J/* /scratch-shared/$USER/arbor_$J/storage/logs/* 2>/dev/null | head -1)
@@ -49,7 +53,8 @@ for J in "$@"; do
   NE=$(grep -c 'POST /v1/chat/completions' "$EL" 2>/dev/null); NE=${NE:-0}
   NB=$(grep 'POST /v1/chat/completions' "$EL" 2>/dev/null | grep -vc '" 200')
   echo "- chat requests $NE, not answered with HTTP 200: $NB"
-  [ "$NE" -gt 0 ] || echo "- NO-EXTERNAL-REQUESTS: the runs never reached the external model"
+  # the readiness probe of pupa_job.sh is one chat request itself
+  [ "$NE" -gt 1 ] || echo "- NO-EXTERNAL-REQUESTS: no request after the readiness probe, the runs never reached the external model"
   echo "- error lines (reported only, the shutdown at the end can write some): $(grep -cE ' ERROR |Traceback' "$EL" 2>/dev/null)"
   python3 - "$EL" <<'PY'
 import os, re, sys
@@ -81,11 +86,45 @@ PY
       E=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep -c 'ERROR dspy.utils.parallelizer')
       EF=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -c 'Failed to parse\|Expected dict_keys')
       EI=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | grep -c 'InternalServerError')
-      FLAG=""; [ "$E" -gt $((EF + EI)) ] && FLAG=" OTHER-ERRORS"
+      # PAPILLON.forward hides every program error, so in PUPA every logged error comes from the judge;
+      # they are judged together below (JUDGE-FAILURES), not one by one as in check_job.sh
+      FLAG=""; [ "$E" -gt $((EF + EI)) ] && FLAG=" (some not format)"
       echo "| ${B}_${O} | $S | $SC | ${DEN:-?} / $N | $(( N - ${DEN:-0} )) | $E ($EF)$FLAG | $(stat -c %y $R/evaluation_results/evaluation_result.txt | cut -c1-16) |"
       [ -n "$FLAG" ] && echo "  - first error that is not a format failure: $(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | head -1 | cut -c1-300)"
-      [ "$EI" -gt 0 ] && echo "  - client InternalServerErrors: $EI (allowed only up to the requests rejected for length)"
-      echo "  - paper (authors' seed 0, GPT-4.1-mini as external model and judge, not comparable, plan 2.5): $(case $O in Baseline) echo 80.82;; MIPROv2-Heavy) echo 81.55;; GEPA) echo 91.85;; GEPA-MERGE) echo 86.26;; esac)"
+      [ "$EI" -gt 0 ] && echo "  - client InternalServerErrors: $EI (judge calls; the server side is checked above)"
+      echo "  - paper (authors' seed 0, GPT-4.1-mini as external model and judge, not comparable, plan 2.10): $(case $O in Baseline) echo 80.82;; MIPROv2-Heavy) echo 81.55;; GEPA) echo 91.85;; GEPA-MERGE) echo 86.26;; esac)"
+      # rule of plan 2.10 (addendum of 2026-11-12): judge failures above 1 % of the test examples or of the
+      # metric calls, or empty / None answers above 1 % of the logged predictions, make the run CHECK
+      MC=$(cat $R/metric_logs/train.jsonl $R/metric_logs/val.jsonl $R/metric_logs/test.jsonl 2>/dev/null | wc -l)
+      FT=$(( N - ${DEN:-0} ))
+      echo "  - judge failures: $E errors in stderr for $MC metric calls; test examples not scored: $FT"
+      if [ "$FT" -ge 3 ] || [ "$E" -gt $(( MC / 100 )) ]; then echo "  - JUDGE-FAILURES: more than 1 %"; fi
+      python3 - "$R/metric_logs" <<'PY'
+import json, os, sys
+d = sys.argv[1]
+n = empty_ext = empty_resp = 0
+for split in ("train", "val", "test"):
+    p = os.path.join(d, split + ".jsonl")
+    if not os.path.exists(p):
+        continue
+    for line in open(p, errors="replace"):
+        try:
+            pred = json.loads(line).get("prediction") or {}
+        except Exception:
+            continue
+        n += 1
+        if not str(pred.get("llm_response") or "").strip():
+            empty_ext += 1
+        if not str(pred.get("response") or "").strip():
+            empty_resp += 1
+print(f"  - logged predictions {n}: empty or None external answer {empty_ext}, empty final response {empty_resp}")
+if n == 0:
+    print("  - NO-PREDICTIONS: nothing logged to check the answers with")
+elif max(empty_ext, empty_resp) > 0.01 * n:
+    print("  - EMPTY-ANSWERS: more than 1 % of the logged predictions")
+PY
+      RS=$(grep -h -o -E 'external lm \((answer|judge)\): .*' $R/run_log.txt $R/run_log_stderr.txt 2>/dev/null | sort -u | tr '\n' ';' | cut -c1-600)
+      echo "  - external model settings printed by the run: ${RS:-see the job log above}"
       case "$O" in
         MIPROv2-Heavy) echo "  - MIPROv2: $(grep -h 'Default program score' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / $(grep -h 'Returning best identified program' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / saved programs $(ls $R/optimizer_logs/evaluated_programs 2>/dev/null | wc -l)" ;;
         GEPA|GEPA-MERGE) [ "$(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l)" -gt 0 ] || echo "  - NO-REFLECTIONS: GEPA made no reflection, so it optimized nothing"
@@ -103,11 +142,8 @@ PY
   grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|chunk-call timeouts \(F70\): [1-9]|connection errors: [1-9]|NO RESULT|watchdog lines: [1-9]|external watchdog lines: [1-9]" "$F" && V=CHECK
   grep -qE "unexplained [1-9]|not answered with HTTP 200: [1-9]|NO-EXTERNAL-REQUESTS|NO-EXTERNAL-LOG|SMOKE TEST FAILED" "$F" && V=CHECK
   grep -qE "skipped runs: [1-9]" "$F" && V=CHECK
-  grep -q "OTHER-ERRORS" "$F" && V=CHECK
+  grep -qE "JUDGE-FAILURES|EMPTY-ANSWERS|NO-PREDICTIONS|JUDGE CALIBRATION FAILED" "$F" && V=CHECK
   grep -q "^- job: .*, state COMPLETED," "$F" || V=CHECK
-  ISE=$(grep -o 'client InternalServerErrors: [0-9]*' "$F" | awk '{s += $3} END {print s + 0}')
-  RJ=$(grep -o 'rejected as longer than max_model_len [0-9]*' "$F" | awk '{print $NF + 0}')
-  [ "$ISE" -gt "${RJ:-0}" ] && V=CHECK
   grep -q "REFLECTION-FAILS" "$F" && V=CHECK
   grep -q "NO-REFLECTIONS" "$F" && V=CHECK
   [ "$V" = CHECK ] && BAD=1
