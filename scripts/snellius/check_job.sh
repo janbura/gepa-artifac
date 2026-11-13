@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+# Post-run check of one qwen_job.sh job (section 2.4 of the plan), written to ~/repro_checks/<job>.md
+# and one line in ~/repro_checks/SUMMARY.md. Runs on its own after the job (sbatch --dependency=afterany),
+# so the result is there even if nobody is logged in. Exits 1 if any checked job gets the verdict CHECK,
+# so a job submitted with --dependency=afterok:<check job> only starts after a clean run (the gate).
+#   usage: check_job.sh <job id> [<job id> ...]
+set -u
+BAD=0
+OUT=${CHECK_OUT:-$HOME/repro_checks}; mkdir -p "$OUT"  # CHECK_OUT only for testing this script
+size_of() { case "$1" in HotpotQABench|hoverBench) echo 300;; IFBench) echo 294;; AIMEBench) echo 150;; LiveBenchMathBench) echo 126;; *) echo 0;; esac; }
+# pre-registered seed-0 gate (REPRODUCTION_PLAN.md 2.4, commit 9a4fb0c): <benchmark>_<optimizer> paper SD_run
+GATE="HotpotQABench_Baseline 42.33 1.48
+HotpotQABench_MIPROv2-Heavy 55.33 3.35
+HotpotQABench_GEPA 62.33 3.33
+HotpotQABench_GEPA-MERGE 64.33 3.32
+hoverBench_Baseline 35.33 1.61
+hoverBench_MIPROv2-Heavy 47.33 3.44
+hoverBench_GEPA 52.33 3.44
+hoverBench_GEPA-MERGE 51.67 3.44
+IFBench_Baseline 36.90 1.63
+IFBench_MIPROv2-Heavy 36.22 3.41
+IFBench_GEPA 38.61 3.42
+IFBench_GEPA-MERGE 28.23 3.36
+AIMEBench_Baseline 27.33 3.93
+AIMEBench_MIPROv2-Heavy 20.00 4.63
+AIMEBench_GEPA 32.00 5.09
+AIMEBench_GEPA-MERGE 32.00 5.09
+LiveBenchMathBench_Baseline 48.70 2.71
+LiveBenchMathBench_MIPROv2-Heavy 46.60 4.04
+LiveBenchMathBench_GEPA 51.95 4.04
+LiveBenchMathBench_GEPA-MERGE 51.95 4.04"
+gate() {  # gate <benchmark>_<optimizer> <score> -> "d=..; z=..; inside|FLAG|PAUSE"
+  echo "$GATE" | awk -v k="$1" -v sc="$2" '$1 == k { d = sc - $2; z = d / $3; a = (z < 0) ? -z : z;
+    v = (a > 3.64) ? "PAUSE" : ((a > 2.77) ? "FLAG" : "inside");
+    printf "paper %s, d %+.2f, z %+.2f (gate +-%.1f, pause +-%.1f): %s", $2, d, z, 2.77 * $3, 3.64 * $3, v }'
+}
+
+for J in "$@"; do
+  F=$OUT/$J.md
+  # which checkout ran it: the job log is in <repo>/logs/<name>-<id>.out
+  JL=$(ls $HOME/gepa-repro/logs/*-$J.out $HOME/gepa-artifac/logs/*-$J.out 2>/dev/null | grep -v "/arbor-" | head -1)
+  if [ -z "$JL" ]; then  # cancelled before it started, e.g. because a dependency failed: the chain must stop here
+    echo "| $J | $(date '+%F %T') | CHECK | never ran: $(sacct -j $J -X -n -o JobName,State | tr -s ' ') |  |" >> $OUT/SUMMARY.md
+    BAD=1; continue
+  fi
+  REPO=$(dirname "$(dirname "$JL")")
+  AL=$REPO/logs/arbor-$J.log
+  {
+  echo "# Check of job $J ($(date '+%F %T'))"
+  echo
+  sacct -j $J -X -n -P -o JobName,State,Partition,NodeList,Start,End,Elapsed,ElapsedRaw,AllocTRES | awk -F'|' '{b=0; n=split($9,t,","); for(i=1;i<=n;i++) if (t[i] ~ /^billing=/) {sub("billing=","",t[i]); b=t[i]}; printf "- job: %s, state %s, partition %s, node %s, %s to %s, elapsed %s, SBU %.0f\n", $1,$2,$3,$4,$5,$6,$7, b*$8/3600}'
+  echo "- checkout: $REPO, $(grep -m1 '^start' "$JL" | sed 's/^start //')"
+  echo "- $(grep -m1 '^arbor venv:' "$JL" || grep -om1 'LLM engine (v[0-9.]*' "$AL")"
+  echo "- $(grep -m1 '^timeouts:' "$JL" || echo 'timeouts: (old checkout: client 7200, forwarder 7200, worker 21600, chunk 600)')"
+  echo "- $(grep -m1 'server ready' "$JL")"
+  echo "- watchdog lines: $(grep -c '=== watchdog' "$JL"), skipped runs: $(grep -c 'already exists. Skipping' "$JL"), command exits: $(grep -o 'exit so far [0-9]*' "$JL" | tr '\n' ' ')"
+  echo
+  echo "## Server (Arbor) log"
+  RQ=$(ls -d $REPO/logs/arbor_requests_$J/* /scratch-shared/$USER/arbor_$J/storage/logs/* 2>/dev/null | head -1)
+  NQ=$(cat "$RQ"/inference_requests.jsonl 2>/dev/null | wc -l); NR=$(cat "$RQ"/inference_responses.jsonl 2>/dev/null | wc -l)
+  # the forwarder gives a client request up after 3 attempts (vllm_client.py, MAX_INFERENCE_RETRIES = 3), and every attempt
+  # that is too long logs one worker error, so a request rejected for length leaves 3 such lines and one "Request failed after"
+  CTXL=$(grep -c 'Error in chat: The decoder prompt' "$AL"); F3=$(grep -c 'Request failed after' "$AL")
+  CTX=$((CTXL / 3)); [ "$F3" -lt "$CTX" ] && CTX=$F3
+  UNEX=$((NQ-NR-CTX)); [ $UNEX -lt 0 ] && UNEX=0
+  echo "- requests $NQ, responses $NR, unanswered $((NQ-NR)), of which rejected as longer than max_model_len $CTX (worker errors $CTXL, requests given up $F3), unexplained $UNEX (must be 0 unless the job hit its time limit)"
+  echo "- worker timeouts (void the run, F72): $(grep -c 'Timeout for chat request' "$AL")"
+  echo "- forwarder timeouts: $(grep -c '^httpx.ReadTimeout' "$AL"), HTTP 500: $(grep -c '500 Internal Server Error' "$AL"), HTTP 504: $(grep -c '504 Gateway' "$AL")"
+  echo "- chunk-call timeouts (F70): $(grep -cE 'chunk chat after|Timeout waiting for worker' "$AL"), result mismatches (F68/F72): $(grep -c 'LLM result' "$AL"), connection errors: $(grep -cE 'ConnectError|Connection refused' "$AL")"
+  # a request longer than max_model_len is part of the artifact's behaviour: the authors' three IFBench GEPA-family runs
+  # each had one rejected reflection call (that iteration is skipped). Reported, not a void (plan 2.4 addendum, 2026-11-08)
+  echo "- context-length lines in the server log (reported only): $(grep -ciE 'maximum context length|maximum model length|longer than the maximum|ContextWindowExceeded|exceeds the max' "$AL"); rejected requests: $CTX"
+  python3 - "$AL" <<'PY'
+import re, sys, datetime, collections
+T = re.compile(r"(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d),")
+ts = lambda l: datetime.datetime.strptime(T.search(l).group(1), "%Y-%m-%d %H:%M:%S").timestamp()
+created, done, mx, kv = {}, {}, 0, ""
+for l in open(sys.argv[1], errors="replace"):
+    if "GPU KV cache size" in l and not kv:
+        m = re.search(r"GPU KV cache size: ([0-9,]+) tokens", l); kv = m.group(1) if m else ""
+    for m in re.finditer(r"Processed prompts: 100%\|[^|]*\| (\d+)/(\d+) \[(\d+):(\d+)<", l):
+        mx = max(mx, int(m.group(3)) * 60 + int(m.group(4)))
+    if "LIFECYCLE" not in l: continue
+    m = re.search(r"Created chat request (\S+?): max_tokens=(\d+)", l)
+    if m and int(m.group(2)) > 64: created[m.group(1)] = ts(l); continue
+    m = re.search(r"Request (\S+) is complete and will be finalized\. Generated (\d+) tokens, finish_reason=(\w+)", l)
+    if m and m.group(1) in created: done[m.group(1)] = (ts(l), int(m.group(2)), m.group(3))
+if done:
+    t0 = min(created.values()); t1 = max(v[0] for v in done.values()); tok = sum(v[1] for v in done.values())
+    lat = sorted(v[0] - created[k] for k, v in done.items())
+    print(f"- generated {tok/1e6:.2f} M tokens in {(t1-t0)/3600:.2f} h = {tok/max(1,t1-t0):.0f} tok/s; KV cache {kv} tokens; longest chunk call {mx} s")
+    print(f"- request latency median {lat[len(lat)//2]:.0f} s, p90 {lat[int(.9*len(lat))]:.0f} s, max {lat[-1]:.0f} s; finish reasons {dict(collections.Counter(v[2] for v in done.values()))}")
+PY
+  echo
+  echo "## Runs"
+  echo "| run | seed | score | scored / test size | failed | errors in stderr (of which format) | result file |"
+  echo "|---|---|---|---|---|---|---|"
+  CMDS=$(grep -m1 '^start' "$JL" | sed 's/.*commands: //')
+  [ -f "$CMDS" ] || CMDS=$REPO/$CMDS
+  grep 'run_experiments' "$CMDS" 2>/dev/null | while IFS= read -r line; do
+    D=$(echo "$line" | grep -o 'GEPA_EXPERIMENT_DIR=[^ ]*' | cut -d= -f2 | sed "s#\$HOME#$HOME#")
+    [ -n "$D" ] || D=$REPO/experiment_runs_data
+    B=$(echo "$line" | grep -o -- '--benchmark_name [^ ]*' | cut -d' ' -f2)
+    P=$(echo "$line" | grep -o -- '--prog_name [^ ]*' | cut -d' ' -f2)
+    O=$(echo "$line" | grep -o -- '--optim_name [^ ]*' | cut -d' ' -f2)
+    S=$(echo "$line" | grep -o -- '--seed [0-9]*' | tail -1 | cut -d' ' -f2)
+    R=$D/experiment_runs/seed_$S/${B}_${P}_${O}_qwen3-8b
+    N=$(size_of $B)
+    if [ -f $R/evaluation_results/evaluation_result.txt ]; then
+      SC=$(sed -n 2p $R/evaluation_results/evaluation_result.txt | cut -d, -f1)
+      DEN=$(tr '\r' '\n' < $R/run_log.txt | grep -o 'Average Metric: [0-9.]* / [0-9]*' | tail -1 | awk '{print $NF}')
+      E=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep -c 'ERROR dspy.utils.parallelizer')
+      EF=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -c 'Failed to parse\|Expected dict_keys')
+      EI=$(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | grep -c 'InternalServerError')
+      FLAG=""; [ "$E" -gt $((EF + EI)) ] && FLAG=" OTHER-ERRORS"
+      echo "| ${B}_${O} | $S | $SC | ${DEN:-?} / $N | $(( N - ${DEN:-0} )) | $E ($EF)$FLAG | $(stat -c %y $R/evaluation_results/evaluation_result.txt | cut -c1-16) |"
+      [ -n "$FLAG" ] && echo "  - first error that is not a format failure: $(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | head -1 | cut -c1-300)"
+      [ "$EI" -gt 0 ] && echo "  - client InternalServerErrors: $EI (allowed only up to the requests rejected for length)"
+      if [ "${NO_GATE:-0}" != 1 ]; then  # NO_GATE=1 for test runs
+        if [ "$S" = 0 ] && [ "$O" = Baseline ]; then echo "  - match with the paper: $(gate ${B}_${O} $SC | sed -E 's/\): PAUSE$/): FLAG (a Baseline cell is only flagged, plan 2.4)/')"
+        elif [ "$S" = 0 ]; then echo "  - match with the paper: $(gate ${B}_${O} $SC)"
+        else echo "  - compared with the paper (the gate is for seed 0 only): $(gate ${B}_${O} $SC | sed -E 's/\): (inside|FLAG|PAUSE)$/): not gated/')"; fi
+      fi
+      case "$O" in
+        MIPROv2-Heavy) echo "  - MIPROv2: $(grep -h 'Default program score' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / $(grep -h 'Returning best identified program' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / saved programs $(ls $R/optimizer_logs/evaluated_programs 2>/dev/null | wc -l)" ;;
+        GEPA|GEPA-MERGE) [ "$(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l)" -gt 0 ] || echo "  - NO-REFLECTIONS: GEPA made no reflection, so it optimized nothing"
+                         EP=$(grep -c 'Exception during instruction proposal' $R/run_log.txt); NP=$(grep -cE '^Iteration [0-9]+: Proposed new instruction' $R/run_log.txt)
+                         echo "  - GEPA proposals: $NP, failed proposals: $EP (authors: at most 1 per run)"
+                         [ "$EP" -ge 10 ] && [ "$EP" -gt "$NP" ] && echo "  - REFLECTION-FAILS: most proposals failed"
+                         echo "  - GEPA: iterations $(grep -o 'Iteration [0-9]*:' $R/run_log.txt | tail -1 | grep -o '[0-9]*'), reflections $(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l), metric log lines train $(cat $R/metric_logs/train.jsonl 2>/dev/null | wc -l) / val $(cat $R/metric_logs/val.jsonl 2>/dev/null | wc -l), merges $(grep -c 'Merged programs' $R/run_log.txt), candidates $(ls $R/prog_candidates 2>/dev/null | wc -l)" ;;
+      esac
+    else
+      echo "| ${B}_${O} | $S | NO RESULT | – | – | – | – |"
+    fi
+  done
+  } > "$F" 2>&1
+  V=OK
+  # void (CHECK): a lost or possibly mixed answer, or a crash. Internal HTTP 500/504 and F68 batch failures that
+  # the forwarder retried successfully (every request answered, no client error) are only reported (F68 policy).
+  grep -qE "worker timeouts \(void the run, F72\): [1-9]|forwarder timeouts: [1-9]|chunk-call timeouts \(F70\): [1-9]|connection errors: [1-9]|NO RESULT|watchdog lines: [1-9]" "$F" && V=CHECK
+  grep -qE "unexplained [1-9]" "$F" && V=CHECK
+  grep -qE "skipped runs: [1-9]" "$F" && V=CHECK  # the result in the folder is an old one
+  grep -q "OTHER-ERRORS" "$F" && V=CHECK
+  grep -q "^- job: .*, state COMPLETED," "$F" || V=CHECK
+  ISE=$(grep -o 'client InternalServerErrors: [0-9]*' "$F" | awk '{s += $3} END {print s + 0}')
+  RJ=$(grep -o 'rejected as longer than max_model_len [0-9]*' "$F" | awk '{print $NF + 0}')
+  [ "$ISE" -gt "${RJ:-0}" ] && V=CHECK
+  grep -q "REFLECTION-FAILS" "$F" && V=CHECK
+  grep -q "NO-REFLECTIONS" "$F" && V=CHECK
+  grep -q "): PAUSE" "$F" && V=CHECK
+  grep -q "): FLAG" "$F" && [ "$V" = OK ] && V=OK-FLAG
+  [ "$V" = CHECK ] && BAD=1
+  echo "| $J | $(date '+%F %T') | $V | $(grep -m1 '^- job:' "$F" | cut -c8-) | $(grep '^| .*_' "$F" | awk -F'|' '{printf "%s s%s=%s; ", $2, $3, $4}') |" >> $OUT/SUMMARY.md
+done
+exit $BAD

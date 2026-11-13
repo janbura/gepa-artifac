@@ -1,0 +1,53 @@
+diff --git a/arbor/server/services/inference/vllm_client.py b/arbor/server/services/inference/vllm_client.py
+index ad78d1b..14ecab7 100644
+--- a/arbor/server/services/inference/vllm_client.py
++++ b/arbor/server/services/inference/vllm_client.py
+@@ -224,7 +224,7 @@ class VLLMClient:
+         while retries < MAX_INFERENCE_RETRIES:
+             try:
+                 async with httpx.AsyncClient() as client:
+-                    response = await client.post(url, json=json_body, timeout=600)
++                    response = await client.post(url, json=json_body, timeout=21600)
+ 
+                     if response.status_code == INFERENCE_BLOCKED_STATUS:
+                         retries += 1
+diff --git a/arbor/server/services/inference/vllm_serve.py b/arbor/server/services/inference/vllm_serve.py
+index 19a9155..8e24264 100644
+--- a/arbor/server/services/inference/vllm_serve.py
++++ b/arbor/server/services/inference/vllm_serve.py
+@@ -411,7 +411,7 @@ class ScriptArguments:
+         metadata={"help": "Maximum number of requests to process in one LLM call from the active pool."},
+     )
+     batch_request_timeout_seconds: int = field(
+-        default=300,
++        default=864000,
+         metadata={"help": "Timeout in seconds for a single request waiting for its turn and completion."},
+     )
+     token_chunk_size: int = field(
+@@ -867,7 +867,7 @@ async def batch_processing_loop(
+                                 try:
+                                     worker_idx, worker_conn = await get_next_worker_connection(connections)
+                                     logger_instance.debug(f"Using worker {worker_idx} for first-chunk chat request")
+-                                    llm_results = await async_send_and_recv(worker_conn, payload, timeout=60.0)
++                                    llm_results = await async_send_and_recv(worker_conn, payload, timeout=600.0)
+                                     logger_instance.debug(f"Received {len(llm_results)} results from LLM for first-chunk chat")
+                                 except asyncio.TimeoutError:
+                                     logger_instance.error(f"Worker {worker_idx} timeout for first-chunk chat after 60s")
+@@ -926,7 +926,7 @@ async def batch_processing_loop(
+                                 try:
+                                     worker_idx, worker_conn = await get_next_worker_connection(connections)
+                                     logger_instance.debug(f"Using worker {worker_idx} for continue-chunk chat request")
+-                                    llm_results = await async_send_and_recv(worker_conn, payload, timeout=60.0)
++                                    llm_results = await async_send_and_recv(worker_conn, payload, timeout=600.0)
+                                     logger_instance.debug(f"Received {len(llm_results)} results from LLM for continue-chunk chat")
+                                 except asyncio.TimeoutError:
+                                     logger_instance.error(f"Worker {worker_idx} timeout for continue-chunk chat after 60s")
+@@ -957,7 +957,7 @@ async def batch_processing_loop(
+                         try:
+                             worker_idx, worker_conn = await get_next_worker_connection(connections)
+                             logger_instance.debug(f"Using worker {worker_idx} for completion request")
+-                            llm_results = await async_send_and_recv(worker_conn, payload, timeout=60.0)
++                            llm_results = await async_send_and_recv(worker_conn, payload, timeout=600.0)
+                             logger_instance.debug(f"Received {len(llm_results)} results from LLM for completion")
+                         except asyncio.TimeoutError:
+                             logger_instance.error(f"Worker {worker_idx} timeout for completion after 60s")
