@@ -45,6 +45,20 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 | seed_1 IFBench GEPA+Merge | 29014525 | 36.73 | 28.23 | OK (4 merges) |
 | seed_0 AIME GEPA | 29014355 | 34.67 | 32.00 | OK, inside |
 | seed_0 AIME GEPA+Merge | 29014355 | 24.67 | 32.00 | OK, inside (0 merges: one predictor) |
+| seed_1 AIME GEPA | 29030593 | 34.67 | 32.00 | OK |
+| seed_1 AIME GEPA+Merge | 29030593 | 36.00 | 32.00 | OK (0 merges) |
+| seed_2 AIME GEPA | 29030597 | 34.67 | 32.00 | OK |
+| seed_2 AIME GEPA+Merge | 29030597 | 39.33 | 32.00 | OK (0 merges) |
+| seed_0 HotpotQA GEPA | 29015016 | 62.33 | 62.33 | OK, inside |
+| seed_0 HotpotQA GEPA+Merge | 29015016 | 60.67 | 64.33 | OK, inside (8 merges) |
+| seed_1 HotpotQA GEPA | 29030578 | 57.33 | 62.33 | OK |
+| seed_1 HotpotQA GEPA+Merge | 29030578 | 55.00 | 64.33 | OK (10 merges) |
+| seed_2 HotpotQA GEPA | 29030583 | 61.67 | 62.33 | job CHECK because of GEPA+Merge; this run lost no request |
+| seed_2 HotpotQA GEPA+Merge | 29030583 | 57.00 | 64.33 | CHECK: lost requests search 1 / test 0 (F104), kept (rule of 2026-11-11), † (9 merges) |
+| seed_0 HoVer GEPA | 29015028 | 48.67 | 52.33 | CHECK: lost requests search 2 / test 0 (F104), kept, †; inside the gate |
+| seed_0 HoVer GEPA+Merge | 29015028 | 48.67 | 51.67 | CHECK: lost requests search 1 / test 0 (F104), kept, †; inside the gate (12 merges) |
+| seed_2 HoVer GEPA | 29030590 | 53.33 | 52.33 | job CHECK because of GEPA+Merge; this run lost no request |
+| seed_2 HoVer GEPA+Merge | 29030590 | 51.33 | 51.67 | CHECK: lost requests search 2 / test 0 (F104), kept, † (7 merges) |
 | seed_0 HotpotQA Baseline | 29014995 | 39.33 | 42.33 | OK, inside |
 | seed_1 HotpotQA Baseline | 29014995 | 38.00 | 42.33 | OK |
 | seed_2 HotpotQA Baseline | 29014995 | 39.00 | 42.33 | OK |
