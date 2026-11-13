@@ -57,6 +57,8 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 | seed_2 HotpotQA GEPA+Merge | 29030583 | 57.00 | 64.33 | CHECK: lost requests search 1 / test 0 (F104), kept (rule of 2026-11-11), † (9 merges) |
 | seed_0 HoVer GEPA | 29015028 | 48.67 | 52.33 | CHECK: lost requests search 2 / test 0 (F104), kept, †; inside the gate |
 | seed_0 HoVer GEPA+Merge | 29015028 | 48.67 | 51.67 | CHECK: lost requests search 1 / test 0 (F104), kept, †; inside the gate (12 merges) |
+| seed_1 HoVer GEPA | 29030587 | 51.00 | 52.33 | CHECK: lost requests search 3 / test 0 (F104), kept, † |
+| seed_1 HoVer GEPA+Merge | 29030587 | 51.00 | 51.67 | CHECK: lost requests search 1 / test 0 (F104), kept, † (10 merges) |
 | seed_2 HoVer GEPA | 29030590 | 53.33 | 52.33 | job CHECK because of GEPA+Merge; this run lost no request |
 | seed_2 HoVer GEPA+Merge | 29030590 | 51.33 | 51.67 | CHECK: lost requests search 2 / test 0 (F104), kept, † (7 merges) |
 | seed_0 HotpotQA Baseline | 29014995 | 39.33 | 42.33 | OK, inside |
