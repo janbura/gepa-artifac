@@ -43,6 +43,8 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 | seed_0 IFBench GEPA+Merge | 28994883 | 36.56 | 28.23 | OK, inside (1 merge) |
 | seed_1 IFBench GEPA | 29014525 | 31.29 | 38.61 | OK |
 | seed_1 IFBench GEPA+Merge | 29014525 | 36.73 | 28.23 | OK (4 merges) |
+| seed_2 IFBench GEPA | 29114238 | 34.01 | 38.61 | CHECK: lost requests search 13 / test 0 (server batch failures, F106), kept (rule of 2026-11-11), † |
+| seed_2 IFBench GEPA+Merge | 29114238 | 31.97 | 28.23 | CHECK: lost requests search 0 / test 34 (F106): 34 of 294 test examples without an answer, counted as wrong (score up to 11.56 points too low), kept, † (6 merges) |
 | seed_0 AIME GEPA | 29014355 | 34.67 | 32.00 | OK, inside |
 | seed_0 AIME GEPA+Merge | 29014355 | 24.67 | 32.00 | OK, inside (0 merges: one predictor) |
 | seed_1 AIME GEPA | 29030593 | 34.67 | 32.00 | OK |
