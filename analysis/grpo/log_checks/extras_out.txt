@@ -1,0 +1,40 @@
+==========================================================================================
+HotpotQABench_HotpotMultiHop_GRPO_qwen3-8b
+[claim3] first50 / last50: rows 45.14/54.19; mean of step means 45.12/54.15; logged sum/48 44.71/53.67; DSPy per-step Evaluate 43.67/52.67
+[claim9] 100-step blocks: rows [46.85, 48.9, 52.24, 51.05, 53.27]; step means [46.82, 48.91, 52.22, 51.01, 53.29]; DSPy Evaluate [45.02, 47.38, 50.85, 49.38, 51.67]
+[claim9] OLS slope per 100 steps: train (logged step means) +1.51 (SE 0.69); train (DSPy Evaluate) +1.53 (SE 0.71); validation steps 20-500 -0.07 (SE 0.27)
+[info] rollouts without a metric row per 100-step block: [61, 41, 40, 49, 49]
+[claim6] dup rule 'first': common to 10 passes n=287 48.50 vs 48.64; common to all 26 n=272 49.12 vs 49.49
+[claim6] dup rule 'last': common to 10 passes n=287 48.50 vs 48.64; common to all 26 n=272 49.12 vs 49.49
+[claim6] dup rule 'mean': common to 10 passes n=287 48.50 vs 48.64; common to all 26 n=272 49.12 vs 49.49
+[claim6] DSPy Evaluate (failures=0): passes 0-4 mean 47.13, passes 21-25 mean 47.40; passes 1-5 mean 47.67
+==========================================================================================
+hoverBench_HoverMultiHop_GRPO_qwen3-8b
+[claim3] first50 / last50: rows 39.82/44.18; mean of step means 39.81/44.17; logged sum/48 39.79/44.08; DSPy per-step Evaluate 39.75/43.88
+[claim9] 100-step blocks: rows [40.87, 40.18, 42.26, 42.74, 42.84]; step means [40.87, 40.17, 42.23, 42.74, 42.84]; DSPy Evaluate [40.83, 40.0, 42.02, 42.15, 42.48]
+[claim9] OLS slope per 100 steps: train (logged step means) +0.74 (SE 0.63); train (DSPy Evaluate) +0.64 (SE 0.63); validation steps 20-500 +0.18 (SE 0.21)
+[info] rollouts without a metric row per 100-step block: [2, 6, 8, 20, 12]
+[claim6] dup rule 'first': common to 10 passes n=295 36.00 vs 37.02; common to all 26 n=286 36.36 vs 37.48
+[claim6] dup rule 'last': common to 10 passes n=295 36.00 vs 37.02; common to all 26 n=286 36.36 vs 37.48
+[claim6] dup rule 'mean': common to 10 passes n=295 36.00 vs 37.02; common to all 26 n=286 36.36 vs 37.48
+[claim6] DSPy Evaluate (failures=0): passes 0-4 mean 35.53, passes 21-25 mean 36.47; passes 1-5 mean 35.93
+==========================================================================================
+IFBench_IFBenchCoT2StageProgram_GRPO_qwen3-8b
+[claim3] first50 / last50: rows 78.83/78.27; mean of step means 78.68/78.29; logged sum/48 74.89/75.40; DSPy per-step Evaluate 70.36/72.65
+[claim9] 100-step blocks: rows [78.05, 80.3, 79.48, 80.85, 78.87]; step means [78.02, 80.2, 79.38, 80.97, 78.79]; DSPy Evaluate [69.24, 73.46, 71.36, 73.09, 73.61]
+[claim9] OLS slope per 100 steps: train (logged step means) +0.26 (SE 0.53); train (DSPy Evaluate) +0.83 (SE 0.62); validation steps 20-500 +0.91 (SE 0.28)
+[info] rollouts without a metric row per 100-step block: [255, 202, 240, 245, 157]
+[claim6] dup rule 'first': common to 10 passes n=265 59.33 vs 62.45; common to all 26 n=243 60.02 vs 62.67
+[claim6] dup rule 'last': common to 10 passes n=265 59.18 vs 62.45; common to all 26 n=243 59.94 vs 62.67
+[claim6] dup rule 'mean': common to 10 passes n=265 59.25 vs 62.45; common to all 26 n=243 59.98 vs 62.67
+[claim6] DSPy Evaluate (failures=0): passes 0-4 mean 56.45, passes 21-25 mean 60.49; passes 1-5 mean 57.13
+==========================================================================================
+Papillon_PAPILLON_GRPO_qwen3-8b
+[claim3] first50 / last50: rows 84.44/89.72; mean of step means 84.44/89.72; logged sum/48 84.41/89.68; DSPy per-step Evaluate 84.43/89.72
+[claim9] 100-step blocks: rows [84.13, 85.98, 88.07, 87.01, 89.51]; step means [84.13, 85.98, 88.07, 87.01, 89.51]; DSPy Evaluate [84.13, 85.97, 88.07, 87.01, 89.51]
+[claim9] OLS slope per 100 steps: train (logged step means) +1.16 (SE 0.22); train (DSPy Evaluate) +1.16 (SE 0.22); validation steps 20-500 +0.31 (SE 0.31)
+[info] rollouts without a metric row per 100-step block: [2, 2, 4, 0, 1]
+[claim6] dup rule 'first': common to 10 passes n=96 80.18 vs 83.69; common to all 26 n=96 80.18 vs 83.69
+[claim6] dup rule 'last': common to 10 passes n=96 80.12 vs 83.69; common to all 26 n=96 80.12 vs 83.69
+[claim6] dup rule 'mean': common to 10 passes n=96 80.15 vs 83.69; common to all 26 n=96 80.15 vs 83.69
+[claim6] DSPy Evaluate (failures=0): passes 0-4 mean 80.62, passes 21-25 mean 83.55; passes 1-5 mean 81.48

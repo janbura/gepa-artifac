@@ -1,0 +1,24 @@
+================================================================================
+HotpotQABench_HotpotMultiHop_GRPO_qwen3-8b
+(a) val chunks of 300 rows: n chunks 26; common n=244: first5 47.79 last5 47.87
+    chunks 0-4 vs 21-25: n=244 47.79 vs 47.87
+(b) 48-row chunks: n=497; first50 rows-mean 45.12; last50 53.89; chunk-means first50 45.12 last50 54.42
+(c) windows split in 20 equal parts (all train rows): first50 44.98 last50 54.09; step-means 44.97 / 54.10
+================================================================================
+hoverBench_HoverMultiHop_GRPO_qwen3-8b
+(a) val chunks of 300 rows: n chunks 26; common n=247: first5 36.11 last5 37.98
+    chunks 0-4 vs 21-25: n=247 36.11 vs 37.98
+(b) 48-row chunks: n=500; first50 rows-mean 39.79; last50 44.20; chunk-means first50 39.79 last50 43.93
+(c) windows split in 20 equal parts (all train rows): first50 39.78 last50 44.16; step-means 39.79 / 44.17
+================================================================================
+IFBench_IFBenchCoT2StageProgram_GRPO_qwen3-8b
+(a) val chunks of 300 rows: n chunks 26; common n=63: first5 52.20 last5 57.12
+    chunks 0-4 vs 21-25: n=63 52.20 vs 57.12
+(b) 48-row chunks: n=482; first50 rows-mean 78.92; last50 78.14; chunk-means first50 78.92 last50 78.35
+(c) windows split in 20 equal parts (all train rows): first50 78.78 last50 78.07; step-means 78.74 / 78.06
+================================================================================
+Papillon_PAPILLON_GRPO_qwen3-8b
+(a) val chunks of 111 rows: n chunks 24; common n=76: first5 81.73 last5 84.69
+    chunks 0-4 vs 21-25: n=76 81.73 vs 85.09
+(b) 48-row chunks: n=506; first50 rows-mean 84.49; last50 89.65; chunk-means first50 84.49 last50 89.66
+(c) windows split in 20 equal parts (all train rows): first50 84.48 last50 89.73; step-means 84.46 / 89.72

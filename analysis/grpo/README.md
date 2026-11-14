@@ -21,8 +21,8 @@ the script, dated before the tests were run.
 Results are in `results.json` and `grpo_tests_stdout.txt`. `crosscheck_hover.py` and `crosscheck_ifbench_pupa.py`
 re-implement the main numbers in a second, simpler way.
 
-## logs/ (recomputed log numbers)
-`python -I logs/<script>.py <run folder> [...]`. The `claimN` labels in the output refer to:
+## log_checks/ (recomputed log numbers)
+`python -I log_checks/<script>.py <run folder> [...]`. The `claimN` labels in the output refer to:
 1. validation scores (before training, later passes, best, used checkpoint);
 2. groups of 12 rollouts with identical rewards;
 3. train reward, first vs last 50 steps;
