@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>GRPO in the GEPA paper</title>
+<style>
+@page { size: A4; margin: 14mm 15mm 12mm 15mm; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 9.6pt; line-height: 1.32; color: #111; margin: 0; }
+h1 { font-size: 13pt; margin: 0 0 2pt 0; }
+.sub { font-size: 8.6pt; color: #444; margin: 0 0 6pt 0; }
+h2 { font-size: 10.4pt; margin: 7pt 0 2pt 0; border-bottom: 0.6pt solid #999; padding-bottom: 1pt; }
+p { margin: 2pt 0 3pt 0; }
+ul, ol { margin: 1pt 0 3pt 0; padding-left: 14pt; }
+li { margin: 0 0 1.5pt 0; }
+table { border-collapse: collapse; font-size: 8.8pt; margin: 2pt 0 3pt 0; }
+th, td { border: 0.5pt solid #aaa; padding: 1pt 4pt; text-align: center; }
+th:first-child, td:first-child { text-align: left; }
+b { font-weight: 600; }
+</style>
+</head>
+<body>
+<h1>GRPO in the GEPA paper: what the released runs show, and possible fixes</h1>
+<p class="sub">Reproduction of arXiv 2507.19457 (v2), Qwen3-8B. Sources: the paper and the authors' artifact, i.e. the GRPO code and the logs of four GRPO runs (HotpotQA, HoVer, IFBench, PUPA). All log-based numbers were recomputed from the raw logs with two independent sets of scripts; statements about the code were checked against the source.</p>
+
+<h2>1. What the paper reports</h2>
+<p>Test scores, one run per cell (no seeds or variance). GRPO uses 24,000 rollouts per task, GEPA 1,839–7,051. The paper's claim: GEPA beats GRPO by 6 points on average and reaches its best prompt with up to 35× fewer rollouts.</p>
+<table>
+<tr><th></th><th>HotpotQA</th><th>IFBench</th><th>HoVer</th><th>PUPA</th><th>AIME-2025</th><th>LiveBench-Math</th></tr>
+<tr><td>Baseline</td><td>42.33</td><td>36.90</td><td>35.33</td><td>80.82</td><td>27.33</td><td>48.70</td></tr>
+<tr><td>GRPO</td><td>43.33</td><td>35.88</td><td>38.67</td><td>86.66</td><td>38.00</td><td>51.26</td></tr>
+<tr><td>GEPA</td><td>62.33</td><td>38.61</td><td>52.33</td><td>91.85</td><td>32.00</td><td>51.95</td></tr>
+<tr><td>GRPO test log</td><td>failed</td><td>failed</td><td>yes</td><td>yes</td><td>none</td><td>none</td></tr>
+</table>
+
+<h2>2. What the released GRPO runs show</h2>
+<ul>
+<li><b>PUPA</b>: a significant gain (one run), +5.8 test points over the Baseline (paired bootstrap, 95% CI +2.3 to +9.5).</li>
+<li><b>HoVer</b>: no sign of learning. The +3.3 test gain is not significant (McNemar, p = 0.19). Validation shows no trend, and the best checkpoint is what picking the best of 25 validations of an unchanged model gives (simulation, p = 0.45).</li>
+<li><b>HotpotQA</b>: the training reward rises from 45 to 54% while validation stays flat; the 150 training examples are seen about 13 times, so the model may overfit them.</li>
+<li><b>IFBench</b>: validation rises by 4 points (p &lt; 0.001), but the reported test score is 1 point below the Baseline (its validation items come from IFBench's training file).</li>
+<li><b>The test runs of HotpotQA and IFBench failed</b> (0/300 and 0/294: the server with the trained model did not start; the test step then writes a score near zero instead of stopping). The reported 43.33 and 35.88 appear only in the result files; no released log produces them. AIME and LiveBench have no released GRPO logs.</li>
+<li>Picking the best of 25 validations adds about 3 points (2.6–3.4) to the validation score even without learning; test scores are not affected.</li>
+</ul>
+
+<h2>3. Possible causes in the code (not tested)</h2>
+<ol>
+<li><b>It trains on text the model did not write.</b> Answers are sampled with Qwen3's reasoning ("thinking") on, but the trainer rebuilds each answer from its parsed fields with an empty thinking block; every logged training sample shows it. The KL term also spikes in all four runs (up to 5×10<sup>6</sup>); the cause is unknown.</li>
+<li><b>Many groups carry no signal.</b> On HotpotQA, HoVer and IFBench, 56–81% of the 12-answer groups get identical rewards, so their advantage is zero; they are neither filtered nor re-sampled. PUPA, whose reward is graded (about 29% such groups), is the only task with a significant test gain.</li>
+<li><b>One reward for every module.</b> All modules of a multi-step program get the program's final score.</li>
+<li><b>Shorter context in training.</b> Training and validation allow 8,192 tokens, the test 32,768; answers cut in training count as format failures (rare: at most about 2% of training samples).</li>
+<li><b>Checkpoint choice.</b> The paper describes early stopping; the code uses the checkpoint with the best of 26 validation scores on a noisy validation set of a few hundred examples.</li>
+</ol>
+
+<h2>4. How it could be fixed (possible extension)</h2>
+<p>Train on the sampled text (or sample without thinking); graded rewards (F1 for HotpotQA, share of gold documents for HoVer) and skipping groups without a signal; per-module rewards; the same context length everywhere; report the last checkpoint (or choose it on a second validation split), use several seeds, and check the test run. A first comparison of the original and the fixed GRPO at the same budget, e.g. HoVer with 10,000 rollouts each, would cost about 4,000–5,400 SBU (estimate) as a one-seed pilot. A 200-SBU sampling test without training would first show whether graded rewards give more signal.</p>
+
+<h2>5. Plan</h2>
+<p>We plan no new GRPO runs now. This analysis is the GRPO part of our reproduction: in the released runs GRPO learns little, the code shows several problems that may explain this, and only the PUPA gain is supported by the logs. A fixed GRPO is a candidate extension if time and budget allow.</p>
+</body>
+</html>
