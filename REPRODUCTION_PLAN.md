@@ -252,6 +252,18 @@ Each run keeps `metric_logs/test.jsonl`, Arbor's request and response logs, timi
 
 *Report.* One row per loss (run, time, iteration, step, the sums or the rebuild result, the cache check, the verdict) and one per run; a run is "unaffected" if all its losses are NC. Table 1 does not change. Next to the means without all † runs (§2.4), the report gives the means without the runs that have at least one CC. NC means: given every answer the run received, the search would have made the same decisions (same candidates proposed and evaluated, same programs kept, same final program); it does not remove the randomness of the answers themselves, which also makes two runs without losses differ. CC means an effect cannot be excluded; it does not mean there was one, and says nothing about its size or sign.
 
+### 2.12 Re-scoring the 34 unanswered test examples of IFBench GEPA+Merge seed 2 (user: do it if it is scientifically relevant; method written 2026-11-14 13:03, before any re-scoring)
+
+*Why it is relevant.* Server failures left 34 of the 294 test examples of this run without an answer (F106). They count as wrong, so its 31.97 can be up to 11.56 points too low. It is the only run with lost test requests. Seed 2 is also the only seed where GEPA+Merge scores below GEPA on IFBench (differences +2.89, +5.44 and −2.04 for seeds 0, 1 and 2), and the paper's IFBench claim is the opposite (GEPA+Merge 28.23 below GEPA 38.61). So whether the seed-2 result comes from the method or from the failure matters for a paper claim.
+
+*What does not change.* Table 1 keeps 31.97† (rule of 2026-11-11). The re-scored value is reported once, next to it, as a measure of what the failure cost, whatever it is; it replaces nothing.
+
+*Method.*
+1. **Rebuild the final program from text.** The final program is the candidate with the highest val score, as GEPA chooses it. Its lineage and merges come from `run_log.txt`. Each proposed instruction comes exactly from `instruction_proposer_inpouts.jsonl`, matched in order to the log's "Proposed new instruction" lines. The seed instructions come from the program class. No pickle is opened (`program.pkl`, `gepa_state.bin`, `prog_candidates`). The run's own DSPy cache, written by our job, is read from a copy, as every run reads its cache.
+2. **Check without a server.** The rebuilt program is evaluated on the test set from the copy of the cache, with no model server. It passes only if three things hold: each of the 249 scored test examples comes from the cache with exactly its logged score; the 11 format failures fail again; and only the 34 lost examples need the server. If a merge broke a tie at random, both possible programs are tried and the one that passes is used. If none or both pass, nothing is re-scored and this is reported.
+3. **Re-score.** One job on one H100 evaluates the full test set once. It uses Arbor and Qwen3-8B as in Table 1, the run's LM settings and the cache copy, so the 260 answered examples come from the cache and the 34 get new answers. Reported: the re-scored test score (sum of the 294 example scores / 294), the scores of the 34, and the seed-2 difference GEPA+Merge − GEPA. One attempt only. If the job fails technically (no answers), it may run again. If some of the 34 are lost again, they count as wrong and are reported.
+4. **Cost.** About 0.5 h on one H100, about 100 SBU.
+
 ---
 
 ## 3. Running a benchmark
