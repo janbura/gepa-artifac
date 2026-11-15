@@ -57,5 +57,28 @@ This comes from the authors' data split, so it holds for their PUPA runs too. Th
 test copy of a train/val row under train or val, so every `test.jsonl` has 196 lines (197 with a
 re-sent request) and 185 distinct indices; the reported scores are not affected.
 
-Analysis: `python -I -X utf8 analysis/pupa_analysis.py results/pupa_gptoss results/pupa_gptoss/split_overlap.json`
+## Analysis (plan 2.10)
+
+The paper's three PUPA claims (mean of the per-seed differences ± SD): GEPA − Baseline +6.15 ± 1.18
+(paper +11.03), GEPA − MIPROv2 +3.97 ± 5.13 (paper +10.30), GEPA+Merge − GEPA −0.50 ± 3.76 (paper −5.59).
+All three hold in direction and all three are smaller than in the paper.
+
+Paired per-example differences (221 test examples, pooled over seeds, 95 % bootstrap interval over examples):
+
+| pair | mean difference | 95 % interval | without ‡ |
+|---|---|---|---|
+| GEPA − Baseline | +6.16 | +3.90 to +8.45 | |
+| GEPA − MIPROv2 | +3.97 | +2.16 to +5.79 | +4.83 (+2.39 to +7.34) |
+| GEPA+Merge − GEPA | −0.50 | −2.19 to +1.18 | |
+| GEPA+Merge − Baseline | +5.65 | +3.38 to +7.95 | |
+| GEPA+Merge − MIPROv2 | +3.47 | +1.55 to +5.42 | +4.80 (+2.47 to +7.19) |
+| MIPROv2 − Baseline | +2.19 | +0.29 to +4.08 | +0.94 (−1.50 to +3.37) |
+
+The interval covers the test examples of these runs, not the run-to-run variation of the optimizers.
+The paired analysis runs under the changed rebuild check of plan 2.10 (deviation of 2026-11-15 22:08, the
+first check failed in 7 runs because of late optimizer answers in the test block; see F108). Without the 25
+test copies of train/val rows, or without the 43 query overlaps, no difference moves by more than 0.71
+points. Full output: `analysis_output.txt`, numbers: `pupa_analysis.json`.
+
+Run: `python -I -X utf8 analysis/pupa_analysis.py results/pupa_gptoss results/pupa_gptoss/split_overlap.json out.json`
 (standard library only; needs the run folders, which a sparse laptop copy leaves out).

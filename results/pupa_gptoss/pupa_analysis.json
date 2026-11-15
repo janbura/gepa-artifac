@@ -1,0 +1,903 @@
+{
+ "rebuild": {
+  "Baseline seed 0": {
+   "lines": 221,
+   "step_gaps": false,
+   "E": 0,
+   "foreign_lines": 0,
+   "extra_lines": 0,
+   "foreign_lines_late_optimizer_answers": 0,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 0,
+   "rebuilt": 85.94,
+   "reported": 85.94,
+   "ok": true,
+   "ok_changed": true
+  },
+  "MIPROv2 seed 0": {
+   "lines": 2346,
+   "step_gaps": false,
+   "E": 1,
+   "foreign_lines": 0,
+   "extra_lines": 1,
+   "foreign_lines_late_optimizer_answers": 0,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 1,
+   "rebuilt": 90.62,
+   "reported": 90.62,
+   "ok": true,
+   "ok_changed": true
+  },
+  "GEPA seed 0": {
+   "lines": 2863,
+   "step_gaps": false,
+   "E": 3,
+   "foreign_lines": 3,
+   "extra_lines": 0,
+   "foreign_lines_late_optimizer_answers": 3,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 2,
+   "rebuilt": 92.86,
+   "reported": 92.86,
+   "ok": false,
+   "ok_changed": true
+  },
+  "GEPA+Merge seed 0": {
+   "lines": 2896,
+   "step_gaps": false,
+   "E": 3,
+   "foreign_lines": 3,
+   "extra_lines": 0,
+   "foreign_lines_late_optimizer_answers": 3,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 2,
+   "rebuilt": 91.41,
+   "reported": 91.41,
+   "ok": false,
+   "ok_changed": true
+  },
+  "Baseline seed 1": {
+   "lines": 222,
+   "step_gaps": false,
+   "E": 1,
+   "foreign_lines": 0,
+   "extra_lines": 1,
+   "foreign_lines_late_optimizer_answers": 0,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 1,
+   "rebuilt": 85.93,
+   "reported": 85.93,
+   "ok": true,
+   "ok_changed": true
+  },
+  "MIPROv2 seed 1": {
+   "lines": 2335,
+   "step_gaps": false,
+   "E": 0,
+   "foreign_lines": 0,
+   "extra_lines": 0,
+   "foreign_lines_late_optimizer_answers": 0,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 0,
+   "rebuilt": 90.8,
+   "reported": 90.8,
+   "ok": true,
+   "ok_changed": true
+  },
+  "GEPA seed 1": {
+   "lines": 2961,
+   "step_gaps": false,
+   "E": 3,
+   "foreign_lines": 2,
+   "extra_lines": 1,
+   "foreign_lines_late_optimizer_answers": 2,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 1,
+   "rebuilt": 90.73,
+   "reported": 90.73,
+   "ok": false,
+   "ok_changed": true
+  },
+  "GEPA+Merge seed 1": {
+   "lines": 2963,
+   "step_gaps": false,
+   "E": 3,
+   "foreign_lines": 3,
+   "extra_lines": 0,
+   "foreign_lines_late_optimizer_answers": 3,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 0,
+   "rebuilt": 94.37,
+   "reported": 94.37,
+   "ok": false,
+   "ok_changed": true
+  },
+  "Baseline seed 2": {
+   "lines": 222,
+   "step_gaps": false,
+   "E": 1,
+   "foreign_lines": 0,
+   "extra_lines": 1,
+   "foreign_lines_late_optimizer_answers": 0,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 1,
+   "rebuilt": 86.79,
+   "reported": 86.79,
+   "ok": true,
+   "ok_changed": true
+  },
+  "MIPROv2 seed 2": {
+   "lines": 2360,
+   "step_gaps": false,
+   "E": 1,
+   "foreign_lines": 1,
+   "extra_lines": 0,
+   "foreign_lines_late_optimizer_answers": 1,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 1,
+   "rebuilt": 83.79,
+   "reported": 83.79,
+   "ok": false,
+   "ok_changed": true
+  },
+  "GEPA seed 2": {
+   "lines": 2972,
+   "step_gaps": false,
+   "E": 2,
+   "foreign_lines": 2,
+   "extra_lines": 0,
+   "foreign_lines_late_optimizer_answers": 2,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 1,
+   "rebuilt": 93.53,
+   "reported": 93.53,
+   "ok": false,
+   "ok_changed": true
+  },
+  "GEPA+Merge seed 2": {
+   "lines": 2783,
+   "step_gaps": false,
+   "E": 3,
+   "foreign_lines": 3,
+   "extra_lines": 0,
+   "foreign_lines_late_optimizer_answers": 3,
+   "extra_lines_of_train_val_copies": [],
+   "none_scores": 0,
+   "copies_with_different_scores": 1,
+   "rebuilt": 89.83,
+   "reported": 89.83,
+   "ok": false,
+   "ok_changed": true
+  }
+ },
+ "rebuild_ok_fixed_rule": false,
+ "rebuild_ok_changed_rule": true,
+ "cells": {
+  "Baseline": {
+   "values": [
+    85.94,
+    85.93,
+    86.79
+   ],
+   "mean": 86.22,
+   "sd": 0.49365980188790154
+  },
+  "Baseline without \u2021": {
+   "values": [
+    85.94,
+    85.93,
+    86.79
+   ],
+   "mean": 86.22,
+   "sd": 0.49365980188790154
+  },
+  "MIPROv2": {
+   "values": [
+    90.62,
+    90.8,
+    83.79
+   ],
+   "mean": 88.40333333333334,
+   "sd": 3.9962774344799072
+  },
+  "MIPROv2 without \u2021": {
+   "values": [
+    90.8,
+    83.79
+   ],
+   "mean": 87.295,
+   "sd": 4.956818536117692
+  },
+  "GEPA": {
+   "values": [
+    92.86,
+    90.73,
+    93.53
+   ],
+   "mean": 92.37333333333333,
+   "sd": 1.4620647500481392
+  },
+  "GEPA without \u2021": {
+   "values": [
+    92.86,
+    90.73,
+    93.53
+   ],
+   "mean": 92.37333333333333,
+   "sd": 1.4620647500481392
+  },
+  "GEPA+Merge": {
+   "values": [
+    91.41,
+    94.37,
+    89.83
+   ],
+   "mean": 91.87,
+   "sd": 2.3046908686416097
+  },
+  "GEPA+Merge without \u2021": {
+   "values": [
+    91.41,
+    94.37,
+    89.83
+   ],
+   "mean": 91.87,
+   "sd": 2.3046908686416097
+  }
+ },
+ "claims": [
+  {
+   "claim": "GEPA - Baseline",
+   "with_dagger": true,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed": [
+    6.920000000000002,
+    4.799999999999997,
+    6.739999999999995
+   ],
+   "mean": 6.1533333333333315,
+   "sd": 1.175471536590034,
+   "paper": 11.03,
+   "holds_in_direction": true
+  },
+  {
+   "claim": "GEPA - Baseline",
+   "with_dagger": false,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed": [
+    6.920000000000002,
+    4.799999999999997,
+    6.739999999999995
+   ],
+   "mean": 6.1533333333333315,
+   "sd": 1.175471536590034,
+   "paper": 11.03,
+   "holds_in_direction": true
+  },
+  {
+   "claim": "GEPA - MIPROv2",
+   "with_dagger": true,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed": [
+    2.239999999999995,
+    -0.06999999999999318,
+    9.739999999999995
+   ],
+   "mean": 3.969999999999999,
+   "sd": 5.128713288925396,
+   "paper": 10.3,
+   "holds_in_direction": true
+  },
+  {
+   "claim": "GEPA - MIPROv2",
+   "with_dagger": false,
+   "seeds": [
+    1,
+    2
+   ],
+   "per_seed": [
+    -0.06999999999999318,
+    9.739999999999995
+   ],
+   "mean": 4.835000000000001,
+   "sd": 6.936717523440023,
+   "paper": 10.3,
+   "holds_in_direction": true
+  },
+  {
+   "claim": "GEPA+Merge - GEPA",
+   "with_dagger": true,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed": [
+    -1.4500000000000028,
+    3.6400000000000006,
+    -3.700000000000003
+   ],
+   "mean": -0.5033333333333351,
+   "sd": 3.7604565325680004,
+   "paper": -5.59,
+   "holds_in_direction": true
+  },
+  {
+   "claim": "GEPA+Merge - GEPA",
+   "with_dagger": false,
+   "seeds": [
+    0,
+    1,
+    2
+   ],
+   "per_seed": [
+    -1.4500000000000028,
+    3.6400000000000006,
+    -3.700000000000003
+   ],
+   "mean": -0.5033333333333351,
+   "sd": 3.7604565325680004,
+   "paper": -5.59,
+   "holds_in_direction": true
+  }
+ ],
+ "paired": {
+  "all 221 test examples": [
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": 6.155275466420977,
+    "ci95": [
+     3.901146153468135,
+     8.44884246587033
+    ],
+    "share_A_better": 0.3438914027149321,
+    "share_B_better": 0.15384615384615385,
+    "pair": "GEPA - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": 3.969505440093675,
+    "ci95": [
+     2.1640451052215757,
+     5.785200638141814
+    ],
+    "share_A_better": 0.2895927601809955,
+    "share_B_better": 0.1493212669683258,
+    "pair": "GEPA - MIPROv2",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": 4.83434865787807,
+    "ci95": [
+     2.387955182072829,
+     7.34082094376212
+    ],
+    "share_A_better": 0.27149321266968324,
+    "share_B_better": 0.13122171945701358,
+    "pair": "GEPA - MIPROv2",
+    "with_dagger": false
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": -0.5038718613379246,
+    "ci95": [
+     -2.187573612912979,
+     1.178832061185002
+    ],
+    "share_A_better": 0.21266968325791855,
+    "share_B_better": 0.23076923076923078,
+    "pair": "GEPA+Merge - GEPA",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": 5.651403605083052,
+    "ci95": [
+     3.379551988149273,
+     7.953619616515543
+    ],
+    "share_A_better": 0.33031674208144796,
+    "share_B_better": 0.15384615384615385,
+    "pair": "GEPA+Merge - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": 3.4656335787557504,
+    "ci95": [
+     1.554844937197878,
+     5.415823911299023
+    ],
+    "share_A_better": 0.3167420814479638,
+    "share_B_better": 0.17647058823529413,
+    "pair": "GEPA+Merge - MIPROv2",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": 4.8007824252168145,
+    "ci95": [
+     2.4703482791718088,
+     7.186044222243318
+    ],
+    "share_A_better": 0.29411764705882354,
+    "share_B_better": 0.14479638009049775,
+    "pair": "GEPA+Merge - MIPROv2",
+    "with_dagger": false
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": 2.185770026327302,
+    "ci95": [
+     0.28688631629808115,
+     4.0801882442749315
+    ],
+    "share_A_better": 0.27601809954751133,
+    "share_B_better": 0.17647058823529413,
+    "pair": "MIPROv2 - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 221,
+    "mean_d": 0.9402907893619968,
+    "ci95": [
+     -1.501423413188119,
+     3.3734948402131066
+    ],
+    "share_A_better": 0.2398190045248869,
+    "share_B_better": 0.19004524886877827,
+    "pair": "MIPROv2 - Baseline",
+    "with_dagger": false
+   }
+  ],
+  "exploratory: without the 25 copies of train/val rows": [
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": 5.849117291786465,
+    "ci95": [
+     3.4462396069538923,
+     8.264009655658421
+    ],
+    "share_A_better": 0.34183673469387754,
+    "share_B_better": 0.15816326530612246,
+    "pair": "GEPA - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": 4.008132834663447,
+    "ci95": [
+     2.0788730355056884,
+     6.08775436581559
+    ],
+    "share_A_better": 0.29081632653061223,
+    "share_B_better": 0.15816326530612246,
+    "pair": "GEPA - MIPROv2",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": 4.494342109138027,
+    "ci95": [
+     1.884294843478517,
+     7.26078201843508
+    ],
+    "share_A_better": 0.2602040816326531,
+    "share_B_better": 0.1377551020408163,
+    "pair": "GEPA - MIPROv2",
+    "with_dagger": false
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": -0.4122455397965602,
+    "ci95": [
+     -2.2786661562171764,
+     1.3999360427931855
+    ],
+    "share_A_better": 0.2193877551020408,
+    "share_B_better": 0.23469387755102042,
+    "pair": "GEPA+Merge - GEPA",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": 5.436871751989904,
+    "ci95": [
+     3.004418901303971,
+     7.888180885629865
+    ],
+    "share_A_better": 0.33163265306122447,
+    "share_B_better": 0.1683673469387755,
+    "pair": "GEPA+Merge - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": 3.5958872948668863,
+    "ci95": [
+     1.5705024378493764,
+     5.680440591154877
+    ],
+    "share_A_better": 0.32142857142857145,
+    "share_B_better": 0.17857142857142858,
+    "pair": "GEPA+Merge - MIPROv2",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": 4.605303993059095,
+    "ci95": [
+     2.149234693877551,
+     7.143569299181544
+    ],
+    "share_A_better": 0.29081632653061223,
+    "share_B_better": 0.15306122448979592,
+    "pair": "GEPA+Merge - MIPROv2",
+    "with_dagger": false
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": 1.8409844571230176,
+    "ci95": [
+     -0.07133602662603727,
+     3.7590003533881085
+    ],
+    "share_A_better": 0.27040816326530615,
+    "share_B_better": 0.17346938775510204,
+    "pair": "MIPROv2 - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 196,
+    "mean_d": 0.5500217573928637,
+    "ci95": [
+     -1.922903559920209,
+     2.961490673963821
+    ],
+    "share_A_better": 0.22448979591836735,
+    "share_B_better": 0.18877551020408162,
+    "pair": "MIPROv2 - Baseline",
+    "with_dagger": false
+   }
+  ],
+  "exploratory: without the 43 query overlaps": [
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": 6.132132481925503,
+    "ci95": [
+     3.633039868994925,
+     8.736549551156292
+    ],
+    "share_A_better": 0.34269662921348315,
+    "share_B_better": 0.15168539325842698,
+    "pair": "GEPA - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": 4.382238651901573,
+    "ci95": [
+     2.243103858272397,
+     6.540032481043716
+    ],
+    "share_A_better": 0.29213483146067415,
+    "share_B_better": 0.1404494382022472,
+    "pair": "GEPA - MIPROv2",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": 5.2531332587512365,
+    "ci95": [
+     2.4521803103263777,
+     8.134363295880151
+    ],
+    "share_A_better": 0.2752808988764045,
+    "share_B_better": 0.12359550561797752,
+    "pair": "GEPA - MIPROv2",
+    "with_dagger": false
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": -0.3485361912328204,
+    "ci95": [
+     -2.300263199139603,
+     1.6229577746431678
+    ],
+    "share_A_better": 0.21348314606741572,
+    "share_B_better": 0.21910112359550563,
+    "pair": "GEPA+Merge - GEPA",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": 5.783596290692683,
+    "ci95": [
+     3.184925769195432,
+     8.394269068426372
+    ],
+    "share_A_better": 0.3258426966292135,
+    "share_B_better": 0.16292134831460675,
+    "pair": "GEPA+Merge - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": 4.033702460668753,
+    "ci95": [
+     1.9234682296480048,
+     6.252749539266393
+    ],
+    "share_A_better": 0.3258426966292135,
+    "share_B_better": 0.17415730337078653,
+    "pair": "GEPA+Merge - MIPROv2",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": 5.081452567407624,
+    "ci95": [
+     2.5327715355805243,
+     7.766965400392366
+    ],
+    "share_A_better": 0.29775280898876405,
+    "share_B_better": 0.1404494382022472,
+    "pair": "GEPA+Merge - MIPROv2",
+    "with_dagger": false
+   },
+   {
+    "seeds": [
+     0,
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": 1.7498938300239304,
+    "ci95": [
+     -0.31337529785193885,
+     3.822154694419626
+    ],
+    "share_A_better": 0.25842696629213485,
+    "share_B_better": 0.1797752808988764,
+    "pair": "MIPROv2 - Baseline",
+    "with_dagger": true
+   },
+   {
+    "seeds": [
+     1,
+     2
+    ],
+    "positions": 178,
+    "mean_d": 0.22876927593071889,
+    "ci95": [
+     -2.391541822721598,
+     2.8690699126092385
+    ],
+    "share_A_better": 0.21348314606741572,
+    "share_B_better": 0.19662921348314608,
+    "pair": "MIPROv2 - Baseline",
+    "with_dagger": false
+   }
+  ]
+ },
+ "subset_cells": {
+  "exploratory: without the 25 copies of train/val rows": {
+   "Baseline": {
+    "per_seed": [
+     86.10430102777042,
+     86.1714292689051,
+     87.39821976865478
+    ],
+    "mean": 86.5579833551101,
+    "sd": 0.728439752604347
+   },
+   "MIPROv2": {
+    "per_seed": [
+     90.52721088435374,
+     90.39115646258503,
+     84.27853608976058
+    ],
+    "mean": 88.39896781223311,
+    "sd": 3.5690469156469766
+   },
+   "GEPA": {
+    "per_seed": [
+     93.56292517006803,
+     90.23150602232235,
+     93.42687074829932
+    ],
+    "mean": 92.40710064689657,
+    "sd": 1.8853478934344914
+   },
+   "GEPA+Merge": {
+    "per_seed": [
+     92.10426478283621,
+     93.9884520241663,
+     89.8918485142975
+    ],
+    "mean": 91.99485510710001,
+    "sd": 2.0504921207178284
+   }
+  },
+  "exploratory: without the 43 query overlaps": {
+   "Baseline": {
+    "per_seed": [
+     85.76029151871849,
+     86.09638029360087,
+     87.23967520094072
+    ],
+    "mean": 86.36544900442003,
+    "sd": 0.7755272388270873
+   },
+   "MIPROv2": {
+    "per_seed": [
+     90.55243445692884,
+     90.2621722846442,
+     83.53142176175884
+    ],
+    "mean": 88.11534283444395,
+    "sd": 3.972444125802133
+   },
+   "GEPA": {
+    "per_seed": [
+     93.19288389513109,
+     90.81983559511649,
+     93.48002496878901
+    ],
+    "mean": 92.49758148634552,
+    "sd": 1.4600465594279193
+   },
+   "GEPA+Merge": {
+    "per_seed": [
+     92.49063670411985,
+     94.21603677221655,
+     89.74046240900174
+    ],
+    "mean": 92.14904529511271,
+    "sd": 2.2572560750160897
+   }
+  }
+ }
+}
