@@ -1,0 +1,27 @@
+1. per-example rebuild (must reproduce the reported score)
+  Baseline   seed 0: lines 221, block 221+0, foreign 0 (late optimizer answers 0), extra 0 (of train/val copies: []), None 0, copies with different scores 0, rebuilt 85.94, reported 85.94 -> OK
+  MIPROv2    seed 0: lines 2346, block 221+1, foreign 0 (late optimizer answers 0), extra 1 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 90.62, reported 90.62 -> OK
+  GEPA       seed 0: lines 2863, block 221+3, foreign 3 (late optimizer answers 3), extra 0 (of train/val copies: []), None 0, copies with different scores 2, rebuilt 92.86, reported 92.86 -> MISMATCH
+  GEPA+Merge seed 0: lines 2896, block 221+3, foreign 3 (late optimizer answers 3), extra 0 (of train/val copies: []), None 0, copies with different scores 2, rebuilt 91.41, reported 91.41 -> MISMATCH
+  Baseline   seed 1: lines 222, block 221+1, foreign 0 (late optimizer answers 0), extra 1 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 85.93, reported 85.93 -> OK
+  MIPROv2    seed 1: lines 2335, block 221+0, foreign 0 (late optimizer answers 0), extra 0 (of train/val copies: []), None 0, copies with different scores 0, rebuilt 90.80, reported 90.80 -> OK
+  GEPA       seed 1: lines 2961, block 221+3, foreign 2 (late optimizer answers 2), extra 1 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 90.73, reported 90.73 -> MISMATCH
+  GEPA+Merge seed 1: lines 2963, block 221+3, foreign 3 (late optimizer answers 3), extra 0 (of train/val copies: []), None 0, copies with different scores 0, rebuilt 94.37, reported 94.37 -> MISMATCH
+  Baseline   seed 2: lines 222, block 221+1, foreign 0 (late optimizer answers 0), extra 1 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 86.79, reported 86.79 -> OK
+  MIPROv2    seed 2: lines 2360, block 221+1, foreign 1 (late optimizer answers 1), extra 0 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 83.79, reported 83.79 -> MISMATCH
+  GEPA       seed 2: lines 2972, block 221+2, foreign 2 (late optimizer answers 2), extra 0 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 93.53, reported 93.53 -> MISMATCH
+  GEPA+Merge seed 2: lines 2783, block 221+3, foreign 3 (late optimizer answers 3), extra 0 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 89.83, reported 89.83 -> MISMATCH
+
+2. mean +- SD over seeds (reported scores); without ‡ = MIPROv2 seed 0 left out
+  Baseline   85.94 / 85.93 / 86.79  mean 86.22 +- 0.49
+  MIPROv2    90.62 / 90.80 / 83.79  mean 88.40 +- 4.00   without ‡: 87.30 +- 4.96
+  GEPA       92.86 / 90.73 / 93.53  mean 92.37 +- 1.46
+  GEPA+Merge 91.41 / 94.37 / 89.83  mean 91.87 +- 2.30
+
+   the paper's claims: mean of the per-seed differences +- their SD; holds in direction if the sign matches
+  GEPA - Baseline        per seed +6.92 / +4.80 / +6.74  mean +6.15 +- 1.18   paper +11.03   holds
+  GEPA - MIPROv2         per seed +2.24 / -0.07 / +9.74  mean +3.97 +- 5.13   paper +10.30   holds
+  GEPA - MIPROv2         (no ‡) per seed -0.07 / +9.74  mean +4.84 +- 6.94   paper +10.30   holds
+  GEPA+Merge - GEPA      per seed -1.45 / +3.64 / -3.70  mean -0.50 +- 3.76   paper -5.59   holds
+
+rebuild check failed, no per-example analysis (addendum of 2026-11-15 20:45)
