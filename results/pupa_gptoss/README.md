@@ -39,7 +39,10 @@ Arbor of `~/gepa-repro` (plan, run log). All PUPA jobs together: 9,492 SBU.
 
 - `seed_<s>/Papillon_PAPILLON_<method>_qwen3-8b/`: packed like `results/table1_h100` (config, result
   file, optimized program, metric logs, run logs, GEPA state and candidates). `program.pkl` and
-  `gepa_state.bin` are pickles: only load them if you trust them.
+  `gepa_state.bin` are pickles: only load them if you trust them. The saved programs and the logs contain
+  example MongoDB connection strings and Stripe test keys that gpt-oss wrote into its answers when PUPA
+  users asked for code (they occur only in the logged answers, not in the requests or the PUPA dataset).
+  They are model output, not credentials of this project; GitHub's secret scanning flagged four of them.
 - `pilot/`: judge calibration output, the chosen reasoning effort, and the pilot job log with the smoke test.
 - `split_overlap.json`: output of `analysis/pupa_split_overlap.py` (see below).
 - `analysis_output_strict_rule.txt`: output of `analysis/pupa_analysis.py` under the rule of plan 2.10,
