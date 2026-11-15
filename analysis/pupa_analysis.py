@@ -103,6 +103,10 @@ def rebuild(m, s):
             "none_scores": nones, "copies_with_different_scores": differing,
             "rebuilt": mean, "reported": reported(m, s)}
     info["ok"] = (not gaps) and foreign == 0 and abs(mean - info["reported"]) < 1e-9
+    # changed check (plan 2.10, deviation of 2026-11-15 22:08): lines that are not test copies are
+    # allowed if they are late answers of the optimizer, and none of them may be counted for a test example
+    info["ok_changed"] = ((not gaps) and abs(mean - info["reported"]) < 1e-9
+                          and foreign == foreign_late and not extra_copy_keys)
     return scores, info
 
 
@@ -137,6 +141,7 @@ def paired(a, b, positions, dagger):
 # 1. rebuild and check
 S, INFO = {}, {}
 all_ok = True
+all_ok_changed = True
 print("1. per-example rebuild (must reproduce the reported score)")
 for s in SEEDS:
     for m in METHODS:
@@ -148,6 +153,7 @@ for s in SEEDS:
             continue
         S[(m, s)] = sc
         all_ok = all_ok and info["ok"]
+        all_ok_changed = all_ok_changed and info["ok_changed"]
         print("  %-10s seed %d: lines %d, block 221+%d, foreign %d (late optimizer answers %d), extra %d"
               " (of train/val copies: %s), None %d, copies with different scores %d,"
               " rebuilt %.2f, reported %.2f -> %s" % (NAMES[m], s, info["lines"], info["E"], info["foreign_lines"],
@@ -156,7 +162,11 @@ for s in SEEDS:
                                                       info["none_scores"],
                                                       info["copies_with_different_scores"], info["rebuilt"],
                                                       info["reported"], "OK" if info["ok"] else "MISMATCH"))
-res = {"rebuild": INFO, "rebuild_ok": all_ok}
+n_strict = sum(1 for v in INFO.values() if not v.get("ok"))
+n_changed = sum(1 for v in INFO.values() if not v.get("ok_changed"))
+print("  check fixed at 20:45: failed in %d of 12 runs; changed check (deviation of 22:08): failed in %d of 12 runs"
+      % (n_strict, n_changed))
+res = {"rebuild": INFO, "rebuild_ok_fixed_rule": all_ok, "rebuild_ok_changed_rule": all_ok_changed}
 
 # 2. cells and claims (reported scores, the table values)
 print("\n2. mean +- SD over seeds (reported scores); without ‡ = MIPROv2 seed 0 left out")
@@ -188,11 +198,14 @@ for a, b, paper in CLAIMS:
                 " / ".join("%+.2f" % x for x in d), mu, sd, paper, "holds" if holds else "does not hold"))
 res["claims"] = claims
 
-if not all_ok:
-    print("\nrebuild check failed, no per-example analysis (addendum of 2026-11-15 20:45)")
+if not all_ok_changed:
+    print("\nrebuild check failed, no per-example analysis (plan 2.10, deviation of 2026-11-15 22:08)")
     if out_path:
         json.dump(res, open(out_path, "w"), indent=1)
     sys.exit(0)
+if not all_ok:
+    print("\nthe check fixed at 20:45 failed; the paired analysis below runs under the changed check"
+          " (plan 2.10, deviation of 2026-11-15 22:08, user's OK)")
 
 # 3. paired per-example analysis (fixed) and 4. exploratory subsets
 kinds = overlap["test"]
