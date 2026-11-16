@@ -13,7 +13,10 @@ Where the runs came from on Snellius: IFBench, AIME and LiveBench-Math MIPROv2 a
 the new H100 Baselines and the HotpotQA/HoVer MIPROv2 and GEPA runs from `~/repro_h100`; the IFBench seed-2 Baseline
 from the H100 test `~/h100_pilot` (job 28971148, also kept as `../b_baselines/h100_test/`).
 
-Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/table1_h100`
+Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/table1_h100`. Its output of
+2026-11-16 (all 60 runs, commit 1f18b47) is `verdict_output.md`: all 18 targets are consistent with the paper, Holm
+rejects none (REPRODUCTION_PLAN.md section 1). Its failed-example column is one too low for AIME Baseline seed 0 and
+AIME GEPA seed 0 (40 and 19; the check reports have 41 and 20) because of one re-sent line in each `test.jsonl`.
 
 | run | job | score | paper | check |
 |---|---|---|---|---|
