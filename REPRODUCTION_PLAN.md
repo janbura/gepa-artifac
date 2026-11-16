@@ -305,6 +305,24 @@ What the numbers still allow (simple arithmetic, not part of the method): the 32
 - Seed-2 difference GEPA+Merge − GEPA: +2.38 (−2.04 with the lost examples). So without the failure, GEPA+Merge is above GEPA on IFBench in all three seeds (+2.89, +5.44, +2.38), the opposite of the paper's IFBench result (28.23 against 38.61).
 - Table 1 keeps 31.97† (rule of 2026-11-11). Output `results/checks/rescore2_ifb_s2_29261941.json`; logs in `~/repro_archive/arbor_logs/29261941/`.
 
+### 2.13 Per-example paired tests of Table 1 (objective §2.1; user's OK of 2026-11-16; method written 2026-11-16 11:13, before any paired difference was computed)
+
+*Done before this was written.* The final verdict (§1, 10:45) and a check of the 60 test logs that compares no methods. Taking the first logged line of each test example in step order (F90), at most 5 lines per AIME problem, and 0 for an example without a line, the per-example scores give the reported score of all 60 runs exactly. `analysis/significance.py` (2026-11-04) is not used: it was written for one run per cell and keeps only the examples logged in both runs, which would drop the failed examples that count as wrong in the scores.
+
+*Units.* HotpotQA and HoVer: the 300 test examples, IFBench 294, LiveBench-Math 126; AIME: the 30 problems, each scored as the mean of its 5 tries (a try without a line scores 0), as in `significance.py`. The test set is the same for every seed. For each method and unit: the mean over the method's three seeds.
+
+*Pairs.* Six per benchmark: GEPA − Baseline, GEPA − MIPROv2, GEPA+Merge − GEPA, GEPA+Merge − Baseline, GEPA+Merge − MIPROv2 and MIPROv2 − Baseline. On AIME and LiveBench-Math, GEPA+Merge − GEPA compares two runs of the same search (Merge cannot act on one-predictor programs, §2.4): it is reported as a check of the run-to-run noise, not as a method comparison, and left out of the correction. That leaves 28 tests.
+
+*Statistics.* d = mean over units of (A − B), in points; it equals the difference of the two Table 1 cell means. 95 % interval: percentile bootstrap over units, 10,000 resamples, a new `random.Random(0)` for each row (as in the PUPA analysis, §2.10). p: two-sided paired sign-flip test over units, 10,000 random sign vectors, a new `random.Random(1)` for each row, p = (1 + the number of flipped means with |mean| ≥ |d|) / 10,001 (as in `significance.py`). Holm over the 28 tests at 0.05 (adjusted p ≤ 0.05). Each row also gives the number of units where A is better and where B is better, the paper's difference (one run per cell) and the mean ± SD of our three per-seed differences A_s − B_s (seed s of every method has the same train/val split). The per-seed differences show the run-to-run spread that the interval leaves out. Aggregate rows: per pair, the mean of the five benchmark differences (equal weights, like the paper's Aggregate column but without PUPA), with a bootstrap interval that resamples the units within each benchmark (a new `random.Random(0)` for each row); no test.
+
+*Meaning, fixed now.* The interval and the p-value cover the sampling of the test examples for these runs, not the run-to-run variation of the optimizers: three seeds are too few to test that, and the verdict of §2.4 includes it when comparing with the paper. A Holm rejection is reported as "A and B differ on this test set", nothing more.
+
+*Sensitivity (descriptive: d and interval only, no correction).* The same rows without the † runs (rule of 2026-11-11). Each cell keeps its other seeds and the other method keeps all of its seeds. HoVer GEPA+Merge has no run left, so its three HoVer rows are left out. There are no aggregate rows here.
+
+*Stop rule.* The script stops, and nothing is reported until the cause is found and written down, if any run's rebuilt score differs from its `evaluation_result.txt` score by more than 0.005, or any d differs from the difference of the reported cell means by more than 0.01.
+
+*Script.* `analysis/table1_paired.py` (standard library only), with checks on made-up runs in `analysis/check_table1_paired.py`. Both are committed with this text, before the script is run on the real runs.
+
 ---
 
 ## 3. Running a benchmark
