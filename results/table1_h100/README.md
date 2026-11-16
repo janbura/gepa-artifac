@@ -18,6 +18,11 @@ Final verdict (pre-registered rule): `python analysis/table1_verdict.py results/
 rejects none (REPRODUCTION_PLAN.md section 1). Its failed-example column is one too low for AIME Baseline seed 0 and
 AIME GEPA seed 0 (40 and 19; the check reports have 41 and 20) because of one re-sent line in each `test.jsonl`.
 
+Paired tests per test example (plan section 2.13, method fixed before the run):
+`python analysis/table1_paired.py results/table1_h100 --out paired_numbers.json`. Output of 2026-11-16 (commit
+5143e65): `paired_output.md` and `paired_numbers.json`. Holm rejects 9 of 28 tests; GEPA beats MIPROv2 on HoVer
+only and is below it on IFBench; over the five benchmarks GEPA − MIPROv2 is +0.50 (paper +6.35).
+
 | run | job | score | paper | check |
 |---|---|---|---|---|
 | seed_0 IFBench MIPROv2 | 28994839 | 35.54 | 36.22 | OK, inside the seed-0 gate |
