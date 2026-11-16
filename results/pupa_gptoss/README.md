@@ -2,8 +2,8 @@
 
 PUPA needs GPT-4.1-mini twice: as the untrusted external model inside PAPILLON and as the LLM judge
 of the metric. We have no OpenAI key, so both roles use `openai/gpt-oss-120b` (revision `b5c939de`,
-vLLM 0.11.0 on the second H100 of each job; reasoning effort low for both roles, chosen by the judge
-calibration of the pilot). Qwen3-8B runs exactly as in Table 1. The judge defines the score, so these
+vLLM 0.11.0 on the second H100 of each job; reasoning effort low for both roles: fixed for the external
+model, chosen for the judge by the judge calibration of the pilot). Qwen3-8B runs exactly as in Table 1. The judge defines the score, so these
 numbers are **not** comparable with the paper's PUPA numbers (authors' seed 0: Baseline 80.82,
 MIPROv2 81.55, GEPA 91.85, GEPA+Merge 86.26). They are reported as their own block.
 
