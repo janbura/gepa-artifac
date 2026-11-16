@@ -54,7 +54,8 @@ b { font-weight: 600; }
 <h2>4. How it could be fixed (possible extension)</h2>
 <p>Train on the sampled text (or sample without thinking); graded rewards (F1 for HotpotQA, share of gold documents for HoVer) and skipping groups without a signal; per-module rewards; the same context length everywhere; report the last checkpoint (or choose it on a second validation split), use several seeds, and check the test run. A first comparison of the original and the fixed GRPO at the same budget, e.g. HoVer with 10,000 rollouts each, would cost about 4,000–5,400 SBU (estimate) as a one-seed pilot. A 200-SBU sampling test without training would first show whether graded rewards give more signal.</p>
 
-<h2>5. Plan</h2>
+<h2>5. Cost and plan</h2>
+<p><b>Cost of a faithful rerun (estimate).</b> The four released runs took 12.0–24.1 h each on 3 GPUs. At the authors' speed and Snellius rates (192 SBU per H100-hour, 128 per A100-hour; the logs do not name their GPU), one run costs about 6,900–13,900 SBU on H100s (4,600–9,300 on A100s), and the four benchmarks with logs about 43,000 SBU for one seed (28,600) and 129,000 for three seeds as in our Table 1 (85,900). AIME and LiveBench-Math have no logs to estimate from. All our Table 1 work (60 runs, hardware check, reruns, pilots, checks) used about 63,800 SBU.</p>
 <p>We plan no new GRPO runs now. This analysis is the GRPO part of our reproduction: in the released runs GRPO learns little, the code shows several problems that may explain this, and only the PUPA gain is supported by the logs. A fixed GRPO is a candidate extension if time and budget allow.</p>
 </body>
 </html>

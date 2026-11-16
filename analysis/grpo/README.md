@@ -35,3 +35,10 @@ re-implement the main numbers in a second, simpler way.
 
 Outputs: `*_out.txt`. `probe_methods.py` shows how much the share of no-signal groups depends on the way the
 interleaved log lines are grouped.
+
+## Cost estimate (section 5 of the PDF)
+`python -I log_checks/cost_estimate.py log_checks/stderr_analysis_out.txt` (output `log_checks/cost_estimate_out.txt`):
+the wall-clock of each run (claim 8) × 3 GPUs (two for vLLM rollouts, one for training; plan F28, section 2.7) × the
+Snellius rate (192 SBU per H100-hour, 128 per A100-hour; plan F5). It assumes our GPUs run as fast as the authors',
+whose GPU type the logs do not name. The 63,800 SBU of our Table 1 work comes from sacct
+(`REPRODUCTION_REPORT.md`, section 7), not from these logs.

@@ -1,0 +1,11 @@
+GPUs per run: 3; rates: {'H100': 192, 'A100': 128} SBU per GPU-hour
+
+run                                                 hours   SBU H100   SBU A100
+HotpotQABench_HotpotMultiHop_GRPO_qwen3-8b          23.65      13622       9082
+IFBench_IFBenchCoT2StageProgram_GRPO_qwen3-8b       24.14      13905       9270
+Papillon_PAPILLON_GRPO_qwen3-8b                     14.82       8536       5691
+hoverBench_HoverMultiHop_GRPO_qwen3-8b              11.96       6889       4593
+all four, one seed                                  74.57      42952      28635
+all four, 3 seeds                                  223.71     128857      85905
+
+one run: 6889-13905 SBU on H100, 4593-9270 SBU on A100

@@ -41,6 +41,8 @@ Possible fixes:
 
 A first comparison of the original and the fixed GRPO at the same budget, e.g. HoVer with 10,000 rollouts each, would cost about 4,000–5,400 SBU (estimate) as a one-seed pilot. Before that, a 200-SBU sampling test without training would show whether graded rewards give more signal.
 
-## 5. Plan
+## 5. Cost and plan
+
+**Cost of a faithful rerun (estimate).** The four released runs took 12.0–24.1 h each on 3 GPUs (two for rollouts, one for training). At the authors' speed and Snellius rates (192 SBU per H100-hour, 128 per A100-hour; the logs do not name their GPU), one run costs about 6,900–13,900 SBU on H100s (4,600–9,300 on A100s), and the four benchmarks with logs about 43,000 SBU for one seed (28,600) and 129,000 for three seeds as in our Table 1 (85,900). AIME and LiveBench-Math have no logs to estimate from. All our Table 1 work (60 runs, hardware check, reruns, pilots, checks) used about 63,800 SBU. Script: `log_checks/cost_estimate.py`, output `log_checks/cost_estimate_out.txt`.
 
 We plan no new GRPO runs now. This analysis is the GRPO part of our reproduction. In the released runs GRPO learns little, the code shows several problems that may explain this, and only the PUPA gain is supported by the logs. A fixed GRPO is a candidate extension if time and budget allow.

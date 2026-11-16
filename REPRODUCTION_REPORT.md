@@ -276,9 +276,12 @@ paper's differences are shown for direction only, because the judge differs.
 
 ## 5. GRPO (analysis of the authors' runs)
 
-We ran no GRPO training: a faithful run needs 24,000 rollouts per benchmark, about 13k SBU each. Instead we analysed
-the four GRPO runs released with the artifact (HotpotQA, HoVer, IFBench, PUPA). We used two independent sets of
-scripts and statistical tests (F107, `analysis/grpo/GRPO_analysis.pdf`).
+We ran no GRPO training: a faithful run needs 24,000 rollouts per benchmark. At the authors' speed (12.0–24.1 h on 3
+GPUs per run) that is about 6,900–13,900 SBU per run on H100s, about 43,000 SBU for one seed of the four benchmarks with
+logs, and about 129,000 for three seeds (estimate, `analysis/grpo/log_checks/cost_estimate_out.txt`; the plan's earlier
+"about 13k per benchmark" is the upper end). Instead we analysed the four GRPO runs released with the artifact
+(HotpotQA, HoVer, IFBench, PUPA). We used two independent sets of scripts and statistical tests (F107,
+`analysis/grpo/GRPO_analysis.pdf`).
 
 What the runs show:
 - **PUPA:** +5.84 test points over the Baseline (paired bootstrap 95 % CI +2.27 to +9.52), and +6.59 on the 196 test
