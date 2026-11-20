@@ -7,7 +7,7 @@
 # re-sent stragglers), against the fixed budget of the benchmark; the rate is the average since the start.
 # Both guesses leave out the final test evaluation (minutes on an H100, up to ~30 min on an A100).
 R=${1:-$HOME/repro_runs}/experiment_runs
-budget_of() { case "$1" in HotpotQABench) echo 6871;; hoverBench) echo 7051;; IFBench) echo 3593;; AIMEBench|LiveBenchMathBench) echo 1839;; *) echo 0;; esac; }
+budget_of() { case "$1" in HotpotQABench) echo 6871;; hoverBench) echo 7051;; IFBench) echo 3593;; AIMEBench|LiveBenchMathBench) echo 1839;; Papillon) echo 2426;; *) echo 0;; esac; }
 now=$(date +%s)
 echo "| run | seed | started | last log write | progress | guess for the end |"
 echo "|---|---|---|---|---|---|"
