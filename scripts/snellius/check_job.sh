@@ -123,7 +123,7 @@ PY
       fi
       case "$O" in
         MIPROv2-Heavy) echo "  - MIPROv2: $(grep -h 'Default program score' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / $(grep -h 'Returning best identified program' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / saved programs $(ls $R/optimizer_logs/evaluated_programs 2>/dev/null | wc -l)" ;;
-        GEPA|GEPA-MERGE) [ "$(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l)" -gt 0 ] || echo "  - NO-REFLECTIONS: GEPA made no reflection, so it optimized nothing"
+        GEPA|GEPA-MERGE|Abl-SelectBestCandidate|Abl-BeamSearch) [ "$(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l)" -gt 0 ] || echo "  - NO-REFLECTIONS: GEPA made no reflection, so it optimized nothing"
                          EP=$(grep -c 'Exception during instruction proposal' $R/run_log.txt); NP=$(grep -cE '^Iteration [0-9]+: Proposed new instruction' $R/run_log.txt)
                          echo "  - GEPA proposals: $NP, failed proposals: $EP (authors: at most 1 per run)"
                          [ "$EP" -ge 10 ] && [ "$EP" -gt "$NP" ] && echo "  - REFLECTION-FAILS: most proposals failed"

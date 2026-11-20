@@ -58,6 +58,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         set_for_merge_minibatch='train',  # 'train', 'val', or 'both'
         track_scores_on: Literal['val', 'train_val'] = 'train_val',
         add_format_failure_as_feedback: bool=False,
+        beam_size: int=None,
     ):
         # Exactly one of max_metric_calls, max_evals_per_trainval_instance or num_iters should be set
         assert (max_metric_calls is not None) + (max_evals_per_trainval_instance is not None) + (num_iters is not None) == 1, "Exactly one of max_metric_calls, max_evals_per_trainval_instance or num_iters should be set. You set max_metric_calls={}, max_evals_per_trainval_instance={}, num_iters={}".format(
@@ -100,7 +101,12 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         self.num_dspy_examples_per_gepa_step = num_dspy_examples_per_gepa_step
 
         self.add_format_failure_as_feedback = add_format_failure_as_feedback
-        
+
+        # BeamSearch ablation (paper Table 3); None keeps the normal parent selection
+        assert beam_size is None or beam_size >= 1, "beam_size should be None or at least 1"
+        self.beam_size = beam_size
+        self.beam_expansions = Counter()
+
         self.shuffled_trainset_ids = []
         self.epoch = -1
         self.id_freqs = Counter()
@@ -210,6 +216,18 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
     def select_next_candidate_to_update(self, gepa_state: GEPAState):
         # TODO: Update this method to use pareto front from both train and val sets configurable
         assert len(gepa_state.per_program_tracked_scores) == len(gepa_state.program_candidates)
+
+        if self.beam_size is not None:
+            # BeamSearch: the beam is the beam_size candidates with the best tracked score
+            # (ties: the older candidate first). The members are expanded in turn: take the
+            # member that was picked least often so far (ties: the better one).
+            scores = gepa_state.per_program_tracked_scores
+            ranked = sorted(range(len(scores)), key=lambda k: (-scores[k], k))
+            beam = ranked[:self.beam_size]
+            curr_prog_id = min(beam, key=lambda k: (self.beam_expansions[k], beam.index(k)))
+            self.beam_expansions[curr_prog_id] += 1
+            self.logger.log(f"Iteration {gepa_state.i+1}: Beam {beam}, times picked {[self.beam_expansions[k] for k in beam]}")
+            return curr_prog_id
 
         if not gepa_state.running_linearized_gepa:
             curr_prog_id = select_program_candidate_from_pareto_front(
