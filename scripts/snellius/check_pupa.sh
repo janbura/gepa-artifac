@@ -92,7 +92,7 @@ PY
       echo "| ${B}_${O} | $S | $SC | ${DEN:-?} / $N | $(( N - ${DEN:-0} )) | $E ($EF)$FLAG | $(stat -c %y $R/evaluation_results/evaluation_result.txt | cut -c1-16) |"
       [ -n "$FLAG" ] && echo "  - first error that is not a format failure: $(tr '\r' '\n' < $R/run_log_stderr.txt | grep 'ERROR dspy.utils.parallelizer' | grep -v 'Failed to parse\|Expected dict_keys' | head -1 | cut -c1-300)"
       [ "$EI" -gt 0 ] && echo "  - client InternalServerErrors: $EI (judge calls; the server side is checked above)"
-      echo "  - paper (authors' seed 0, GPT-4.1-mini as external model and judge, not comparable, plan 2.10): $(case $O in Baseline) echo 80.82;; MIPROv2-Heavy) echo 81.55;; GEPA) echo 91.85;; GEPA-MERGE) echo 86.26;; esac)"
+      echo "  - paper (authors' seed 0, GPT-4.1-mini as external model and judge, not comparable, plan 2.10): $(case $O in Baseline) echo 80.82;; MIPROv2-Heavy) echo 81.55;; GEPA) echo 91.85;; GEPA-MERGE) echo 86.26;; Abl-SelectBestCandidate) echo 85.45;; Abl-BeamSearch) echo 81.08;; esac)"
       # rule of plan 2.10 (addendum of 2026-11-12): judge failures above 1 % of the test examples or of the
       # metric calls, or empty / None answers above 1 % of the logged predictions, make the run CHECK
       MC=$(cat $R/metric_logs/train.jsonl $R/metric_logs/val.jsonl $R/metric_logs/test.jsonl 2>/dev/null | wc -l)
@@ -127,7 +127,7 @@ PY
       echo "  - external model settings printed by the run: ${RS:-see the job log above}"
       case "$O" in
         MIPROv2-Heavy) echo "  - MIPROv2: $(grep -h 'Default program score' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / $(grep -h 'Returning best identified program' $R/run_log_stderr.txt | tail -1 | sed 's/.*mipro_optimizer_v2: //') / saved programs $(ls $R/optimizer_logs/evaluated_programs 2>/dev/null | wc -l)" ;;
-        GEPA|GEPA-MERGE) [ "$(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l)" -gt 0 ] || echo "  - NO-REFLECTIONS: GEPA made no reflection, so it optimized nothing"
+        GEPA|GEPA-MERGE|Abl-SelectBestCandidate|Abl-BeamSearch) [ "$(cat $R/instruction_proposer_inpouts.jsonl 2>/dev/null | wc -l)" -gt 0 ] || echo "  - NO-REFLECTIONS: GEPA made no reflection, so it optimized nothing"
                          EP=$(grep -c 'Exception during instruction proposal' $R/run_log.txt); NP=$(grep -cE '^Iteration [0-9]+: Proposed new instruction' $R/run_log.txt)
                          echo "  - GEPA proposals: $NP, failed proposals: $EP"
                          [ "$EP" -ge 10 ] && [ "$EP" -gt "$NP" ] && echo "  - REFLECTION-FAILS: most proposals failed"
