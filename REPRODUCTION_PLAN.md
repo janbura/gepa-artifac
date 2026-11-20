@@ -361,6 +361,7 @@ What the numbers still allow (simple arithmetic, not part of the method): the 32
 - Our seed-0 SelectBestCandidate next to the authors' released seed-0 runs (descriptive).
 - Search statistics from the text logs (descriptive): iterations, accepted candidates, and the share of iterations whose parent is not the best candidate, for the three rules.
 - Stop rule as in §2.13: a rebuilt per-example score that differs from a run's reported score by more than 0.005 stops the analysis until the cause is written down.
+- Added 2026-11-20 (before any Table 3 result): the tested rows also without the runs that lost requests (†), descriptive, as in §2.13. Script `analysis/table3_paired.py` (PUPA per-example scores with the rebuild and changed check of §2.10), checked by `analysis/check_table3_paired.py` on the existing runs: with fake Table 3 runs (SelectBestCandidate = the GEPA run, BeamSearch = the Baseline run) GEPA − SelectBestCandidate is exactly 0 and GEPA − BeamSearch equals the published GEPA − Baseline (HotpotQA +21.67 [+17.33, +26.11], IFBench −1.64, HoVer +13.89, PUPA +6.16).
 
 ---
 
