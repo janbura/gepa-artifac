@@ -538,6 +538,11 @@ One row per job; add new rows at the bottom.
 | 2026-11-20 | B | 29528895 / 29528899 | HoVer | Table 3: seeds 0, 1 (limit 10 h) | `6a36b63` | cancelled before start (user, 20:35) | 0 | – | afterok on 29528892; seed 2 waits for the budget rule |
 | 2026-11-20 | B | 29528896 / 29528900 | IFBench | Table 3: seeds 0, 1 (limit 11 h) | `6a36b63` | cancelled before start (user, 20:35) | 0 | – | afterok on 29528892; seed 2 waits for the budget rule |
 | 2026-11-20 | B | 29528897 / 29528901 | PUPA (§2.10) | Table 3: seeds 0, 1 (2 H100, limit 6 h) | `7f658a3` | cancelled before start (user, 20:35) | 0 | – | afterok on 29528892; seed 2 waits for the budget rule |
+| 2026-11-21 | B | 29535007 | HotpotQA | Table 3 smoke test, second attempt (user's OK): as 29528892, and the job first reads the Qwen3-8B weights once (page cache) so the vLLM start fits Arbor's 300 s wait; nothing in the tested code changed | `6a36b63` | running | – | – | submitted 01:32 when no job of the user's other project was queued; limit 1 h 30 |
+| 2026-11-21 | B | 29535017 / 29535025 / 29535029 | HotpotQA | Table 3: Abl-SelectBestCandidate + Abl-BeamSearch seeds 0, 1, 2 (`smeczynski1`, H100, limit 10 h) | `6a36b63` | waiting for the smoke test | – | – | submitted 01:32 (user: "run the main experiments too"), afterok on 29535007 |
+| 2026-11-21 | B | 29535018 / 29535026 | HoVer | Table 3: seeds 0, 1 (limit 10 h) | `6a36b63` | waiting for the smoke test | – | – | afterok on 29535007; seed 2 waits for the budget rule |
+| 2026-11-21 | B | 29535019 / 29535027 | IFBench | Table 3: seeds 0, 1 (limit 11 h) | `6a36b63` | waiting for the smoke test | – | – | afterok on 29535007; seed 2 waits for the budget rule |
+| 2026-11-21 | B | 29535024 / 29535028 | PUPA (§2.10) | Table 3: seeds 0, 1 (2 H100, limit 6 h) | `7f658a3` | waiting for the smoke test | – | – | afterok on 29535007; seed 2 waits for the budget rule |
 
 ---
 
