@@ -70,4 +70,10 @@ assert {k: v for k, v in bs.init_args.items() if k != "beam_size"} == sb.init_ar
 assert bs.init_args["beam_size"] == 4 and "beam_size" not in sb.init_args
 assert bs.langProBe_configs == sb.langProBe_configs and bs.compile_args == sb.compile_args
 
+# 7. run_experiments gives every GEPA-class optimizer the GEPA arguments (the released check missed the ablations)
+from scripts.run_experiments import uses_gepa_setup
+for name, opt in get_optimizers():
+    is_gepa = opt is not None and opt.optimizer is GEPA
+    assert uses_gepa_setup(name) == is_gepa, (name, is_gepa)
+
 print("all beam selection checks passed")

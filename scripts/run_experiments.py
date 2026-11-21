@@ -13,6 +13,13 @@ from .experiment_configs import BASE_EXPERIMENT_DIR, get_benchmarks, get_optimiz
 # The directory real runs go to when GEPA_EXPERIMENT_DIR is not set (same as experiment_configs.py).
 DEFAULT_EXPERIMENT_DIR = (Path(__file__).parent.parent / "experiment_runs_data").resolve()
 
+# Optimizers built on the GEPA class that need the feedback map, logger and run dir. The released check was only
+# '"GEPA" in optim_name', which leaves out the Table 3 ablations: Abl-SelectBestCandidate then fails at the start
+# with a TypeError. The authors' own replay script (replay_optimization.py) and their released Abl-SelectBestCandidate
+# config include it, so this is the condition their runs used; Abl-BeamSearch is ours (Table 3, plan 2.14).
+def uses_gepa_setup(optim_name):
+    return "GEPA" in optim_name or optim_name in ("Abl-SelectBestCandidate", "Abl-BeamSearch")
+
 def get_metric_call_cap():
     """
     Opt-in cap on GEPA's metric-call budget, for pilots: GEPA_MAX_METRIC_CALLS=<positive int>.
@@ -317,8 +324,8 @@ def run_experiment_and_write_results_actual(
             # For GEPA, if feedback_fn_maps is not provided, we create a default feedback function based on metric_with_feedback
             # and apply it to all predictors in the program.
             #######################
-            if "GEPA" in optim_name:
-                
+            if uses_gepa_setup(optim_name):
+
                 if benchmark_meta.feedback_fn_maps is None or benchmark_meta.feedback_fn_maps[program_idx] is None:
                     def feedback_func(predictor_output, predictor_inputs, module_inputs, module_outputs, captured_trace):
                         pred = benchmark_meta.metric_with_feedback(module_inputs, module_outputs, None)
