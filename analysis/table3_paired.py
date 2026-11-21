@@ -27,7 +27,8 @@ SEEDS = (0, 1, 2)
 # runs with lost requests (dagger, rule of 2026-11-11); a Table 3 run is added here when its check reports losses
 DAGGER = {("HoVer", "GEPA", 0), ("HoVer", "GEPA", 1), ("IFBench", "GEPA", 2),
           ("IFBench", "Abl-SelectBestCandidate", 0),  # one test example lost to an NLTK error (plan F113)
-          ("HotpotQA", "Abl-SelectBestCandidate", 0)}  # one search request lost to a client connection error (as F104)
+          ("HotpotQA", "Abl-SelectBestCandidate", 0),  # one search request lost to a client connection error (as F104)
+          ("HoVer", "Abl-SelectBestCandidate", 0)}  # one test request lost to a client connection error (as F104)
 
 
 def run_dir(root, task, opt, s):
