@@ -25,7 +25,8 @@ COMPARABLE = ["HotpotQA", "IFBench", "HoVer"]  # our PUPA is judged by gpt-oss-1
 TESTS = [("GEPA", "Abl-SelectBestCandidate"), ("GEPA", "Abl-BeamSearch")]
 SEEDS = (0, 1, 2)
 # runs with lost requests (dagger, rule of 2026-11-11); a Table 3 run is added here when its check reports losses
-DAGGER = {("HoVer", "GEPA", 0), ("HoVer", "GEPA", 1), ("IFBench", "GEPA", 2)}
+DAGGER = {("HoVer", "GEPA", 0), ("HoVer", "GEPA", 1), ("IFBench", "GEPA", 2),
+          ("IFBench", "Abl-SelectBestCandidate", 0)}  # one test example lost to an NLTK error (plan F113)
 
 
 def run_dir(root, task, opt, s):
@@ -245,7 +246,7 @@ def report(root, S, REP, missing, worst):
         p(f"| {NAME[o]} | {cells_txt} | {'–' if a4 is None else f'{a4:.2f}'} [{pa4:.2f}] | {imp4}{pimp4} | "
           f"{'–' if a3 is None else f'{a3:.2f}'} [{pa3:.2f}] | {imp3}{pimp3} |")
         num["aggregate"][NAME[o]] = {"agg4": a4, "agg3": a3, "paper_agg4": pa4, "paper_agg3": pa3}
-    p("\n† = contains a run with lost requests (rule of 2026-11-11).\n")
+    p("\n† = contains a run with lost requests or a lost test score (rule of 2026-11-11; F113).\n")
 
     p("### Per seed (seed 0 / 1 / 2)\n")
     p("| Method | " + " | ".join(TASKS) + " |")
