@@ -1,0 +1,5120 @@
+{
+ "summary": {
+  "dataset_rows": 664,
+  "cache_files": [
+   "/home/scur0934/.cache/huggingface/datasets/Columbia-NLP___pupa/pupa_new/0.0.0/9981b49b6ced0033988a224b6712895ebf119294/pupa-train.arrow"
+  ],
+  "fingerprint": "28c87e04e1e94f9b",
+  "test_kinds": {
+   "first copy in test": 185,
+   "equal to a val row": 15,
+   "equal to a train row": 10,
+   "repeat of an earlier test row": 11
+  },
+  "test_query_in_train_or_val": 43,
+  "test_rows_logged_in_test_jsonl": 196,
+  "distinct_test_indices": 185,
+  "val_equal_to_train_row": 10,
+  "val_repeats_inside_val": 5,
+  "val_query_in_train": 14,
+  "train_distinct_rows": 103
+ },
+ "test": [
+  {
+   "test_pos": 0,
+   "logged_as": "test",
+   "idx": 0,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 1,
+   "logged_as": "test",
+   "idx": 1,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 2,
+   "logged_as": "test",
+   "idx": 2,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 3,
+   "logged_as": "test",
+   "idx": 3,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 4,
+   "logged_as": "test",
+   "idx": 4,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 5,
+   "logged_as": "test",
+   "idx": 5,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 6,
+   "logged_as": "test",
+   "idx": 6,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 7,
+   "logged_as": "test",
+   "idx": 7,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 8,
+   "logged_as": "test",
+   "idx": 8,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 9,
+   "logged_as": "test",
+   "idx": 9,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 10,
+   "logged_as": "test",
+   "idx": 10,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 11,
+   "logged_as": "test",
+   "idx": 11,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 12,
+   "logged_as": "test",
+   "idx": 12,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 13,
+   "logged_as": "test",
+   "idx": 13,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 14,
+   "logged_as": "test",
+   "idx": 14,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 15,
+   "logged_as": "test",
+   "idx": 15,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 16,
+   "logged_as": "test",
+   "idx": 16,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 17,
+   "logged_as": "test",
+   "idx": 17,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 18,
+   "logged_as": "test",
+   "idx": 18,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 19,
+   "logged_as": "test",
+   "idx": 19,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 20,
+   "logged_as": "test",
+   "idx": 20,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 21,
+   "logged_as": "val",
+   "idx": 107,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 22,
+   "logged_as": "test",
+   "idx": 22,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 23,
+   "logged_as": "test",
+   "idx": 23,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 24,
+   "logged_as": "test",
+   "idx": 24,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 25,
+   "logged_as": "test",
+   "idx": 25,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 26,
+   "logged_as": "test",
+   "idx": 26,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 27,
+   "logged_as": "test",
+   "idx": 27,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 28,
+   "logged_as": "test",
+   "idx": 28,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 29,
+   "logged_as": "test",
+   "idx": 29,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 30,
+   "logged_as": "test",
+   "idx": 30,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 31,
+   "logged_as": "test",
+   "idx": 31,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 32,
+   "logged_as": "test",
+   "idx": 32,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 33,
+   "logged_as": "test",
+   "idx": 33,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 34,
+   "logged_as": "test",
+   "idx": 34,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 35,
+   "logged_as": "test",
+   "idx": 35,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 36,
+   "logged_as": "test",
+   "idx": 36,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 37,
+   "logged_as": "test",
+   "idx": 37,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 38,
+   "logged_as": "test",
+   "idx": 38,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 39,
+   "logged_as": "val",
+   "idx": 98,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 40,
+   "logged_as": "test",
+   "idx": 40,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 41,
+   "logged_as": "test",
+   "idx": 41,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 42,
+   "logged_as": "test",
+   "idx": 42,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 43,
+   "logged_as": "val",
+   "idx": 37,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 44,
+   "logged_as": "test",
+   "idx": 44,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 45,
+   "logged_as": "test",
+   "idx": 45,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 46,
+   "logged_as": "train",
+   "idx": 33,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 47,
+   "logged_as": "test",
+   "idx": 47,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 48,
+   "logged_as": "test",
+   "idx": 48,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 49,
+   "logged_as": "test",
+   "idx": 49,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 50,
+   "logged_as": "test",
+   "idx": 50,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 51,
+   "logged_as": "val",
+   "idx": 88,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 52,
+   "logged_as": "test",
+   "idx": 52,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 53,
+   "logged_as": "test",
+   "idx": 53,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 54,
+   "logged_as": "test",
+   "idx": 54,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 55,
+   "logged_as": "test",
+   "idx": 55,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 56,
+   "logged_as": "test",
+   "idx": 56,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 57,
+   "logged_as": "test",
+   "idx": 57,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 58,
+   "logged_as": "test",
+   "idx": 58,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 59,
+   "logged_as": "train",
+   "idx": 104,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 60,
+   "logged_as": "test",
+   "idx": 60,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 61,
+   "logged_as": "test",
+   "idx": 61,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 62,
+   "logged_as": "test",
+   "idx": 62,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 63,
+   "logged_as": "test",
+   "idx": 63,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 64,
+   "logged_as": "test",
+   "idx": 64,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 65,
+   "logged_as": "test",
+   "idx": 65,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 66,
+   "logged_as": "test",
+   "idx": 66,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 67,
+   "logged_as": "test",
+   "idx": 67,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 68,
+   "logged_as": "train",
+   "idx": 80,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 69,
+   "logged_as": "test",
+   "idx": 69,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 70,
+   "logged_as": "val",
+   "idx": 95,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 71,
+   "logged_as": "test",
+   "idx": 71,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 72,
+   "logged_as": "train",
+   "idx": 109,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 73,
+   "logged_as": "test",
+   "idx": 73,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 74,
+   "logged_as": "test",
+   "idx": 74,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 75,
+   "logged_as": "test",
+   "idx": 75,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 76,
+   "logged_as": "test",
+   "idx": 76,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 77,
+   "logged_as": "test",
+   "idx": 77,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 78,
+   "logged_as": "val",
+   "idx": 36,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 79,
+   "logged_as": "test",
+   "idx": 79,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 80,
+   "logged_as": "test",
+   "idx": 80,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 81,
+   "logged_as": "test",
+   "idx": 81,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 82,
+   "logged_as": "test",
+   "idx": 82,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 83,
+   "logged_as": "test",
+   "idx": 83,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 84,
+   "logged_as": "test",
+   "idx": 84,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 85,
+   "logged_as": "test",
+   "idx": 85,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 86,
+   "logged_as": "test",
+   "idx": 86,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 87,
+   "logged_as": "test",
+   "idx": 87,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 88,
+   "logged_as": "test",
+   "idx": 88,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 89,
+   "logged_as": "test",
+   "idx": 89,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 90,
+   "logged_as": "test",
+   "idx": 19,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 91,
+   "logged_as": "val",
+   "idx": 98,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 92,
+   "logged_as": "test",
+   "idx": 92,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 93,
+   "logged_as": "test",
+   "idx": 82,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 94,
+   "logged_as": "train",
+   "idx": 90,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 95,
+   "logged_as": "train",
+   "idx": 92,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 96,
+   "logged_as": "test",
+   "idx": 96,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 97,
+   "logged_as": "test",
+   "idx": 97,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 98,
+   "logged_as": "test",
+   "idx": 98,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 99,
+   "logged_as": "test",
+   "idx": 99,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 100,
+   "logged_as": "test",
+   "idx": 100,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 101,
+   "logged_as": "test",
+   "idx": 101,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 102,
+   "logged_as": "test",
+   "idx": 102,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 103,
+   "logged_as": "test",
+   "idx": 103,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 104,
+   "logged_as": "test",
+   "idx": 104,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 105,
+   "logged_as": "test",
+   "idx": 105,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 106,
+   "logged_as": "test",
+   "idx": 106,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 107,
+   "logged_as": "test",
+   "idx": 107,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 108,
+   "logged_as": "test",
+   "idx": 108,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 109,
+   "logged_as": "test",
+   "idx": 109,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 110,
+   "logged_as": "train",
+   "idx": 42,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 111,
+   "logged_as": "test",
+   "idx": 111,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 112,
+   "logged_as": "test",
+   "idx": 112,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 113,
+   "logged_as": "test",
+   "idx": 113,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 114,
+   "logged_as": "test",
+   "idx": 114,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 115,
+   "logged_as": "test",
+   "idx": 115,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 116,
+   "logged_as": "test",
+   "idx": 116,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 117,
+   "logged_as": "test",
+   "idx": 117,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 118,
+   "logged_as": "test",
+   "idx": 118,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 119,
+   "logged_as": "test",
+   "idx": 119,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 120,
+   "logged_as": "test",
+   "idx": 120,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 121,
+   "logged_as": "test",
+   "idx": 121,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 122,
+   "logged_as": "test",
+   "idx": 122,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 123,
+   "logged_as": "test",
+   "idx": 123,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 124,
+   "logged_as": "test",
+   "idx": 124,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 125,
+   "logged_as": "test",
+   "idx": 44,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 126,
+   "logged_as": "val",
+   "idx": 46,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 127,
+   "logged_as": "test",
+   "idx": 127,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 128,
+   "logged_as": "test",
+   "idx": 128,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 129,
+   "logged_as": "test",
+   "idx": 129,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 130,
+   "logged_as": "test",
+   "idx": 130,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 131,
+   "logged_as": "test",
+   "idx": 131,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 132,
+   "logged_as": "test",
+   "idx": 132,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 133,
+   "logged_as": "test",
+   "idx": 133,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 134,
+   "logged_as": "test",
+   "idx": 134,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 135,
+   "logged_as": "train",
+   "idx": 70,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 136,
+   "logged_as": "test",
+   "idx": 136,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 137,
+   "logged_as": "test",
+   "idx": 137,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 138,
+   "logged_as": "test",
+   "idx": 138,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 139,
+   "logged_as": "test",
+   "idx": 139,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 140,
+   "logged_as": "test",
+   "idx": 140,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 141,
+   "logged_as": "test",
+   "idx": 141,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 142,
+   "logged_as": "test",
+   "idx": 142,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 143,
+   "logged_as": "test",
+   "idx": 143,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 144,
+   "logged_as": "test",
+   "idx": 144,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 145,
+   "logged_as": "val",
+   "idx": 15,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 146,
+   "logged_as": "test",
+   "idx": 13,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 147,
+   "logged_as": "test",
+   "idx": 147,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 148,
+   "logged_as": "test",
+   "idx": 148,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 149,
+   "logged_as": "val",
+   "idx": 12,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 150,
+   "logged_as": "test",
+   "idx": 150,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 151,
+   "logged_as": "test",
+   "idx": 151,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 152,
+   "logged_as": "test",
+   "idx": 152,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 153,
+   "logged_as": "test",
+   "idx": 153,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 154,
+   "logged_as": "train",
+   "idx": 66,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 155,
+   "logged_as": "test",
+   "idx": 155,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 156,
+   "logged_as": "test",
+   "idx": 156,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 157,
+   "logged_as": "test",
+   "idx": 157,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 158,
+   "logged_as": "test",
+   "idx": 158,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 159,
+   "logged_as": "test",
+   "idx": 159,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 160,
+   "logged_as": "test",
+   "idx": 160,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 161,
+   "logged_as": "test",
+   "idx": 161,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 162,
+   "logged_as": "test",
+   "idx": 162,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 163,
+   "logged_as": "test",
+   "idx": 163,
+   "kind": "first copy in test",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 164,
+   "logged_as": "test",
+   "idx": 139,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 165,
+   "logged_as": "test",
+   "idx": 165,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 166,
+   "logged_as": "test",
+   "idx": 166,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 167,
+   "logged_as": "test",
+   "idx": 161,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 168,
+   "logged_as": "val",
+   "idx": 79,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 169,
+   "logged_as": "test",
+   "idx": 169,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 170,
+   "logged_as": "test",
+   "idx": 170,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 171,
+   "logged_as": "test",
+   "idx": 171,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 172,
+   "logged_as": "test",
+   "idx": 172,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 173,
+   "logged_as": "test",
+   "idx": 173,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 174,
+   "logged_as": "val",
+   "idx": 57,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 175,
+   "logged_as": "test",
+   "idx": 175,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 176,
+   "logged_as": "test",
+   "idx": 176,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 177,
+   "logged_as": "test",
+   "idx": 148,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 178,
+   "logged_as": "test",
+   "idx": 178,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 179,
+   "logged_as": "test",
+   "idx": 179,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 180,
+   "logged_as": "test",
+   "idx": 180,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 181,
+   "logged_as": "test",
+   "idx": 181,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 182,
+   "logged_as": "test",
+   "idx": 182,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 183,
+   "logged_as": "test",
+   "idx": 183,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 184,
+   "logged_as": "test",
+   "idx": 184,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 185,
+   "logged_as": "test",
+   "idx": 185,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 186,
+   "logged_as": "test",
+   "idx": 186,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 187,
+   "logged_as": "test",
+   "idx": 187,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 188,
+   "logged_as": "test",
+   "idx": 188,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 189,
+   "logged_as": "test",
+   "idx": 189,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 190,
+   "logged_as": "test",
+   "idx": 190,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 191,
+   "logged_as": "test",
+   "idx": 191,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 192,
+   "logged_as": "train",
+   "idx": 102,
+   "kind": "equal to a train row",
+   "query_in_train": true,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 193,
+   "logged_as": "test",
+   "idx": 193,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 194,
+   "logged_as": "test",
+   "idx": 194,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 195,
+   "logged_as": "test",
+   "idx": 195,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 196,
+   "logged_as": "test",
+   "idx": 196,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 197,
+   "logged_as": "test",
+   "idx": 197,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 198,
+   "logged_as": "test",
+   "idx": 106,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 199,
+   "logged_as": "test",
+   "idx": 199,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 200,
+   "logged_as": "test",
+   "idx": 200,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 201,
+   "logged_as": "test",
+   "idx": 201,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 202,
+   "logged_as": "test",
+   "idx": 62,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 203,
+   "logged_as": "test",
+   "idx": 203,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 204,
+   "logged_as": "test",
+   "idx": 204,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 205,
+   "logged_as": "test",
+   "idx": 197,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 206,
+   "logged_as": "val",
+   "idx": 24,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 207,
+   "logged_as": "test",
+   "idx": 207,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 208,
+   "logged_as": "test",
+   "idx": 208,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 209,
+   "logged_as": "test",
+   "idx": 209,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 210,
+   "logged_as": "test",
+   "idx": 210,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 211,
+   "logged_as": "test",
+   "idx": 211,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 212,
+   "logged_as": "test",
+   "idx": 212,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 213,
+   "logged_as": "val",
+   "idx": 75,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 214,
+   "logged_as": "test",
+   "idx": 214,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 215,
+   "logged_as": "test",
+   "idx": 200,
+   "kind": "repeat of an earlier test row",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 216,
+   "logged_as": "test",
+   "idx": 216,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 217,
+   "logged_as": "val",
+   "idx": 16,
+   "kind": "equal to a val row",
+   "query_in_train": false,
+   "query_in_val": true
+  },
+  {
+   "test_pos": 218,
+   "logged_as": "test",
+   "idx": 218,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 219,
+   "logged_as": "test",
+   "idx": 219,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  },
+  {
+   "test_pos": 220,
+   "logged_as": "test",
+   "idx": 220,
+   "kind": "first copy in test",
+   "query_in_train": false,
+   "query_in_val": false
+  }
+ ],
+ "val": [
+  {
+   "val_pos": 0,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 1,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 2,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 3,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 4,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 5,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 6,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 7,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 8,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 9,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 10,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 11,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 12,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 13,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 14,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 15,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 16,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 17,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 18,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 19,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 20,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 21,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 22,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 23,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 24,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 25,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 26,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 27,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 28,
+   "equal_to_train_row": false,
+   "first_copy_in_val": false,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 29,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 30,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 31,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 32,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 33,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 34,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 35,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 36,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 37,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 38,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 39,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 40,
+   "equal_to_train_row": false,
+   "first_copy_in_val": false,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 41,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 42,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 43,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 44,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 45,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 46,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 47,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 48,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 49,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 50,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 51,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 52,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 53,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 54,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 55,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 56,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 57,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 58,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 59,
+   "equal_to_train_row": false,
+   "first_copy_in_val": false,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 60,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 61,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 62,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 63,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 64,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 65,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 66,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 67,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 68,
+   "equal_to_train_row": false,
+   "first_copy_in_val": false,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 69,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 70,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 71,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 72,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 73,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 74,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 75,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 76,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 77,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 78,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 79,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 80,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 81,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 82,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 83,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 84,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 85,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 86,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 87,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 88,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 89,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 90,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 91,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 92,
+   "equal_to_train_row": false,
+   "first_copy_in_val": false,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 93,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 94,
+   "equal_to_train_row": true,
+   "first_copy_in_val": false,
+   "query_in_train": true
+  },
+  {
+   "val_pos": 95,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 96,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 97,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 98,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 99,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 100,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 101,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 102,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 103,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 104,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 105,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 106,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 107,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 108,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 109,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  },
+  {
+   "val_pos": 110,
+   "equal_to_train_row": false,
+   "first_copy_in_val": true,
+   "query_in_train": false
+  }
+ ],
+ "logged_per_seed": {
+  "0": [
+   [
+    "test",
+    0
+   ],
+   [
+    "test",
+    1
+   ],
+   [
+    "test",
+    2
+   ],
+   [
+    "test",
+    3
+   ],
+   [
+    "test",
+    4
+   ],
+   [
+    "test",
+    5
+   ],
+   [
+    "test",
+    6
+   ],
+   [
+    "test",
+    7
+   ],
+   [
+    "test",
+    8
+   ],
+   [
+    "test",
+    9
+   ],
+   [
+    "test",
+    10
+   ],
+   [
+    "test",
+    11
+   ],
+   [
+    "test",
+    12
+   ],
+   [
+    "test",
+    13
+   ],
+   [
+    "test",
+    14
+   ],
+   [
+    "test",
+    15
+   ],
+   [
+    "test",
+    16
+   ],
+   [
+    "test",
+    17
+   ],
+   [
+    "test",
+    18
+   ],
+   [
+    "test",
+    19
+   ],
+   [
+    "test",
+    20
+   ],
+   [
+    "val",
+    107
+   ],
+   [
+    "test",
+    22
+   ],
+   [
+    "test",
+    23
+   ],
+   [
+    "test",
+    24
+   ],
+   [
+    "test",
+    25
+   ],
+   [
+    "test",
+    26
+   ],
+   [
+    "test",
+    27
+   ],
+   [
+    "test",
+    28
+   ],
+   [
+    "test",
+    29
+   ],
+   [
+    "test",
+    30
+   ],
+   [
+    "test",
+    31
+   ],
+   [
+    "test",
+    32
+   ],
+   [
+    "test",
+    33
+   ],
+   [
+    "test",
+    34
+   ],
+   [
+    "test",
+    35
+   ],
+   [
+    "test",
+    36
+   ],
+   [
+    "test",
+    37
+   ],
+   [
+    "test",
+    38
+   ],
+   [
+    "val",
+    98
+   ],
+   [
+    "test",
+    40
+   ],
+   [
+    "test",
+    41
+   ],
+   [
+    "test",
+    42
+   ],
+   [
+    "val",
+    37
+   ],
+   [
+    "test",
+    44
+   ],
+   [
+    "test",
+    45
+   ],
+   [
+    "train",
+    33
+   ],
+   [
+    "test",
+    47
+   ],
+   [
+    "test",
+    48
+   ],
+   [
+    "test",
+    49
+   ],
+   [
+    "test",
+    50
+   ],
+   [
+    "val",
+    88
+   ],
+   [
+    "test",
+    52
+   ],
+   [
+    "test",
+    53
+   ],
+   [
+    "test",
+    54
+   ],
+   [
+    "test",
+    55
+   ],
+   [
+    "test",
+    56
+   ],
+   [
+    "test",
+    57
+   ],
+   [
+    "test",
+    58
+   ],
+   [
+    "train",
+    104
+   ],
+   [
+    "test",
+    60
+   ],
+   [
+    "test",
+    61
+   ],
+   [
+    "test",
+    62
+   ],
+   [
+    "test",
+    63
+   ],
+   [
+    "test",
+    64
+   ],
+   [
+    "test",
+    65
+   ],
+   [
+    "test",
+    66
+   ],
+   [
+    "test",
+    67
+   ],
+   [
+    "train",
+    80
+   ],
+   [
+    "test",
+    69
+   ],
+   [
+    "val",
+    95
+   ],
+   [
+    "test",
+    71
+   ],
+   [
+    "train",
+    109
+   ],
+   [
+    "test",
+    73
+   ],
+   [
+    "test",
+    74
+   ],
+   [
+    "test",
+    75
+   ],
+   [
+    "test",
+    76
+   ],
+   [
+    "test",
+    77
+   ],
+   [
+    "val",
+    36
+   ],
+   [
+    "test",
+    79
+   ],
+   [
+    "test",
+    80
+   ],
+   [
+    "test",
+    81
+   ],
+   [
+    "test",
+    82
+   ],
+   [
+    "test",
+    83
+   ],
+   [
+    "test",
+    84
+   ],
+   [
+    "test",
+    85
+   ],
+   [
+    "test",
+    86
+   ],
+   [
+    "test",
+    87
+   ],
+   [
+    "test",
+    88
+   ],
+   [
+    "test",
+    89
+   ],
+   [
+    "test",
+    19
+   ],
+   [
+    "val",
+    98
+   ],
+   [
+    "test",
+    92
+   ],
+   [
+    "test",
+    82
+   ],
+   [
+    "train",
+    90
+   ],
+   [
+    "train",
+    92
+   ],
+   [
+    "test",
+    96
+   ],
+   [
+    "test",
+    97
+   ],
+   [
+    "test",
+    98
+   ],
+   [
+    "test",
+    99
+   ],
+   [
+    "test",
+    100
+   ],
+   [
+    "test",
+    101
+   ],
+   [
+    "test",
+    102
+   ],
+   [
+    "test",
+    103
+   ],
+   [
+    "test",
+    104
+   ],
+   [
+    "test",
+    105
+   ],
+   [
+    "test",
+    106
+   ],
+   [
+    "test",
+    107
+   ],
+   [
+    "test",
+    108
+   ],
+   [
+    "test",
+    109
+   ],
+   [
+    "train",
+    42
+   ],
+   [
+    "test",
+    111
+   ],
+   [
+    "test",
+    112
+   ],
+   [
+    "test",
+    113
+   ],
+   [
+    "test",
+    114
+   ],
+   [
+    "test",
+    115
+   ],
+   [
+    "test",
+    116
+   ],
+   [
+    "test",
+    117
+   ],
+   [
+    "test",
+    118
+   ],
+   [
+    "test",
+    119
+   ],
+   [
+    "test",
+    120
+   ],
+   [
+    "test",
+    121
+   ],
+   [
+    "test",
+    122
+   ],
+   [
+    "test",
+    123
+   ],
+   [
+    "test",
+    124
+   ],
+   [
+    "test",
+    44
+   ],
+   [
+    "val",
+    46
+   ],
+   [
+    "test",
+    127
+   ],
+   [
+    "test",
+    128
+   ],
+   [
+    "test",
+    129
+   ],
+   [
+    "test",
+    130
+   ],
+   [
+    "test",
+    131
+   ],
+   [
+    "test",
+    132
+   ],
+   [
+    "test",
+    133
+   ],
+   [
+    "test",
+    134
+   ],
+   [
+    "train",
+    70
+   ],
+   [
+    "test",
+    136
+   ],
+   [
+    "test",
+    137
+   ],
+   [
+    "test",
+    138
+   ],
+   [
+    "test",
+    139
+   ],
+   [
+    "test",
+    140
+   ],
+   [
+    "test",
+    141
+   ],
+   [
+    "test",
+    142
+   ],
+   [
+    "test",
+    143
+   ],
+   [
+    "test",
+    144
+   ],
+   [
+    "val",
+    15
+   ],
+   [
+    "test",
+    13
+   ],
+   [
+    "test",
+    147
+   ],
+   [
+    "test",
+    148
+   ],
+   [
+    "val",
+    12
+   ],
+   [
+    "test",
+    150
+   ],
+   [
+    "test",
+    151
+   ],
+   [
+    "test",
+    152
+   ],
+   [
+    "test",
+    153
+   ],
+   [
+    "train",
+    66
+   ],
+   [
+    "test",
+    155
+   ],
+   [
+    "test",
+    156
+   ],
+   [
+    "test",
+    157
+   ],
+   [
+    "test",
+    158
+   ],
+   [
+    "test",
+    159
+   ],
+   [
+    "test",
+    160
+   ],
+   [
+    "test",
+    161
+   ],
+   [
+    "test",
+    162
+   ],
+   [
+    "test",
+    163
+   ],
+   [
+    "test",
+    139
+   ],
+   [
+    "test",
+    165
+   ],
+   [
+    "test",
+    166
+   ],
+   [
+    "test",
+    161
+   ],
+   [
+    "val",
+    79
+   ],
+   [
+    "test",
+    169
+   ],
+   [
+    "test",
+    170
+   ],
+   [
+    "test",
+    171
+   ],
+   [
+    "test",
+    172
+   ],
+   [
+    "test",
+    173
+   ],
+   [
+    "val",
+    57
+   ],
+   [
+    "test",
+    175
+   ],
+   [
+    "test",
+    176
+   ],
+   [
+    "test",
+    148
+   ],
+   [
+    "test",
+    178
+   ],
+   [
+    "test",
+    179
+   ],
+   [
+    "test",
+    180
+   ],
+   [
+    "test",
+    181
+   ],
+   [
+    "test",
+    182
+   ],
+   [
+    "test",
+    183
+   ],
+   [
+    "test",
+    184
+   ],
+   [
+    "test",
+    185
+   ],
+   [
+    "test",
+    186
+   ],
+   [
+    "test",
+    187
+   ],
+   [
+    "test",
+    188
+   ],
+   [
+    "test",
+    189
+   ],
+   [
+    "test",
+    190
+   ],
+   [
+    "test",
+    191
+   ],
+   [
+    "train",
+    102
+   ],
+   [
+    "test",
+    193
+   ],
+   [
+    "test",
+    194
+   ],
+   [
+    "test",
+    195
+   ],
+   [
+    "test",
+    196
+   ],
+   [
+    "test",
+    197
+   ],
+   [
+    "test",
+    106
+   ],
+   [
+    "test",
+    199
+   ],
+   [
+    "test",
+    200
+   ],
+   [
+    "test",
+    201
+   ],
+   [
+    "test",
+    62
+   ],
+   [
+    "test",
+    203
+   ],
+   [
+    "test",
+    204
+   ],
+   [
+    "test",
+    197
+   ],
+   [
+    "val",
+    24
+   ],
+   [
+    "test",
+    207
+   ],
+   [
+    "test",
+    208
+   ],
+   [
+    "test",
+    209
+   ],
+   [
+    "test",
+    210
+   ],
+   [
+    "test",
+    211
+   ],
+   [
+    "test",
+    212
+   ],
+   [
+    "val",
+    75
+   ],
+   [
+    "test",
+    214
+   ],
+   [
+    "test",
+    200
+   ],
+   [
+    "test",
+    216
+   ],
+   [
+    "val",
+    16
+   ],
+   [
+    "test",
+    218
+   ],
+   [
+    "test",
+    219
+   ],
+   [
+    "test",
+    220
+   ]
+  ],
+  "1": [
+   [
+    "test",
+    0
+   ],
+   [
+    "test",
+    1
+   ],
+   [
+    "test",
+    2
+   ],
+   [
+    "test",
+    3
+   ],
+   [
+    "test",
+    4
+   ],
+   [
+    "test",
+    5
+   ],
+   [
+    "test",
+    6
+   ],
+   [
+    "test",
+    7
+   ],
+   [
+    "test",
+    8
+   ],
+   [
+    "test",
+    9
+   ],
+   [
+    "test",
+    10
+   ],
+   [
+    "test",
+    11
+   ],
+   [
+    "test",
+    12
+   ],
+   [
+    "test",
+    13
+   ],
+   [
+    "test",
+    14
+   ],
+   [
+    "test",
+    15
+   ],
+   [
+    "test",
+    16
+   ],
+   [
+    "test",
+    17
+   ],
+   [
+    "test",
+    18
+   ],
+   [
+    "test",
+    19
+   ],
+   [
+    "test",
+    20
+   ],
+   [
+    "train",
+    31
+   ],
+   [
+    "test",
+    22
+   ],
+   [
+    "test",
+    23
+   ],
+   [
+    "test",
+    24
+   ],
+   [
+    "test",
+    25
+   ],
+   [
+    "test",
+    26
+   ],
+   [
+    "test",
+    27
+   ],
+   [
+    "test",
+    28
+   ],
+   [
+    "test",
+    29
+   ],
+   [
+    "test",
+    30
+   ],
+   [
+    "test",
+    31
+   ],
+   [
+    "test",
+    32
+   ],
+   [
+    "test",
+    33
+   ],
+   [
+    "test",
+    34
+   ],
+   [
+    "test",
+    35
+   ],
+   [
+    "test",
+    36
+   ],
+   [
+    "test",
+    37
+   ],
+   [
+    "test",
+    38
+   ],
+   [
+    "val",
+    74
+   ],
+   [
+    "test",
+    40
+   ],
+   [
+    "test",
+    41
+   ],
+   [
+    "test",
+    42
+   ],
+   [
+    "val",
+    21
+   ],
+   [
+    "test",
+    44
+   ],
+   [
+    "test",
+    45
+   ],
+   [
+    "train",
+    42
+   ],
+   [
+    "test",
+    47
+   ],
+   [
+    "test",
+    48
+   ],
+   [
+    "test",
+    49
+   ],
+   [
+    "test",
+    50
+   ],
+   [
+    "train",
+    60
+   ],
+   [
+    "test",
+    52
+   ],
+   [
+    "test",
+    53
+   ],
+   [
+    "test",
+    54
+   ],
+   [
+    "test",
+    55
+   ],
+   [
+    "test",
+    56
+   ],
+   [
+    "test",
+    57
+   ],
+   [
+    "test",
+    58
+   ],
+   [
+    "train",
+    38
+   ],
+   [
+    "test",
+    60
+   ],
+   [
+    "test",
+    61
+   ],
+   [
+    "test",
+    62
+   ],
+   [
+    "test",
+    63
+   ],
+   [
+    "test",
+    64
+   ],
+   [
+    "test",
+    65
+   ],
+   [
+    "test",
+    66
+   ],
+   [
+    "test",
+    67
+   ],
+   [
+    "train",
+    34
+   ],
+   [
+    "test",
+    69
+   ],
+   [
+    "train",
+    77
+   ],
+   [
+    "test",
+    71
+   ],
+   [
+    "train",
+    99
+   ],
+   [
+    "test",
+    73
+   ],
+   [
+    "test",
+    74
+   ],
+   [
+    "test",
+    75
+   ],
+   [
+    "test",
+    76
+   ],
+   [
+    "test",
+    77
+   ],
+   [
+    "train",
+    26
+   ],
+   [
+    "test",
+    79
+   ],
+   [
+    "test",
+    80
+   ],
+   [
+    "test",
+    81
+   ],
+   [
+    "test",
+    82
+   ],
+   [
+    "test",
+    83
+   ],
+   [
+    "test",
+    84
+   ],
+   [
+    "test",
+    85
+   ],
+   [
+    "test",
+    86
+   ],
+   [
+    "test",
+    87
+   ],
+   [
+    "test",
+    88
+   ],
+   [
+    "test",
+    89
+   ],
+   [
+    "test",
+    19
+   ],
+   [
+    "val",
+    74
+   ],
+   [
+    "test",
+    92
+   ],
+   [
+    "test",
+    82
+   ],
+   [
+    "val",
+    14
+   ],
+   [
+    "train",
+    43
+   ],
+   [
+    "test",
+    96
+   ],
+   [
+    "test",
+    97
+   ],
+   [
+    "test",
+    98
+   ],
+   [
+    "test",
+    99
+   ],
+   [
+    "test",
+    100
+   ],
+   [
+    "test",
+    101
+   ],
+   [
+    "test",
+    102
+   ],
+   [
+    "test",
+    103
+   ],
+   [
+    "test",
+    104
+   ],
+   [
+    "test",
+    105
+   ],
+   [
+    "test",
+    106
+   ],
+   [
+    "test",
+    107
+   ],
+   [
+    "test",
+    108
+   ],
+   [
+    "test",
+    109
+   ],
+   [
+    "train",
+    17
+   ],
+   [
+    "test",
+    111
+   ],
+   [
+    "test",
+    112
+   ],
+   [
+    "test",
+    113
+   ],
+   [
+    "test",
+    114
+   ],
+   [
+    "test",
+    115
+   ],
+   [
+    "test",
+    116
+   ],
+   [
+    "test",
+    117
+   ],
+   [
+    "test",
+    118
+   ],
+   [
+    "test",
+    119
+   ],
+   [
+    "test",
+    120
+   ],
+   [
+    "test",
+    121
+   ],
+   [
+    "test",
+    122
+   ],
+   [
+    "test",
+    123
+   ],
+   [
+    "test",
+    124
+   ],
+   [
+    "test",
+    44
+   ],
+   [
+    "train",
+    16
+   ],
+   [
+    "test",
+    127
+   ],
+   [
+    "test",
+    128
+   ],
+   [
+    "test",
+    129
+   ],
+   [
+    "test",
+    130
+   ],
+   [
+    "test",
+    131
+   ],
+   [
+    "test",
+    132
+   ],
+   [
+    "test",
+    133
+   ],
+   [
+    "test",
+    134
+   ],
+   [
+    "train",
+    109
+   ],
+   [
+    "test",
+    136
+   ],
+   [
+    "test",
+    137
+   ],
+   [
+    "test",
+    138
+   ],
+   [
+    "test",
+    139
+   ],
+   [
+    "test",
+    140
+   ],
+   [
+    "test",
+    141
+   ],
+   [
+    "test",
+    142
+   ],
+   [
+    "test",
+    143
+   ],
+   [
+    "test",
+    144
+   ],
+   [
+    "val",
+    102
+   ],
+   [
+    "test",
+    13
+   ],
+   [
+    "test",
+    147
+   ],
+   [
+    "test",
+    148
+   ],
+   [
+    "train",
+    7
+   ],
+   [
+    "test",
+    150
+   ],
+   [
+    "test",
+    151
+   ],
+   [
+    "test",
+    152
+   ],
+   [
+    "test",
+    153
+   ],
+   [
+    "train",
+    91
+   ],
+   [
+    "test",
+    155
+   ],
+   [
+    "test",
+    156
+   ],
+   [
+    "test",
+    157
+   ],
+   [
+    "test",
+    158
+   ],
+   [
+    "test",
+    159
+   ],
+   [
+    "test",
+    160
+   ],
+   [
+    "test",
+    161
+   ],
+   [
+    "test",
+    162
+   ],
+   [
+    "test",
+    163
+   ],
+   [
+    "test",
+    139
+   ],
+   [
+    "test",
+    165
+   ],
+   [
+    "test",
+    166
+   ],
+   [
+    "test",
+    161
+   ],
+   [
+    "train",
+    89
+   ],
+   [
+    "test",
+    169
+   ],
+   [
+    "test",
+    170
+   ],
+   [
+    "test",
+    171
+   ],
+   [
+    "test",
+    172
+   ],
+   [
+    "test",
+    173
+   ],
+   [
+    "train",
+    8
+   ],
+   [
+    "test",
+    175
+   ],
+   [
+    "test",
+    176
+   ],
+   [
+    "test",
+    148
+   ],
+   [
+    "test",
+    178
+   ],
+   [
+    "test",
+    179
+   ],
+   [
+    "test",
+    180
+   ],
+   [
+    "test",
+    181
+   ],
+   [
+    "test",
+    182
+   ],
+   [
+    "test",
+    183
+   ],
+   [
+    "test",
+    184
+   ],
+   [
+    "test",
+    185
+   ],
+   [
+    "test",
+    186
+   ],
+   [
+    "test",
+    187
+   ],
+   [
+    "test",
+    188
+   ],
+   [
+    "test",
+    189
+   ],
+   [
+    "test",
+    190
+   ],
+   [
+    "test",
+    191
+   ],
+   [
+    "train",
+    71
+   ],
+   [
+    "test",
+    193
+   ],
+   [
+    "test",
+    194
+   ],
+   [
+    "test",
+    195
+   ],
+   [
+    "test",
+    196
+   ],
+   [
+    "test",
+    197
+   ],
+   [
+    "test",
+    106
+   ],
+   [
+    "test",
+    199
+   ],
+   [
+    "test",
+    200
+   ],
+   [
+    "test",
+    201
+   ],
+   [
+    "test",
+    62
+   ],
+   [
+    "test",
+    203
+   ],
+   [
+    "test",
+    204
+   ],
+   [
+    "test",
+    197
+   ],
+   [
+    "val",
+    66
+   ],
+   [
+    "test",
+    207
+   ],
+   [
+    "test",
+    208
+   ],
+   [
+    "test",
+    209
+   ],
+   [
+    "test",
+    210
+   ],
+   [
+    "test",
+    211
+   ],
+   [
+    "test",
+    212
+   ],
+   [
+    "train",
+    27
+   ],
+   [
+    "test",
+    214
+   ],
+   [
+    "test",
+    200
+   ],
+   [
+    "test",
+    216
+   ],
+   [
+    "val",
+    39
+   ],
+   [
+    "test",
+    218
+   ],
+   [
+    "test",
+    219
+   ],
+   [
+    "test",
+    220
+   ]
+  ],
+  "2": [
+   [
+    "test",
+    0
+   ],
+   [
+    "test",
+    1
+   ],
+   [
+    "test",
+    2
+   ],
+   [
+    "test",
+    3
+   ],
+   [
+    "test",
+    4
+   ],
+   [
+    "test",
+    5
+   ],
+   [
+    "test",
+    6
+   ],
+   [
+    "test",
+    7
+   ],
+   [
+    "test",
+    8
+   ],
+   [
+    "test",
+    9
+   ],
+   [
+    "test",
+    10
+   ],
+   [
+    "test",
+    11
+   ],
+   [
+    "test",
+    12
+   ],
+   [
+    "test",
+    13
+   ],
+   [
+    "test",
+    14
+   ],
+   [
+    "test",
+    15
+   ],
+   [
+    "test",
+    16
+   ],
+   [
+    "test",
+    17
+   ],
+   [
+    "test",
+    18
+   ],
+   [
+    "test",
+    19
+   ],
+   [
+    "test",
+    20
+   ],
+   [
+    "train",
+    75
+   ],
+   [
+    "test",
+    22
+   ],
+   [
+    "test",
+    23
+   ],
+   [
+    "test",
+    24
+   ],
+   [
+    "test",
+    25
+   ],
+   [
+    "test",
+    26
+   ],
+   [
+    "test",
+    27
+   ],
+   [
+    "test",
+    28
+   ],
+   [
+    "test",
+    29
+   ],
+   [
+    "test",
+    30
+   ],
+   [
+    "test",
+    31
+   ],
+   [
+    "test",
+    32
+   ],
+   [
+    "test",
+    33
+   ],
+   [
+    "test",
+    34
+   ],
+   [
+    "test",
+    35
+   ],
+   [
+    "test",
+    36
+   ],
+   [
+    "test",
+    37
+   ],
+   [
+    "test",
+    38
+   ],
+   [
+    "train",
+    9
+   ],
+   [
+    "test",
+    40
+   ],
+   [
+    "test",
+    41
+   ],
+   [
+    "test",
+    42
+   ],
+   [
+    "val",
+    93
+   ],
+   [
+    "test",
+    44
+   ],
+   [
+    "test",
+    45
+   ],
+   [
+    "train",
+    37
+   ],
+   [
+    "test",
+    47
+   ],
+   [
+    "test",
+    48
+   ],
+   [
+    "test",
+    49
+   ],
+   [
+    "test",
+    50
+   ],
+   [
+    "val",
+    10
+   ],
+   [
+    "test",
+    52
+   ],
+   [
+    "test",
+    53
+   ],
+   [
+    "test",
+    54
+   ],
+   [
+    "test",
+    55
+   ],
+   [
+    "test",
+    56
+   ],
+   [
+    "test",
+    57
+   ],
+   [
+    "test",
+    58
+   ],
+   [
+    "val",
+    20
+   ],
+   [
+    "test",
+    60
+   ],
+   [
+    "test",
+    61
+   ],
+   [
+    "test",
+    62
+   ],
+   [
+    "test",
+    63
+   ],
+   [
+    "test",
+    64
+   ],
+   [
+    "test",
+    65
+   ],
+   [
+    "test",
+    66
+   ],
+   [
+    "test",
+    67
+   ],
+   [
+    "train",
+    54
+   ],
+   [
+    "test",
+    69
+   ],
+   [
+    "train",
+    43
+   ],
+   [
+    "test",
+    71
+   ],
+   [
+    "train",
+    38
+   ],
+   [
+    "test",
+    73
+   ],
+   [
+    "test",
+    74
+   ],
+   [
+    "test",
+    75
+   ],
+   [
+    "test",
+    76
+   ],
+   [
+    "test",
+    77
+   ],
+   [
+    "train",
+    13
+   ],
+   [
+    "test",
+    79
+   ],
+   [
+    "test",
+    80
+   ],
+   [
+    "test",
+    81
+   ],
+   [
+    "test",
+    82
+   ],
+   [
+    "test",
+    83
+   ],
+   [
+    "test",
+    84
+   ],
+   [
+    "test",
+    85
+   ],
+   [
+    "test",
+    86
+   ],
+   [
+    "test",
+    87
+   ],
+   [
+    "test",
+    88
+   ],
+   [
+    "test",
+    89
+   ],
+   [
+    "test",
+    19
+   ],
+   [
+    "train",
+    9
+   ],
+   [
+    "test",
+    92
+   ],
+   [
+    "test",
+    82
+   ],
+   [
+    "val",
+    51
+   ],
+   [
+    "val",
+    105
+   ],
+   [
+    "test",
+    96
+   ],
+   [
+    "test",
+    97
+   ],
+   [
+    "test",
+    98
+   ],
+   [
+    "test",
+    99
+   ],
+   [
+    "test",
+    100
+   ],
+   [
+    "test",
+    101
+   ],
+   [
+    "test",
+    102
+   ],
+   [
+    "test",
+    103
+   ],
+   [
+    "test",
+    104
+   ],
+   [
+    "test",
+    105
+   ],
+   [
+    "test",
+    106
+   ],
+   [
+    "test",
+    107
+   ],
+   [
+    "test",
+    108
+   ],
+   [
+    "test",
+    109
+   ],
+   [
+    "train",
+    74
+   ],
+   [
+    "test",
+    111
+   ],
+   [
+    "test",
+    112
+   ],
+   [
+    "test",
+    113
+   ],
+   [
+    "test",
+    114
+   ],
+   [
+    "test",
+    115
+   ],
+   [
+    "test",
+    116
+   ],
+   [
+    "test",
+    117
+   ],
+   [
+    "test",
+    118
+   ],
+   [
+    "test",
+    119
+   ],
+   [
+    "test",
+    120
+   ],
+   [
+    "test",
+    121
+   ],
+   [
+    "test",
+    122
+   ],
+   [
+    "test",
+    123
+   ],
+   [
+    "test",
+    124
+   ],
+   [
+    "test",
+    44
+   ],
+   [
+    "val",
+    36
+   ],
+   [
+    "test",
+    127
+   ],
+   [
+    "test",
+    128
+   ],
+   [
+    "test",
+    129
+   ],
+   [
+    "test",
+    130
+   ],
+   [
+    "test",
+    131
+   ],
+   [
+    "test",
+    132
+   ],
+   [
+    "test",
+    133
+   ],
+   [
+    "test",
+    134
+   ],
+   [
+    "train",
+    27
+   ],
+   [
+    "test",
+    136
+   ],
+   [
+    "test",
+    137
+   ],
+   [
+    "test",
+    138
+   ],
+   [
+    "test",
+    139
+   ],
+   [
+    "test",
+    140
+   ],
+   [
+    "test",
+    141
+   ],
+   [
+    "test",
+    142
+   ],
+   [
+    "test",
+    143
+   ],
+   [
+    "test",
+    144
+   ],
+   [
+    "train",
+    63
+   ],
+   [
+    "test",
+    13
+   ],
+   [
+    "test",
+    147
+   ],
+   [
+    "test",
+    148
+   ],
+   [
+    "train",
+    103
+   ],
+   [
+    "test",
+    150
+   ],
+   [
+    "test",
+    151
+   ],
+   [
+    "test",
+    152
+   ],
+   [
+    "test",
+    153
+   ],
+   [
+    "train",
+    101
+   ],
+   [
+    "test",
+    155
+   ],
+   [
+    "test",
+    156
+   ],
+   [
+    "test",
+    157
+   ],
+   [
+    "test",
+    158
+   ],
+   [
+    "test",
+    159
+   ],
+   [
+    "test",
+    160
+   ],
+   [
+    "test",
+    161
+   ],
+   [
+    "test",
+    162
+   ],
+   [
+    "test",
+    163
+   ],
+   [
+    "test",
+    139
+   ],
+   [
+    "test",
+    165
+   ],
+   [
+    "test",
+    166
+   ],
+   [
+    "test",
+    161
+   ],
+   [
+    "val",
+    0
+   ],
+   [
+    "test",
+    169
+   ],
+   [
+    "test",
+    170
+   ],
+   [
+    "test",
+    171
+   ],
+   [
+    "test",
+    172
+   ],
+   [
+    "test",
+    173
+   ],
+   [
+    "train",
+    91
+   ],
+   [
+    "test",
+    175
+   ],
+   [
+    "test",
+    176
+   ],
+   [
+    "test",
+    148
+   ],
+   [
+    "test",
+    178
+   ],
+   [
+    "test",
+    179
+   ],
+   [
+    "test",
+    180
+   ],
+   [
+    "test",
+    181
+   ],
+   [
+    "test",
+    182
+   ],
+   [
+    "test",
+    183
+   ],
+   [
+    "test",
+    184
+   ],
+   [
+    "test",
+    185
+   ],
+   [
+    "test",
+    186
+   ],
+   [
+    "test",
+    187
+   ],
+   [
+    "test",
+    188
+   ],
+   [
+    "test",
+    189
+   ],
+   [
+    "test",
+    190
+   ],
+   [
+    "test",
+    191
+   ],
+   [
+    "val",
+    47
+   ],
+   [
+    "test",
+    193
+   ],
+   [
+    "test",
+    194
+   ],
+   [
+    "test",
+    195
+   ],
+   [
+    "test",
+    196
+   ],
+   [
+    "test",
+    197
+   ],
+   [
+    "test",
+    106
+   ],
+   [
+    "test",
+    199
+   ],
+   [
+    "test",
+    200
+   ],
+   [
+    "test",
+    201
+   ],
+   [
+    "test",
+    62
+   ],
+   [
+    "test",
+    203
+   ],
+   [
+    "test",
+    204
+   ],
+   [
+    "test",
+    197
+   ],
+   [
+    "val",
+    45
+   ],
+   [
+    "test",
+    207
+   ],
+   [
+    "test",
+    208
+   ],
+   [
+    "test",
+    209
+   ],
+   [
+    "test",
+    210
+   ],
+   [
+    "test",
+    211
+   ],
+   [
+    "test",
+    212
+   ],
+   [
+    "train",
+    18
+   ],
+   [
+    "test",
+    214
+   ],
+   [
+    "test",
+    200
+   ],
+   [
+    "test",
+    216
+   ],
+   [
+    "val",
+    41
+   ],
+   [
+    "test",
+    218
+   ],
+   [
+    "test",
+    219
+   ],
+   [
+    "test",
+    220
+   ]
+  ]
+ }
+}

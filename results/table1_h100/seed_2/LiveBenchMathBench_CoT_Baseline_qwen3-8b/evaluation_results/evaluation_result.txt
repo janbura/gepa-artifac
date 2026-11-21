@@ -1,0 +1,2 @@
+score,cost,input_tokens,output_tokens,
+51.18,0,0,0,

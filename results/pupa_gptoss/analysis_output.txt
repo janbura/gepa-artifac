@@ -1,0 +1,69 @@
+1. per-example rebuild (must reproduce the reported score)
+  Baseline   seed 0: lines 221, block 221+0, foreign 0 (late optimizer answers 0), extra 0 (of train/val copies: []), None 0, copies with different scores 0, rebuilt 85.94, reported 85.94 -> OK
+  MIPROv2    seed 0: lines 2346, block 221+1, foreign 0 (late optimizer answers 0), extra 1 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 90.62, reported 90.62 -> OK
+  GEPA       seed 0: lines 2863, block 221+3, foreign 3 (late optimizer answers 3), extra 0 (of train/val copies: []), None 0, copies with different scores 2, rebuilt 92.86, reported 92.86 -> MISMATCH
+  GEPA+Merge seed 0: lines 2896, block 221+3, foreign 3 (late optimizer answers 3), extra 0 (of train/val copies: []), None 0, copies with different scores 2, rebuilt 91.41, reported 91.41 -> MISMATCH
+  Baseline   seed 1: lines 222, block 221+1, foreign 0 (late optimizer answers 0), extra 1 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 85.93, reported 85.93 -> OK
+  MIPROv2    seed 1: lines 2335, block 221+0, foreign 0 (late optimizer answers 0), extra 0 (of train/val copies: []), None 0, copies with different scores 0, rebuilt 90.80, reported 90.80 -> OK
+  GEPA       seed 1: lines 2961, block 221+3, foreign 2 (late optimizer answers 2), extra 1 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 90.73, reported 90.73 -> MISMATCH
+  GEPA+Merge seed 1: lines 2963, block 221+3, foreign 3 (late optimizer answers 3), extra 0 (of train/val copies: []), None 0, copies with different scores 0, rebuilt 94.37, reported 94.37 -> MISMATCH
+  Baseline   seed 2: lines 222, block 221+1, foreign 0 (late optimizer answers 0), extra 1 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 86.79, reported 86.79 -> OK
+  MIPROv2    seed 2: lines 2360, block 221+1, foreign 1 (late optimizer answers 1), extra 0 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 83.79, reported 83.79 -> MISMATCH
+  GEPA       seed 2: lines 2972, block 221+2, foreign 2 (late optimizer answers 2), extra 0 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 93.53, reported 93.53 -> MISMATCH
+  GEPA+Merge seed 2: lines 2783, block 221+3, foreign 3 (late optimizer answers 3), extra 0 (of train/val copies: []), None 0, copies with different scores 1, rebuilt 89.83, reported 89.83 -> MISMATCH
+  check fixed at 20:45: failed in 7 of 12 runs; changed check (deviation of 22:08): failed in 0 of 12 runs
+
+2. mean +- SD over seeds (reported scores); without ‡ = MIPROv2 seed 0 left out
+  Baseline   85.94 / 85.93 / 86.79  mean 86.22 +- 0.49
+  MIPROv2    90.62 / 90.80 / 83.79  mean 88.40 +- 4.00   without ‡: 87.30 +- 4.96
+  GEPA       92.86 / 90.73 / 93.53  mean 92.37 +- 1.46
+  GEPA+Merge 91.41 / 94.37 / 89.83  mean 91.87 +- 2.30
+
+   the paper's claims: mean of the per-seed differences +- their SD; holds in direction if the sign matches
+  GEPA - Baseline        per seed +6.92 / +4.80 / +6.74  mean +6.15 +- 1.18   paper +11.03   holds
+  GEPA - MIPROv2         per seed +2.24 / -0.07 / +9.74  mean +3.97 +- 5.13   paper +10.30   holds
+  GEPA - MIPROv2         (no ‡) per seed -0.07 / +9.74  mean +4.84 +- 6.94   paper +10.30   holds
+  GEPA+Merge - GEPA      per seed -1.45 / +3.64 / -3.70  mean -0.50 +- 3.76   paper -5.59   holds
+
+the check fixed at 20:45 failed; the paired analysis below runs under the changed check (plan 2.10, deviation of 2026-11-15 22:08, user's OK)
+
+3/4. all 221 test examples (221 positions)
+  GEPA - Baseline        mean d +6.16  95% CI [+3.90, +8.45]  A better on 34 %, B better on 15 % of positions
+  GEPA - MIPROv2         mean d +3.97  95% CI [+2.16, +5.79]  A better on 29 %, B better on 15 % of positions
+  GEPA - MIPROv2         (no ‡) mean d +4.83  95% CI [+2.39, +7.34]  A better on 27 %, B better on 13 % of positions
+  GEPA+Merge - GEPA      mean d -0.50  95% CI [-2.19, +1.18]  A better on 21 %, B better on 23 % of positions
+  GEPA+Merge - Baseline  mean d +5.65  95% CI [+3.38, +7.95]  A better on 33 %, B better on 15 % of positions
+  GEPA+Merge - MIPROv2   mean d +3.47  95% CI [+1.55, +5.42]  A better on 32 %, B better on 18 % of positions
+  GEPA+Merge - MIPROv2   (no ‡) mean d +4.80  95% CI [+2.47, +7.19]  A better on 29 %, B better on 14 % of positions
+  MIPROv2 - Baseline     mean d +2.19  95% CI [+0.29, +4.08]  A better on 28 %, B better on 18 % of positions
+  MIPROv2 - Baseline     (no ‡) mean d +0.94  95% CI [-1.50, +3.37]  A better on 24 %, B better on 19 % of positions
+
+3/4. exploratory: without the 25 copies of train/val rows (196 positions)
+  cell Baseline   86.10 / 86.17 / 87.40  mean 86.56 +- 0.73
+  cell MIPROv2    90.53 / 90.39 / 84.28  mean 88.40 +- 3.57
+  cell GEPA       93.56 / 90.23 / 93.43  mean 92.41 +- 1.89
+  cell GEPA+Merge 92.10 / 93.99 / 89.89  mean 91.99 +- 2.05
+  GEPA - Baseline        mean d +5.85  95% CI [+3.45, +8.26]  A better on 34 %, B better on 16 % of positions
+  GEPA - MIPROv2         mean d +4.01  95% CI [+2.08, +6.09]  A better on 29 %, B better on 16 % of positions
+  GEPA - MIPROv2         (no ‡) mean d +4.49  95% CI [+1.88, +7.26]  A better on 26 %, B better on 14 % of positions
+  GEPA+Merge - GEPA      mean d -0.41  95% CI [-2.28, +1.40]  A better on 22 %, B better on 23 % of positions
+  GEPA+Merge - Baseline  mean d +5.44  95% CI [+3.00, +7.89]  A better on 33 %, B better on 17 % of positions
+  GEPA+Merge - MIPROv2   mean d +3.60  95% CI [+1.57, +5.68]  A better on 32 %, B better on 18 % of positions
+  GEPA+Merge - MIPROv2   (no ‡) mean d +4.61  95% CI [+2.15, +7.14]  A better on 29 %, B better on 15 % of positions
+  MIPROv2 - Baseline     mean d +1.84  95% CI [-0.07, +3.76]  A better on 27 %, B better on 17 % of positions
+  MIPROv2 - Baseline     (no ‡) mean d +0.55  95% CI [-1.92, +2.96]  A better on 22 %, B better on 19 % of positions
+
+3/4. exploratory: without the 43 query overlaps (178 positions)
+  cell Baseline   85.76 / 86.10 / 87.24  mean 86.37 +- 0.78
+  cell MIPROv2    90.55 / 90.26 / 83.53  mean 88.12 +- 3.97
+  cell GEPA       93.19 / 90.82 / 93.48  mean 92.50 +- 1.46
+  cell GEPA+Merge 92.49 / 94.22 / 89.74  mean 92.15 +- 2.26
+  GEPA - Baseline        mean d +6.13  95% CI [+3.63, +8.74]  A better on 34 %, B better on 15 % of positions
+  GEPA - MIPROv2         mean d +4.38  95% CI [+2.24, +6.54]  A better on 29 %, B better on 14 % of positions
+  GEPA - MIPROv2         (no ‡) mean d +5.25  95% CI [+2.45, +8.13]  A better on 28 %, B better on 12 % of positions
+  GEPA+Merge - GEPA      mean d -0.35  95% CI [-2.30, +1.62]  A better on 21 %, B better on 22 % of positions
+  GEPA+Merge - Baseline  mean d +5.78  95% CI [+3.18, +8.39]  A better on 33 %, B better on 16 % of positions
+  GEPA+Merge - MIPROv2   mean d +4.03  95% CI [+1.92, +6.25]  A better on 33 %, B better on 17 % of positions
+  GEPA+Merge - MIPROv2   (no ‡) mean d +5.08  95% CI [+2.53, +7.77]  A better on 30 %, B better on 14 % of positions
+  MIPROv2 - Baseline     mean d +1.75  95% CI [-0.31, +3.82]  A better on 26 %, B better on 18 % of positions
+  MIPROv2 - Baseline     (no ‡) mean d +0.23  95% CI [-2.39, +2.87]  A better on 21 %, B better on 20 % of positions

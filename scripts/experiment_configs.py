@@ -187,6 +187,25 @@ def get_optimizers():
                 name="GRPO",
             )
         ),
+        # BeamSearch(N=4) of the paper's Table 3. Not in the released code: written for the reproduction,
+        # same settings as Abl-SelectBestCandidate except the parent selection (gepa.py, beam_size).
+        # Added at the end so the index of every other optimizer stays the same.
+        (
+            "Abl-BeamSearch",
+            OptimizerConfig(
+                optimizer=GEPA,
+                init_args=dict(run_linearized_gepa=True, use_merge=False, set_for_merge_minibatch='val', track_scores_on='val', beam_size=4),
+                compile_args=dict(),
+                langProBe_configs=dict(
+                    use_valset=True,
+                    add_max_metric_calls=True,
+                    max_metric_calls_source_opt_name="MIPROv2-Heavy",
+                    launch_arbor=True,
+                    use_cache_from_opt="MIPROv2-Heavy",
+                ),
+                name="Abl-BeamSearch",
+            )
+        ),
     ]
 
     return optimizers

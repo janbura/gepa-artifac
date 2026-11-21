@@ -1,0 +1,114 @@
+====================================================================================================
+HotpotQABench_HotpotMultiHop_GRPO_qwen3-8b
+rows: train 23824 val 7758 test 0 | stderr: per-step Evaluate 500, val Evaluate 26, test Evaluate (0.0, 300), val scores 26
+validation passes: 26; rows per pass: [299, 296, 298, 298, 300, 300, 300, 297, 298, 298, 297, 298, 297, 299, 299, 297, 299, 297, 302, 300, 297, 300, 299, 297, 298, 298]
+Evaluate sum minus logged sum (first row per idx), per pass: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+val score check (Evaluate sum / N *100 vs logged 'score' line): True
+overlap idx (val examples filed under train): []
+train rows logged during evaluations (excluded): 5; by idx: [(127, 3), (101, 1), (79, 1)]
+[greedy segmentation] steps 500; windows with != 20 steps: {}; late rows 729; share size>=2 (1972, 64.5); size==12 (1773, 66.05)
+[DP segmentation] steps 500; stray rows dropped 51; windows with cost > 30: {w: c for w, c in wcost.items() if c > 30} -> {}
+   slots per step: {4: 499, 5: 1}; rows/step top: [(48, 362), (47, 77), (46, 21), (49, 13), (45, 5), (50, 5)]
+   per-step logged sum == stderr Evaluate sum: 371/500; among steps with 48 kept rows & 4 slots: 366/373; logged sum >= Evaluate sum: 496/500
+[claim2] M1 (DP step segmentation): groups 1999, size hist {3: 5, 4: 4, 5: 2, 7: 4, 8: 3, 9: 2, 10: 18, 11: 107, 12: 1828, 13: 21, 14: 2, 15: 1, 24: 2}
+[claim2] M1 share all-identical: size>=2 (1999, 64.18); size==12 (1828, 66.36); first 12 of size>=12 (1854, 66.18); size>=6 (1988, 64.29); size 10-14 (1976, 64.47)
+[claim2] M1 clean steps only (4 groups x 12 rows): (1476, 66.73); clean and sum == stderr Evaluate: (1460, 66.92)
+[claim2] M2 per-idx clusters gap>60: groups 1995; size>=2 (1995, 64.26); size==12 (1830, 66.28)
+[claim2] M2 per-idx clusters gap>200: groups 1982; size>=2 (1982, 64.38); size==12 (1806, 66.56)
+[claim2] M2 per-idx clusters gap>400: groups 1942; size>=2 (1942, 64.26); size==12 (1729, 66.63)
+[claim2] M5 (train_counter//48, idx) on all train rows: groups 3534; size>=1 (3534, 74.11); size>=2 (3293, 72.21); size==12 (427, 65.11)
+[claim3] stderr per-step Evaluate (X/48, failures counted): first50 43.67 last50 52.67
+[claim9] stderr per-step Evaluate, 100-step blocks: [45.02, 47.38, 50.85, 49.38, 51.67]
+[claim3] metric-log rows by segmented step: first50 45.14 last50 54.19
+[claim9] metric-log rows by segmented step, 100-step blocks: [46.85, 48.9, 52.24, 51.05, 53.27]
+[claim3] position-based (first/last 2400 training-phase rows): 45.12 / 53.96
+[claim9] validation (logged scores) per 100-step block: [47.66, 48.6, 49.4, 48.73, 47.4]; before training 46.67
+[claim6] passes 0-4 vs 21-25: n=287 first5 48.50 last5 48.64
+[claim6] passes 1-5 vs 21-25: n=287 first5 49.06 last5 48.64
+[claim6-alt] no common-set restriction, mean of pass means: first5 47.42 last5 47.65
+====================================================================================================
+hoverBench_HoverMultiHop_GRPO_qwen3-8b
+rows: train 23978 val 7759 test 300 | stderr: per-step Evaluate 500, val Evaluate 26, test Evaluate (116.0, 300), val scores 26
+validation passes: 26; rows per pass: [299, 299, 299, 298, 298, 298, 299, 299, 299, 298, 299, 299, 299, 297, 299, 299, 297, 298, 298, 297, 298, 298, 298, 299, 299, 299]
+Evaluate sum minus logged sum (first row per idx), per pass: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 0.0]
+val score check (Evaluate sum / N *100 vs logged 'score' line): True
+overlap idx (val examples filed under train): [107]
+train rows logged during evaluations (excluded): 26; by idx: [(107, 26)]
+[greedy segmentation] steps 500; windows with != 20 steps: {}; late rows 766; share size>=2 (1959, 56.87); size==12 (1873, 56.54)
+[DP segmentation] steps 500; stray rows dropped 0; windows with cost > 30: {w: c for w, c in wcost.items() if c > 30} -> {}
+   slots per step: {4: 500}; rows/step top: [(48, 456), (47, 40), (46, 4)]
+   per-step logged sum == stderr Evaluate sum: 457/500; among steps with 48 kept rows & 4 slots: 456/456; logged sum >= Evaluate sum: 500/500
+[claim2] M1 (DP step segmentation): groups 1998, size hist {10: 2, 11: 44, 12: 1950, 24: 2}
+[claim2] M1 share all-identical: size>=2 (1998, 56.46); size==12 (1950, 56.56); first 12 of size>=12 (1952, 56.51); size>=6 (1998, 56.46); size 10-14 (1996, 56.51)
+[claim2] M1 clean steps only (4 groups x 12 rows): (1820, 56.15); clean and sum == stderr Evaluate: (1820, 56.15)
+[claim2] M2 per-idx clusters gap>60: groups 1993; size>=2 (1993, 56.35); size==12 (1941, 56.47)
+[claim2] M2 per-idx clusters gap>200: groups 1978; size>=2 (1978, 56.32); size==12 (1913, 56.46)
+[claim2] M2 per-idx clusters gap>400: groups 1939; size>=2 (1939, 56.11); size==12 (1837, 56.23)
+[claim2] M5 (train_counter//48, idx) on all train rows: groups 3249; size>=1 (3249, 68.82); size>=2 (2774, 63.48); size==12 (752, 59.84)
+[claim3] stderr per-step Evaluate (X/48, failures counted): first50 39.75 last50 43.88
+[claim9] stderr per-step Evaluate, 100-step blocks: [40.83, 40.0, 42.02, 42.15, 42.48]
+[claim3] metric-log rows by segmented step: first50 39.82 last50 44.18
+[claim9] metric-log rows by segmented step, 100-step blocks: [40.87, 40.18, 42.26, 42.74, 42.84]
+[claim3] position-based (first/last 2400 training-phase rows): 39.83 / 44.21
+[claim9] validation (logged scores) per 100-step block: [35.93, 36.13, 36.07, 36.47, 36.47]; before training 35.33
+[claim6] passes 0-4 vs 21-25: n=295 first5 36.00 last5 37.02
+[claim6] passes 1-5 vs 21-25: n=294 first5 36.60 last5 37.14
+[claim6-alt] no common-set restriction, mean of pass means: first5 35.70 last5 36.57
+test.jsonl: rows 300, distinct idx 300, sum 116.0000
+====================================================================================================
+IFBench_IFBenchCoT2StageProgram_GRPO_qwen3-8b
+rows: train 23113 val 7579 test 0 | stderr: per-step Evaluate 500, val Evaluate 26, test Evaluate (0.0, 294), val scores 26
+validation passes: 26; rows per pass: [290, 292, 285, 295, 288, 290, 290, 287, 289, 290, 292, 292, 294, 293, 290, 293, 296, 296, 289, 286, 292, 294, 293, 294, 293, 296]
+Evaluate sum minus logged sum (first row per idx), per pass: [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]
+val score check (Evaluate sum / N *100 vs logged 'score' line): True
+overlap idx (val examples filed under train): []
+train rows logged during evaluations (excluded): 12; by idx: [(57, 4), (138, 3), (148, 2), (38, 1), (35, 1), (139, 1)]
+[greedy segmentation] steps 500; windows with != 20 steps: {}; late rows 872; share size>=2 (1969, 74.2); size==12 (1551, 78.85)
+[DP segmentation] steps 500; stray rows dropped 185; windows with cost > 30: {w: c for w, c in wcost.items() if c > 30} -> {}
+   slots per step: {4: 492, 5: 8}; rows/step top: [(48, 192), (47, 59), (49, 40), (46, 37), (45, 30), (44, 23)]
+   per-step logged sum == stderr Evaluate sum: 224/500; among steps with 48 kept rows & 4 slots: 221/228; logged sum >= Evaluate sum: 490/500
+[claim2] M1 (DP step segmentation): groups 2006, size hist {3: 29, 4: 15, 5: 22, 6: 13, 7: 26, 8: 24, 9: 37, 10: 54, 11: 139, 12: 1628, 13: 16, 14: 1, 23: 1, 24: 1}
+[claim2] M1 share all-identical: size>=2 (2006, 74.23); size==12 (1628, 79.48); first 12 of size>=12 (1647, 79.3); size>=6 (1940, 74.85); size 10-14 (1838, 77.04)
+[claim2] M1 clean steps only (4 groups x 12 rows): (908, 80.07); clean and sum == stderr Evaluate: (884, 80.09)
+[claim2] M2 per-idx clusters gap>60: groups 1993; size>=2 (1986, 74.02); size==12 (1616, 80.2)
+[claim2] M2 per-idx clusters gap>200: groups 1979; size>=2 (1973, 74.1); size==12 (1597, 80.28)
+[claim2] M2 per-idx clusters gap>400: groups 1937; size>=2 (1931, 73.9); size==12 (1523, 80.17)
+[claim2] M5 (train_counter//48, idx) on all train rows: groups 3405; size>=1 (3405, 81.76); size>=2 (3123, 80.12); size==12 (504, 77.78)
+[claim3] stderr per-step Evaluate (X/48, failures counted): first50 70.36 last50 72.65
+[claim9] stderr per-step Evaluate, 100-step blocks: [69.24, 73.46, 71.36, 73.09, 73.61]
+[claim3] metric-log rows by segmented step: first50 78.83 last50 78.27
+[claim9] metric-log rows by segmented step, 100-step blocks: [78.05, 80.3, 79.48, 80.85, 78.87]
+[claim3] position-based (first/last 2400 training-phase rows): 78.97 / 78.06
+[claim9] validation (logged scores) per 100-step block: [57.13, 58.44, 59.38, 60.03, 60.49]; before training 57.0
+[claim6] passes 0-4 vs 21-25: n=265 first5 59.33 last5 62.45
+[claim6] passes 1-5 vs 21-25: n=264 first5 60.39 last5 62.68
+[claim6-alt] no common-set restriction, mean of pass means: first5 58.70 last5 62.03
+====================================================================================================
+Papillon_PAPILLON_GRPO_qwen3-8b
+rows: train 24281 val 2642 test 196 | stderr: per-step Evaluate 500, val Evaluate 26, test Evaluate (191.5260642135642, 221), val scores 26
+validation passes: 26; rows per pass: [101, 101, 101, 101, 101, 102, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101, 101]
+Evaluate sum minus logged sum (first row per idx), per pass: [13.1667, 10.1667, 13.1667, 13.0833, 13.0, 12.6667, 11.6667, 13.6667, 12.0, 13.6667, 12.4167, 12.5, 12.5, 11.0238, 13.6667, 13.1667, 13.1667, 12.4167, 12.1667, 12.1667, 12.0, 12.6667, 12.1667, 12.0, 12.6667, 12.5]
+val score check (Evaluate sum / N *100 vs logged 'score' line): True
+overlap idx (val examples filed under train): [12, 15, 21, 40, 54, 67, 80, 90, 98, 105]
+train rows logged during evaluations (excluded): 281; by idx: [(80, 30), (90, 29), (15, 28), (54, 28), (21, 27), (105, 27), (12, 26), (67, 26), (98, 26), (40, 26), (33, 1), (104, 1)]
+[greedy segmentation] steps 499; windows with != 20 steps: {22: 19}; late rows 2627; share size>=2 (1893, 32.17); size==12 (1643, 30.68)
+[DP segmentation] steps 500; stray rows dropped 9; windows with cost > 30: {w: c for w, c in wcost.items() if c > 30} -> {}
+   slots per step: {4: 500}; rows/step top: [(48, 487), (47, 6), (49, 4), (50, 2), (46, 1)]
+   per-step logged sum == stderr Evaluate sum: 493/500; among steps with 48 kept rows & 4 slots: 493/493; logged sum >= Evaluate sum: 493/500
+[claim2] M1 (DP step segmentation): groups 1994, size hist {10: 2, 11: 5, 12: 1981, 24: 6}
+[claim2] M1 share all-identical: size>=2 (1994, 29.24); size==12 (1981, 29.13); first 12 of size>=12 (1987, 29.19); size>=6 (1994, 29.24); size 10-14 (1988, 29.23)
+[claim2] M1 clean steps only (4 groups x 12 rows): (1948, 29.31); clean and sum == stderr Evaluate: (1948, 29.31)
+[claim2] M2 per-idx clusters gap>60: groups 1971; size>=2 (1970, 29.09); size==12 (1927, 29.11)
+[claim2] M2 per-idx clusters gap>200: groups 1923; size>=2 (1923, 28.39); size==12 (1835, 28.28)
+[claim2] M2 per-idx clusters gap>400: groups 1814; size>=2 (1814, 27.56); size==12 (1625, 27.69)
+[claim2] M5 (train_counter//48, idx) on all train rows: groups 3696; size>=1 (3696, 48.11); size>=2 (3209, 40.23); size==12 (545, 33.94)
+[claim3] stderr per-step Evaluate (X/48, failures counted): first50 84.43 last50 89.72
+[claim9] stderr per-step Evaluate, 100-step blocks: [84.13, 85.97, 88.07, 87.01, 89.51]
+[claim3] metric-log rows by segmented step: first50 84.44 last50 89.72
+[claim9] metric-log rows by segmented step, 100-step blocks: [84.13, 85.98, 88.07, 87.01, 89.51]
+[claim3] position-based (first/last 2400 training-phase rows): 84.45 / 89.72
+[claim9] validation (logged scores) per 100-step block: [81.47, 84.09, 84.25, 82.46, 83.55]; before training 78.92
+[claim6] passes 0-4 vs 21-25: n=96 first5 80.18 last5 83.69
+[claim6] passes 1-5 vs 21-25: n=96 first5 81.27 last5 83.69
+[claim6-alt] no common-set restriction, mean of pass means: first5 80.18 last5 83.69
+test.jsonl: rows 196, distinct idx 185, sum 170.0261

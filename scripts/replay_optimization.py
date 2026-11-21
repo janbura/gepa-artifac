@@ -88,6 +88,7 @@ def main():
     env = dict(os.environ)
     env["GEPA_EXPERIMENT_DIR"] = replay_dir
     env["GEPA_USE_WANDB"] = "0"
+    env["GEPA_REPLAY_CACHE"] = "1"  # keep the cache keys the same as in the shipped runs
     env.setdefault("OPENAI_API_KEY", "not-a-real-key")
 
     print(" ".join(cmd))
