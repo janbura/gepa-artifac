@@ -1,0 +1,2 @@
+| 29549310 | 2026-11-21 19:05:58 | CHECK | tab3-pupa-s0, state FAILED, partition gpu_h100, node gcn127, 2026-11-21T13:55:45 to 2026-11-21T18:09:36, elapsed 04:13:51, SBU 1625 |  Papillon_Abl-SelectBestCandidate  s 0 = NO RESULT ;  Papillon_Abl-BeamSearch  s 0 = NO RESULT ;  |
+| 29549314 | 2026-11-21 19:37:09 | OK | tab3-pupa-s1, state COMPLETED, partition gpu_h100, node gcn120, 2026-11-21T13:56:47 to 2026-11-21T19:33:33, elapsed 05:36:46, SBU 2155 |  Papillon_Abl-SelectBestCandidate  s 1 = 92.64 ;  Papillon_Abl-BeamSearch  s 1 = 93.41 ;  |
