@@ -545,6 +545,11 @@ One row per job; add new rows at the bottom.
 | 2026-11-21 | B | 29535018 / 29535026 | HoVer | Table 3: seeds 0, 1 (limit 10 h) | `6a36b63` | cancelled by Slurm (smoke test failed) | 0 | – | afterok on 29535007; seed 2 waits for the budget rule |
 | 2026-11-21 | B | 29535019 / 29535027 | IFBench | Table 3: seeds 0, 1 (limit 11 h) | `6a36b63` | cancelled by Slurm (smoke test failed) | 0 | – | afterok on 29535007; seed 2 waits for the budget rule |
 | 2026-11-21 | B | 29535024 / 29535028 | PUPA (§2.10) | Table 3: seeds 0, 1 (2 H100, limit 6 h) | `7f658a3` | cancelled by Slurm (smoke test failed) | 0 | – | afterok on 29535007; seed 2 waits for the budget rule |
+| 2026-11-21 | B | 29549303 | HotpotQA | Table 3 smoke test, third attempt: as 29535007 with the fix of F110 | `7dfeb31` (= `6a36b63` + F110 fix, same as 8d1e0aa) | running | – | – | submitted 12:56 when no job of the user's other project was queued |
+| 2026-11-21 | B | 29549306 / 29549311 / 29549315 | HotpotQA | Table 3: Abl-SelectBestCandidate + Abl-BeamSearch seeds 0, 1, 2 (`smeczynski1`, limit 10 h) | `7dfeb31` | waiting for the smoke test | – | – | afterok on 29549303 |
+| 2026-11-21 | B | 29549307 / 29549312 | HoVer | Table 3: seeds 0, 1 (limit 10 h) | `7dfeb31` | waiting for the smoke test | – | – | afterok on 29549303; seed 2 waits for the budget rule |
+| 2026-11-21 | B | 29549308 / 29549313 | IFBench | Table 3: seeds 0, 1 (limit 11 h) | `7dfeb31` | waiting for the smoke test | – | – | afterok on 29549303; seed 2 waits for the budget rule |
+| 2026-11-21 | B | 29549310 / 29549314 | PUPA (§2.10) | Table 3: seeds 0, 1 (2 H100, limit 6 h) | `b469a81` (= `7f658a3` + F110 fix, same as f42b8cb) | waiting for the smoke test | – | – | afterok on 29549303; seed 2 waits for the budget rule |
 
 ---
 
