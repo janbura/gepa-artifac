@@ -982,6 +982,15 @@ Findings from the code, the forks (`gepa_study` branches), the paper, the author
   - So the hang does not need the panics. In both failures the server stopped answering after 3 h 40 min to 4 h of serving the runs. The seed-1 job ran 5 h 37 min without a hang. The 12 PUPA runs of §2.10 had none either; they ran on `scur0934` with an environment rebuilt from the same package list.
   - The cause is not known. Two of the three PUPA jobs on `smeczynski1` hung.
   → The user stopped PUPA at seed 1 (§2.14 addendum of 2026-11-22 10:06).
+  - **Cause found (2026-11-22, on the user's request; `results/checks/F112_freeze_cause_2026-11-22.md`). It supersedes "the cause is not known" above.**
+    - Qwen wrote about 1,000,000 dashes. In both failed jobs, some Qwen answers repeat `-` in a markdown table separator (`|---|`) up to the 16,384-token limit. 29549310 has 4 such answers and 29572300 has 2; the seed-1 job has none (its longest run of one character is 111).
+    - The gpt-oss tokenizer (openai-harmony 0.0.8, the newest release) cannot handle that text:
+      - A run longer than about 1,000,000 characters fails at once with `RuntimeError(StackOverflow)`. These are the 21 panics: 20 of them came within a minute after the two answers with such runs.
+      - A run just under that size takes a time that grows with the square of its length. On a laptop CPU, 320,000 dashes take 44–46 s, and 999,000 dashes take 7.8–8.3 min (two runs) before they tokenize normally (15,616 tokens). During that time the server answers nothing.
+    - The million-dash answers are PAPILLON's final responses (output `response` of the second module). They reach gpt-oss in the quality judge, which is called twice per example, with the two responses in swapped order. So one such answer stalls the server twice.
+    - Both stops began with an answer just under that size (999,616 and 996,864 dashes). They came 214 s and 244 s later, which is the time the external watchdog needs for 3 failed health checks.
+    - So the watchdog stopped the job while gpt-oss was still tokenizing. The cause is the text Qwen wrote, not the account, node or GPU. The guess above (regex overflow on a long repetition written by Qwen) was right.
+    - Reproduced on a CPU with openai-harmony 0.0.8: the render path fails at the server's line (`src/tiktoken.rs:227:29`). Scripts: `analysis/f112_scan_responses.py`, `analysis/f112_tokenizer_timing.py`.
 - **F113. NLTK's lazy corpus loader is not thread-safe, so the IFBench metric can fail on one example (found 2026-11-21, Table 3 IFBench seed 0, job 29549308).**
   - In SelectBestCandidate's final test evaluation, which runs in threads, the metric of test example 133 raised `AttributeError: 'WordListCorpusReader' object has no attribute '_LazyCorpusLoader__args'`. The call was `nltk.corpus.stopwords.words('english')` in `count_stopwords` (`instructions_util.py:1641`).
   - DSPy's Evaluate scored that example as a failure (0), and the metric logger wrote no line for it.

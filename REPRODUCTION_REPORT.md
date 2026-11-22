@@ -407,8 +407,12 @@ mean over HotpotQA, IFBench and HoVer, with its 95 % interval.
 - **Counted without a mark.** In IFBench BeamSearch seed 2, the authors' `AlphabetLoopChecker` raised an error on one
   test example (F114). That example scored 0, as it would in the authors' code. The effect is at most 0.34 points.
 - **Void.** Both PUPA seed-0 jobs: the gpt-oss server stopped answering, after about 4 h and after 3 h 40 min (F112).
-  - The first time, it logged 21 internal panics before it stopped. The second time it logged no error at all. The
-    cause is not known.
+  - The first time, it logged 21 internal panics before it stopped. The second time it logged no error at all.
+  - **Cause (found afterwards, F112).** Qwen sometimes repeats `-` in a markdown table up to its token limit, which
+    gives about 1,000,000 dashes. gpt-oss's tokenizer (openai-harmony 0.0.8) fails at once on runs above about
+    1,000,000 characters; those are the panics. On runs just under that size it needs about 8 minutes (999,000
+    dashes on a laptop CPU), and meanwhile the server answers nothing. Our watchdog then stopped the job after about
+    4 minutes, while gpt-oss was still tokenizing. The seed-1 job wrote no such text.
   - After the second failure the user stopped PUPA at seed 1 (2026-11-22). PUPA seed 2 was not run.
 - **Before any result.**
   - Two smoke tests failed: one at the server start, because Arbor waits a fixed 300 s for vLLM (F111), and one
@@ -520,9 +524,12 @@ We kept these, because the authors ran the same code (F71):
 - **Server start.** Arbor gives the vLLM server it launches a fixed 300 s to start. Weight loading plus a fresh
   compile can take longer, for example for two jobs that started together on one node. Then no run starts (F42, F111).
   For later Table 3 jobs we raised the wait to 1,800 s. This bounds only the start-up.
-- **gpt-oss server hangs.** In 2 of the 3 PUPA jobs of Table 3, the gpt-oss-120b server (vLLM 0.11.0) stopped
-  answering after 3 h 40 min to 4 h of serving, once after internal panics and once without any error. The cause is not
-  known (F112).
+- **gpt-oss server stalls on long repeated text.** In 2 of the 3 PUPA jobs of Table 3, the gpt-oss-120b server (vLLM
+  0.11.0) stopped answering, and our watchdog stopped the job (F112). Each stall began with a Qwen answer of about
+  1,000,000 dashes, a markdown table separator repeated up to the token limit. gpt-oss's tokenizer (openai-harmony
+  0.0.8, the newest release) fails at once on runs above about 1,000,000 characters. On runs just under that size it
+  needs a time that grows with the square of the length: about 8 minutes for 999,000 dashes on a laptop CPU. The
+  server answers nothing meanwhile (`results/checks/F112_freeze_cause_2026-11-22.md`).
 - **MIPROv2 failure modes.** A MIPROv2 run can silently return the Baseline, and one failed proposal call aborts it
   (F77).
 - **Speed.** The authors served Qwen3-8B with tensor parallelism over 4 GPUs. On one A100 our runs were about 3.4×
