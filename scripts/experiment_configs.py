@@ -225,6 +225,25 @@ def get_optimizers():
                 name="GEPA-SubVal100",
             )
         ),
+        # Extension E2: GEPA-SubVal100 plus the staged acceptance gate (gepa.py, val_gate_size). A child is
+        # first scored on 50 of the 100 search val examples and discarded if it trails its parent there by
+        # more than 1 example. Added at the end so the index of every other optimizer stays the same.
+        (
+            "GEPA-SubVal100-Gate",
+            OptimizerConfig(
+                optimizer=GEPA,
+                init_args=dict(run_linearized_gepa=False, use_merge=False, set_for_merge_minibatch='val', track_scores_on='val', search_val_size=100, final_race_top_k=5, val_gate_size=50, val_gate_tolerance=1),
+                compile_args=dict(),
+                langProBe_configs=dict(
+                    use_valset=True,
+                    add_max_metric_calls=True,
+                    max_metric_calls_source_opt_name="MIPROv2-Heavy",
+                    launch_arbor=True,
+                    use_cache_from_opt="MIPROv2-Heavy",
+                ),
+                name="GEPA-SubVal100-Gate",
+            )
+        ),
     ]
 
     return optimizers

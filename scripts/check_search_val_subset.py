@@ -156,10 +156,10 @@ try:
 finally:
     gepa_module.dspy.Evaluate = real_evaluate
 
-# 7. optimizer list: every earlier entry keeps its index, GEPA-SubVal100 is last and differs from GEPA only
+# 7. optimizer list: every earlier entry keeps its index, GEPA-SubVal100 follows them and differs from GEPA only
 #    by the two new arguments; GEPA itself has neither
 names = [name for name, _ in get_optimizers()]
-assert names == ["Baseline", "MIPROv2-Heavy", "GEPA-MERGE", "GEPA", "Abl-SelectBestCandidate", "GRPO", "Abl-BeamSearch", "GEPA-SubVal100"], names
+assert names[:8] == ["Baseline", "MIPROv2-Heavy", "GEPA-MERGE", "GEPA", "Abl-SelectBestCandidate", "GRPO", "Abl-BeamSearch", "GEPA-SubVal100"], names
 cfg = dict(get_optimizers())
 base, sub = cfg["GEPA"], cfg["GEPA-SubVal100"]
 new_args = {"search_val_size": 100, "final_race_top_k": 5}
@@ -167,7 +167,7 @@ assert {k: v for k, v in sub.init_args.items() if k not in new_args} == base.ini
 assert {k: sub.init_args[k] for k in new_args} == new_args and not set(new_args) & set(base.init_args)
 assert sub.langProBe_configs == base.langProBe_configs and sub.compile_args == base.compile_args
 for name, opt in get_optimizers():
-    if opt is not None and opt.optimizer is GEPA and name != "GEPA-SubVal100":
+    if opt is not None and opt.optimizer is GEPA and not name.startswith("GEPA-SubVal100"):
         assert "search_val_size" not in opt.init_args, name
 
 # 8. the new arguments are off by default, and need a metric-call budget and val-only tracking

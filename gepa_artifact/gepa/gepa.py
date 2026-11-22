@@ -61,6 +61,8 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         beam_size: int=None,
         search_val_size: int=None,
         final_race_top_k: int=5,
+        val_gate_size: int=None,
+        val_gate_tolerance: float=1,
     ):
         # Exactly one of max_metric_calls, max_evals_per_trainval_instance or num_iters should be set
         assert (max_metric_calls is not None) + (max_evals_per_trainval_instance is not None) + (num_iters is not None) == 1, "Exactly one of max_metric_calls, max_evals_per_trainval_instance or num_iters should be set. You set max_metric_calls={}, max_evals_per_trainval_instance={}, num_iters={}".format(
@@ -121,6 +123,19 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         self.search_val_size = search_val_size
         self.final_race_top_k = final_race_top_k
 
+        # Staged acceptance gate (extension E2); None keeps the single full val pass.
+        # A child that passed the minibatch test is first scored on a fixed part of the val set (the gate
+        # examples). If it trails its parent there by more than val_gate_tolerance examples, it is discarded
+        # and only the gate examples are counted. Otherwise the rest is scored and the search goes on as before.
+        assert val_gate_size is None or val_gate_size >= 1, "val_gate_size should be None or at least 1"
+        if val_gate_size is not None:
+            assert track_scores_on == 'val', "val_gate_size needs track_scores_on='val'"
+            assert not use_merge, "the val gate is defined for reflective children only, not for merges"
+            assert val_gate_tolerance >= 0, "val_gate_tolerance should not be negative"
+        self.val_gate_size = val_gate_size
+        self.val_gate_tolerance = val_gate_tolerance
+        self.val_gate = None
+
         self.shuffled_trainset_ids = []
         self.epoch = -1
         self.id_freqs = Counter()
@@ -131,6 +146,45 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         ids = list(range(valset_size))
         random.Random(f"search_val_subset:{self.seed}").shuffle(ids)
         return sorted(ids[:self.search_val_size]), sorted(ids[self.search_val_size:])
+
+    def split_valset_for_gate(self, valset_size):
+        # Positions in the val set the search uses; fixed per seed, drawn with its own generator
+        positions = list(range(valset_size))
+        random.Random(f"val_gate:{self.seed}").shuffle(positions)
+        return sorted(positions[:self.val_gate_size]), sorted(positions[self.val_gate_size:])
+
+    def evaluate_val_with_gate(self, new_program, gepa_state, parent_program_idx):
+        # Returns the val evaluation of new_program (score, outputs, subscores, in val set order),
+        # or None if the gate discards it. Counts the gate examples of a discarded child; the caller
+        # counts a full evaluation as before.
+        gate = self.val_gate
+        _, gate_outputs, gate_subscores = gate["gate_evaluator"](new_program)
+        parent_subscores = gepa_state.prog_candidate_val_subscores[parent_program_idx]
+        parent_gate_score = sum(parent_subscores[p] for p in gate["gate_positions"])
+        child_gate_score = sum(gate_subscores)
+        cut = child_gate_score < parent_gate_score - self.val_gate_tolerance
+        gepa_state.full_program_trace[-1]['val_gate'] = {
+            "parent_program_idx": parent_program_idx,
+            "parent_gate_score": float(parent_gate_score),
+            "child_gate_score": float(child_gate_score),
+            "child_gate_subscores": [float(x) for x in gate_subscores],
+            "cut": cut,
+        }
+        if cut:
+            gepa_state.total_num_evals += len(gate_subscores)
+            gepa_state.total_num_evals_per_trainval_instance += len(gate_subscores) / self.train_val_size
+            self.logger.log(f"Iteration {gepa_state.i+1}: Val gate: child {child_gate_score} vs parent {parent_gate_score} on the {len(gate_subscores)} gate examples, trails by more than {self.val_gate_tolerance}: discarded")
+            return None
+        self.logger.log(f"Iteration {gepa_state.i+1}: Val gate: child {child_gate_score} vs parent {parent_gate_score} on the {len(gate_subscores)} gate examples: passed")
+
+        _, rest_outputs, rest_subscores = gate["rest_evaluator"](new_program)
+        size = len(gate["gate_positions"]) + len(gate["rest_positions"])
+        outputs, subscores = [None] * size, [None] * size
+        for p, o, sc in zip(gate["gate_positions"], gate_outputs, gate_subscores):
+            outputs[p], subscores[p] = o, sc
+        for p, o, sc in zip(gate["rest_positions"], rest_outputs, rest_subscores):
+            outputs[p], subscores[p] = o, sc
+        return round(100 * sum(subscores) / size, 2), outputs, subscores
 
     def run_final_race(self, gepa_state, held_out_evaluator, search_ids, held_out_ids):
         # Finalists: the best candidates on the search subset (ties: the older one)
@@ -343,7 +397,8 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         gepa_state: GEPAState,
         trainset_evaluator: dspy.Evaluate,
         valset_evaluator: dspy.Evaluate,
-        parent_program_idx: List[int]
+        parent_program_idx: List[int],
+        valset_eval_output=None,
     ):
         num_metric_calls_by_discovery_of_new_program = gepa_state.total_num_evals
 
@@ -353,7 +408,11 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         else:
             assert self.track_scores_on == 'val', "track_scores_on should be either 'val' or 'train_val'. You set track_scores_on={}".format(self.track_scores_on)
             trainset_score, trainset_outputs, trainset_subscores = None, None, None
-        valset_score, valset_outputs, valset_subscores = valset_evaluator(new_program)
+        if valset_eval_output is not None:
+            # already scored in two stages by the val gate
+            valset_score, valset_outputs, valset_subscores = valset_eval_output
+        else:
+            valset_score, valset_outputs, valset_subscores = valset_evaluator(new_program)
 
         # We have run one full eval of the new program on train set and val set
         gepa_state.num_full_ds_evals += 1
@@ -439,6 +498,26 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
             provide_traceback=True,
             max_errors=len(valset) * 100  # Allow for many errors in the validation set
         )
+
+        self.val_gate = None
+        if self.val_gate_size is not None:
+            assert self.val_gate_size < len(valset), "val_gate_size should be smaller than the val set of the search"
+            gate_positions, rest_positions = self.split_valset_for_gate(len(valset))
+            gate_evaluator_args = dict(
+                metric=self.metric_fn,
+                num_threads=self.num_threads,
+                return_all_scores=True,
+                return_outputs=True,
+                failure_score=self.failure_score,
+                provide_traceback=True,
+            )
+            self.val_gate = {
+                "gate_positions": gate_positions,
+                "rest_positions": rest_positions,
+                "gate_evaluator": dspy.Evaluate(devset=[valset[p] for p in gate_positions], max_errors=len(gate_positions) * 100, **gate_evaluator_args),
+                "rest_evaluator": dspy.Evaluate(devset=[valset[p] for p in rest_positions], max_errors=len(rest_positions) * 100, **gate_evaluator_args),
+            }
+            self.logger.log(f"Val gate: {len(gate_positions)} of {len(valset)} search val examples, tolerance {self.val_gate_tolerance}, positions {gate_positions}")
 
         gepa_state = initialize_gepa_state(
             gepa_state_to_use=gepa_state_to_use,
@@ -711,12 +790,20 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
 
                 self.logger.log(f"Iteration {gepa_state.i+1}: New subsample score is better, going from {subsample_score} to {new_subsample_score}, updating program candidate!")
 
+                valset_eval_output = None
+                if self.val_gate is not None:
+                    valset_eval_output = self.evaluate_val_with_gate(new_program, gepa_state, curr_prog_id)
+                    if valset_eval_output is None:
+                        last_iter_found_new_program = False
+                        continue
+
                 new_program_idx, linear_pareto_front_idx = self.run_full_eval_add_new_program_to_gepa_tree(
                     new_program=new_program,
                     gepa_state=gepa_state,
                     trainset_evaluator=trainset_evaluator,
                     valset_evaluator=valset_evaluator,
-                    parent_program_idx=[curr_prog_id]
+                    parent_program_idx=[curr_prog_id],
+                    valset_eval_output=valset_eval_output,
                 )
 
                 if self.use_merge and total_merges_tested < self.max_merge_invocations:
@@ -727,6 +814,10 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
                 self.logger.log(traceback.format_exc())
                 continue
         
+        if self.val_gate is not None:
+            gated = [t['val_gate'] for t in gepa_state.full_program_trace if 'val_gate' in t]
+            self.logger.log(f"Val gate: {len(gated)} children scored on the gate examples, {sum(g['cut'] for g in gated)} discarded")
+
         gepa_state.save(self.run_dir)
 
         return gepa_state
