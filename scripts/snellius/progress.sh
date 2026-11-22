@@ -36,7 +36,7 @@ for d in $R/seed_*/*; do
         prog="$(tr '\r' '\n' < $d/run_log_stderr.txt | grep -oE 'STEP [0-9]: [A-Z ]+' | tail -1 | sed 's/ *$//')"; guess="? (before the trials)"
       fi
       rm -f /tmp/trials_$$.txt ;;
-    *_GEPA_*|*_GEPA-MERGE_*|*_Abl-SelectBestCandidate_*|*_Abl-BeamSearch_*)
+    *_GEPA_*|*_GEPA-MERGE_*|*_Abl-SelectBestCandidate_*|*_Abl-BeamSearch_*|*_GEPA-SubVal100_*)
       B=$(budget_of $b)
       c=$(( $(cat $d/metric_logs/train.jsonl 2>/dev/null | wc -l) + $(cat $d/metric_logs/val.jsonl 2>/dev/null | wc -l) ))
       it=$(grep -oE "^Iteration [0-9]+:" $d/run_log.txt 2>/dev/null | tail -1 | grep -oE "[0-9]+")

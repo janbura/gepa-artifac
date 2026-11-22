@@ -59,11 +59,11 @@ g, st = fake_gepa(None), fake_state([0.5, 0.7, 0.7, 0.1])
 assert [pick(g, st) for _ in range(3)] == [1, 1, 1]
 assert g.logger.lines == []
 
-# 6. optimizer list: the old entries keep their place, Abl-BeamSearch is last and differs from
-#    Abl-SelectBestCandidate only by beam_size
+# 6. optimizer list: the old entries keep their place, Abl-BeamSearch follows them (later entries come after
+#    it) and differs from Abl-SelectBestCandidate only by beam_size
 names = [name for name, _ in get_optimizers()]
-assert names[-1] == "Abl-BeamSearch", names
-assert names[:-1] == ["Baseline", "MIPROv2-Heavy", "GEPA-MERGE", "GEPA", "Abl-SelectBestCandidate", "GRPO"], names
+assert names[6] == "Abl-BeamSearch", names
+assert names[:6] == ["Baseline", "MIPROv2-Heavy", "GEPA-MERGE", "GEPA", "Abl-SelectBestCandidate", "GRPO"], names
 cfg = dict(get_optimizers())
 sb, bs = cfg["Abl-SelectBestCandidate"], cfg["Abl-BeamSearch"]
 assert {k: v for k, v in bs.init_args.items() if k != "beam_size"} == sb.init_args

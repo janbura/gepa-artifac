@@ -206,6 +206,25 @@ def get_optimizers():
                 name="Abl-BeamSearch",
             )
         ),
+        # Extension E1: GEPA with a search val set of 100 examples and a final race of the 5 best candidates
+        # on the other val examples (gepa.py, search_val_size). Same settings as GEPA otherwise, same budget.
+        # Added at the end so the index of every other optimizer stays the same.
+        (
+            "GEPA-SubVal100",
+            OptimizerConfig(
+                optimizer=GEPA,
+                init_args=dict(run_linearized_gepa=False, use_merge=False, set_for_merge_minibatch='val', track_scores_on='val', search_val_size=100, final_race_top_k=5),
+                compile_args=dict(),
+                langProBe_configs=dict(
+                    use_valset=True,
+                    add_max_metric_calls=True,
+                    max_metric_calls_source_opt_name="MIPROv2-Heavy",
+                    launch_arbor=True,
+                    use_cache_from_opt="MIPROv2-Heavy",
+                ),
+                name="GEPA-SubVal100",
+            )
+        ),
     ]
 
     return optimizers

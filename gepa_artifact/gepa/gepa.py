@@ -59,6 +59,8 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         track_scores_on: Literal['val', 'train_val'] = 'train_val',
         add_format_failure_as_feedback: bool=False,
         beam_size: int=None,
+        search_val_size: int=None,
+        final_race_top_k: int=5,
     ):
         # Exactly one of max_metric_calls, max_evals_per_trainval_instance or num_iters should be set
         assert (max_metric_calls is not None) + (max_evals_per_trainval_instance is not None) + (num_iters is not None) == 1, "Exactly one of max_metric_calls, max_evals_per_trainval_instance or num_iters should be set. You set max_metric_calls={}, max_evals_per_trainval_instance={}, num_iters={}".format(
@@ -107,10 +109,68 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         self.beam_size = beam_size
         self.beam_expansions = Counter()
 
+        # Smaller search val set with a final race (extension E1); None keeps the full val set.
+        # The search scores candidates on a fixed subset of search_val_size val examples. At the end the
+        # final_race_top_k best candidates are scored on the val examples the search never saw, and the
+        # best on the whole val set is returned. The race is paid from max_metric_calls.
+        assert search_val_size is None or search_val_size >= 1, "search_val_size should be None or at least 1"
+        if search_val_size is not None:
+            assert max_metric_calls is not None, "search_val_size needs max_metric_calls: the final race is paid from it"
+            assert track_scores_on == 'val', "search_val_size needs track_scores_on='val'"
+            assert final_race_top_k >= 1, "final_race_top_k should be at least 1"
+        self.search_val_size = search_val_size
+        self.final_race_top_k = final_race_top_k
+
         self.shuffled_trainset_ids = []
         self.epoch = -1
         self.id_freqs = Counter()
         self.gepa_state = None
+
+    def split_valset_for_search(self, valset_size):
+        # Fixed per seed, drawn with its own generator so no other random draw of the run moves
+        ids = list(range(valset_size))
+        random.Random(f"search_val_subset:{self.seed}").shuffle(ids)
+        return sorted(ids[:self.search_val_size]), sorted(ids[self.search_val_size:])
+
+    def run_final_race(self, gepa_state, held_out_evaluator, search_ids, held_out_ids):
+        # Finalists: the best candidates on the search subset (ties: the older one)
+        scores = gepa_state.per_program_tracked_scores
+        ranked = sorted(range(len(scores)), key=lambda i: (-scores[i], i))
+        finalists = ranked[:self.final_race_top_k]
+        self.logger.log(f"Final race: finalists {finalists} with search-subset scores {[scores[i] for i in finalists]}")
+
+        rows = []
+        for rank, idx in enumerate(finalists):
+            _, _, held_out_subscores = held_out_evaluator(gepa_state.program_candidates[idx])
+            gepa_state.total_num_evals += len(held_out_subscores)
+            search_subscores = gepa_state.prog_candidate_val_subscores[idx]
+            assert len(search_subscores) == len(search_ids) and len(held_out_subscores) == len(held_out_ids)
+            total = float(sum(search_subscores)) + float(sum(held_out_subscores))
+            rows.append({
+                "program_idx": idx,
+                "search_rank": rank,
+                "search_score": 100 * float(sum(search_subscores)) / len(search_subscores),
+                "held_out_score": 100 * float(sum(held_out_subscores)) / len(held_out_subscores),
+                "full_val_score": 100 * total / (len(search_subscores) + len(held_out_subscores)),
+                "held_out_subscores": [float(x) for x in held_out_subscores],
+            })
+            self.logger.log(f"Final race: program {idx} search-subset {rows[-1]['search_score']:.2f}, held-out {rows[-1]['held_out_score']:.2f}, full valset {rows[-1]['full_val_score']:.2f}")
+
+        # Winner: best on the whole val set (ties: the better one on the search subset)
+        winner = max(rows, key=lambda r: (r["full_val_score"], -r["search_rank"]))["program_idx"]
+        self.logger.log(f"Final race: returning program {winner}; best on the search subset was program {finalists[0]}; metric calls used: {gepa_state.total_num_evals}")
+        with open(os.path.join(self.run_dir, "final_race.json"), "w") as f:
+            json.dump({
+                "seed": self.seed,
+                "search_val_ids": search_ids,
+                "held_out_val_ids": held_out_ids,
+                "finalists": rows,
+                "search_subset_best_program_idx": finalists[0],
+                "returned_program_idx": winner,
+                "total_num_evals": gepa_state.total_num_evals,
+            }, f, indent=2)
+        gepa_state.save(self.run_dir)
+        return winner
 
     def compile(
         self, student, trainset, valset,
@@ -119,6 +179,9 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
             self.valset_provided = True
         
         assert trainset is not None, "Trainset must be provided"
+
+        if self.search_val_size is not None:
+            return self.compile_with_search_val_subset(student, trainset, valset)
 
         gepa_state = self.gepa(
             base_dspy_program=student,
@@ -129,6 +192,40 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         best_prog_idx = idxmax(gepa_state.per_program_tracked_scores)
         best_prog = gepa_state.program_candidates[best_prog_idx]
         return best_prog
+
+    def compile_with_search_val_subset(self, student, trainset, valset):
+        assert valset is not None and self.search_val_size < len(valset), "search_val_size should be smaller than the val set"
+        search_ids, held_out_ids = self.split_valset_for_search(len(valset))
+        race_calls = self.final_race_top_k * len(held_out_ids)
+        total_calls = self.max_metric_calls
+        assert total_calls - race_calls > len(search_ids), f"max_metric_calls={total_calls} leaves no search budget after the final race ({race_calls} calls)"
+        self.logger.log(f"Search val subset: {len(search_ids)} of {len(valset)} val examples, ids {search_ids}")
+        self.logger.log(f"Search val subset: budget {total_calls} metric calls = {total_calls - race_calls} for the search + {race_calls} for the final race of the top {self.final_race_top_k}")
+
+        # The search loop stops at max_metric_calls, so it gets the budget minus the race
+        self.max_metric_calls = total_calls - race_calls
+        try:
+            gepa_state = self.gepa(
+                base_dspy_program=student,
+                trainset=trainset,
+                valset=[valset[i] for i in search_ids],
+            )
+        finally:
+            self.max_metric_calls = total_calls
+
+        held_out = [valset[i] for i in held_out_ids]
+        held_out_evaluator = dspy.Evaluate(
+            devset=held_out,
+            metric=self.metric_fn,
+            num_threads=self.num_threads,
+            return_all_scores=True,
+            return_outputs=True,
+            failure_score=self.failure_score,
+            provide_traceback=True,
+            max_errors=len(held_out) * 100
+        )
+        best_prog_idx = self.run_final_race(gepa_state, held_out_evaluator, search_ids, held_out_ids)
+        return gepa_state.program_candidates[best_prog_idx]
 
     def update_shuffled_trainset(self, original_trainset):
         self.shuffled_trainset_ids = list(range(len(original_trainset)))
