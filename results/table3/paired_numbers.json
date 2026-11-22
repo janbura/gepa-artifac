@@ -1,0 +1,823 @@
+{
+ "rebuild_largest_gap": 0.004489795918367179,
+ "missing_runs": [
+  [
+   "PUPA",
+   "Abl-SelectBestCandidate",
+   0
+  ],
+  [
+   "PUPA",
+   "Abl-SelectBestCandidate",
+   2
+  ],
+  [
+   "PUPA",
+   "Abl-BeamSearch",
+   0
+  ],
+  [
+   "PUPA",
+   "Abl-BeamSearch",
+   2
+  ]
+ ],
+ "cells": {
+  "HotpotQA Baseline": {
+   "per_seed": {
+    "0": 39.33,
+    "1": 38.0,
+    "2": 39.0
+   },
+   "paper": 42.33
+  },
+  "IFBench Baseline": {
+   "per_seed": {
+    "0": 35.2,
+    "1": 34.18,
+    "2": 34.52
+   },
+   "paper": 36.9
+  },
+  "HoVer Baseline": {
+   "per_seed": {
+    "0": 38.33,
+    "1": 35.33,
+    "2": 37.67
+   },
+   "paper": 35.33
+  },
+  "PUPA Baseline": {
+   "per_seed": {
+    "0": 85.94,
+    "1": 85.93,
+    "2": 86.79
+   },
+   "paper": 80.82
+  },
+  "HotpotQA SelectBestCandidate": {
+   "per_seed": {
+    "0": 57.33,
+    "1": 55.0,
+    "2": 58.0
+   },
+   "paper": 58.33
+  },
+  "IFBench SelectBestCandidate": {
+   "per_seed": {
+    "0": 29.76,
+    "1": 31.46,
+    "2": 28.06
+   },
+   "paper": 30.44
+  },
+  "HoVer SelectBestCandidate": {
+   "per_seed": {
+    "0": 50.33,
+    "1": 47.0,
+    "2": 53.33
+   },
+   "paper": 45.33
+  },
+  "PUPA SelectBestCandidate": {
+   "per_seed": {
+    "1": 92.64
+   },
+   "paper": 85.45
+  },
+  "HotpotQA BeamSearch": {
+   "per_seed": {
+    "0": 53.0,
+    "1": 48.33,
+    "2": 62.0
+   },
+   "paper": 57.33
+  },
+  "IFBench BeamSearch": {
+   "per_seed": {
+    "0": 35.37,
+    "1": 33.33,
+    "2": 38.78
+   },
+   "paper": 36.39
+  },
+  "HoVer BeamSearch": {
+   "per_seed": {
+    "0": 51.33,
+    "1": 53.67,
+    "2": 50.67
+   },
+   "paper": 41.0
+  },
+  "PUPA BeamSearch": {
+   "per_seed": {
+    "1": 93.41
+   },
+   "paper": 81.08
+  },
+  "HotpotQA GEPA": {
+   "per_seed": {
+    "0": 62.33,
+    "1": 57.33,
+    "2": 61.67
+   },
+   "paper": 62.33
+  },
+  "IFBench GEPA": {
+   "per_seed": {
+    "0": 33.67,
+    "1": 31.29,
+    "2": 34.01
+   },
+   "paper": 38.61
+  },
+  "HoVer GEPA": {
+   "per_seed": {
+    "0": 48.67,
+    "1": 51.0,
+    "2": 53.33
+   },
+   "paper": 52.33
+  },
+  "PUPA GEPA": {
+   "per_seed": {
+    "0": 92.86,
+    "1": 90.73,
+    "2": 93.53
+   },
+   "paper": 91.85
+  }
+ },
+ "aggregate": {
+  "Baseline": {
+   "agg4": 49.185,
+   "agg3": 36.839999999999996,
+   "paper_agg4": 48.845,
+   "paper_agg3": 38.18666666666667
+  },
+  "SelectBestCandidate": {
+   "agg4": 57.34916666666667,
+   "agg3": 45.58555555555556,
+   "paper_agg4": 54.8875,
+   "paper_agg3": 44.7
+  },
+  "BeamSearch": {
+   "agg4": 58.8925,
+   "agg3": 47.38666666666667,
+   "paper_agg4": 53.95,
+   "paper_agg3": 44.906666666666666
+  },
+  "GEPA": {
+   "agg4": 59.20166666666667,
+   "agg3": 48.144444444444446,
+   "paper_agg4": 61.28,
+   "paper_agg3": 51.089999999999996
+  },
+  "GEPA - SelectBestCandidate (3)": {
+   "d": 2.558578987150416,
+   "ci95": [
+    0.919879062736206,
+    4.179138321995466
+   ],
+   "paper": 6.39
+  },
+  "GEPA - SelectBestCandidate (4)": {
+   "d": 1.8528225198393267,
+   "ci95": [
+    0.48988888484686866,
+    3.218098544779218
+   ],
+   "paper": 6.392499999999997
+  },
+  "GEPA - BeamSearch (3)": {
+   "d": 0.7588813303099017,
+   "ci95": [
+    -0.8163265306122446,
+    2.338624338624338
+   ],
+   "paper": 6.183333333333333
+  },
+  "GEPA - BeamSearch (4)": {
+   "d": 0.3097744148164316,
+   "ci95": [
+    -0.9901481182993782,
+    1.58777877895525
+   ],
+   "paper": 7.329999999999998
+  },
+  "SelectBestCandidate - BeamSearch (3)": {
+   "d": -1.7996976568405139,
+   "ci95": [
+    -3.5585789871504176,
+    -0.05517762660619696
+   ],
+   "paper": -0.206666666666667
+  },
+  "SelectBestCandidate - BeamSearch (4)": {
+   "d": -1.543048105022895,
+   "ci95": [
+    -3.0055383458744815,
+    -0.07965377293108433
+   ],
+   "paper": 0.9375000000000009
+  }
+ },
+ "tests": [
+  {
+   "task": "HotpotQA",
+   "pair": "GEPA - SelectBestCandidate",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": 3.666666666666667,
+   "ci95": [
+    0.6666666666666672,
+    6.555555555555555
+   ],
+   "a_better": 57,
+   "b_better": 33,
+   "per_seed": [
+    5.0,
+    2.3299999999999983,
+    3.6700000000000017
+   ],
+   "paper": 4.0,
+   "p": 0.018998100189981004,
+   "p_holm": 0.13298670132986704,
+   "holm_rejects": false
+  },
+  {
+   "task": "HotpotQA",
+   "pair": "GEPA - BeamSearch",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": 6.0,
+   "ci95": [
+    3.111111111111113,
+    8.777777777777782
+   ],
+   "a_better": 69,
+   "b_better": 30,
+   "per_seed": [
+    9.329999999999998,
+    9.0,
+    -0.3299999999999983
+   ],
+   "paper": 5.0,
+   "p": 9.999000099990002e-05,
+   "p_holm": 0.0007999200079992001,
+   "holm_rejects": true
+  },
+  {
+   "task": "IFBench",
+   "pair": "GEPA - SelectBestCandidate",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": 3.2312925170068025,
+   "ci95": [
+    0.226757369614513,
+    6.235827664399093
+   ],
+   "a_better": 75,
+   "b_better": 55,
+   "per_seed": [
+    3.91,
+    -0.1700000000000017,
+    5.949999999999999
+   ],
+   "paper": 8.169999999999998,
+   "p": 0.037696230376962306,
+   "p_holm": 0.22617738226177383,
+   "holm_rejects": false
+  },
+  {
+   "task": "IFBench",
+   "pair": "GEPA - BeamSearch",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": -2.8344671201814062,
+   "ci95": [
+    -5.839002267573696,
+    0.2267573696145122
+   ],
+   "a_better": 44,
+   "b_better": 71,
+   "per_seed": [
+    -1.6999999999999957,
+    -2.039999999999999,
+    -4.770000000000003
+   ],
+   "paper": 2.219999999999999,
+   "p": 0.06679332066793321,
+   "p_holm": 0.33396660333966605,
+   "holm_rejects": false
+  },
+  {
+   "task": "HoVer",
+   "pair": "GEPA - SelectBestCandidate",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": 0.7777777777777778,
+   "ci95": [
+    -1.6666666666666672,
+    3.333333333333334
+   ],
+   "a_better": 44,
+   "b_better": 41,
+   "per_seed": [
+    -1.6599999999999966,
+    4.0,
+    0.0
+   ],
+   "paper": 7.0,
+   "p": 0.6057394260573943,
+   "p_holm": 1.0,
+   "holm_rejects": false
+  },
+  {
+   "task": "HoVer",
+   "pair": "GEPA - BeamSearch",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": -0.8888888888888888,
+   "ci95": [
+    -3.3333333333333335,
+    1.4444444444444442
+   ],
+   "a_better": 36,
+   "b_better": 38,
+   "per_seed": [
+    -2.6599999999999966,
+    -2.6700000000000017,
+    2.6599999999999966
+   ],
+   "paper": 11.329999999999998,
+   "p": 0.5272472752724727,
+   "p_holm": 1.0,
+   "holm_rejects": false
+  },
+  {
+   "task": "PUPA",
+   "pair": "GEPA - SelectBestCandidate",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    1
+   ],
+   "d": -0.26444688209394074,
+   "ci95": [
+    -2.6413129354305815,
+    2.160872896167015
+   ],
+   "a_better": 37,
+   "b_better": 60,
+   "per_seed": [
+    -1.9099999999999966
+   ],
+   "paper": 6.3999999999999915,
+   "p": 0.8287171282871713,
+   "p_holm": 1.0,
+   "holm_rejects": false
+  },
+  {
+   "task": "PUPA",
+   "pair": "GEPA - BeamSearch",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    1
+   ],
+   "d": -1.0375463316639786,
+   "ci95": [
+    -3.1644825762472815,
+    1.1898341310106013
+   ],
+   "a_better": 31,
+   "b_better": 59,
+   "per_seed": [
+    -2.6799999999999926
+   ],
+   "paper": 10.769999999999996,
+   "p": 0.35496450354964504,
+   "p_holm": 1.0,
+   "holm_rejects": false
+  }
+ ],
+ "descriptive": [
+  {
+   "task": "HotpotQA",
+   "pair": "SelectBestCandidate - BeamSearch",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": 2.3333333333333335,
+   "ci95": [
+    -0.6666666666666667,
+    5.333333333333333
+   ],
+   "a_better": 63,
+   "b_better": 44,
+   "per_seed": [
+    4.329999999999998,
+    6.670000000000002,
+    -4.0
+   ],
+   "paper": 1.0
+  },
+  {
+   "task": "IFBench",
+   "pair": "SelectBestCandidate - BeamSearch",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": -6.065759637188209,
+   "ci95": [
+    -9.353741496598644,
+    -2.7210884353741513
+   ],
+   "a_better": 37,
+   "b_better": 76,
+   "per_seed": [
+    -5.609999999999996,
+    -1.8699999999999974,
+    -10.720000000000002
+   ],
+   "paper": -5.949999999999999
+  },
+  {
+   "task": "HoVer",
+   "pair": "SelectBestCandidate - BeamSearch",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": -1.6666666666666665,
+   "ci95": [
+    -4.333333333333334,
+    0.9999999999999989
+   ],
+   "a_better": 43,
+   "b_better": 56,
+   "per_seed": [
+    -1.0,
+    -6.670000000000002,
+    2.6599999999999966
+   ],
+   "paper": 4.329999999999998
+  },
+  {
+   "task": "PUPA",
+   "pair": "SelectBestCandidate - BeamSearch",
+   "seeds_a": [
+    1
+   ],
+   "seeds_b": [
+    1
+   ],
+   "d": -0.7730994495700378,
+   "ci95": [
+    -3.3832670597376486,
+    1.8522327345856757
+   ],
+   "a_better": 20,
+   "b_better": 29,
+   "per_seed": [
+    -0.769999999999996
+   ],
+   "paper": 4.3700000000000045
+  }
+ ],
+ "without_dagger": [
+  {
+   "task": "HotpotQA",
+   "pair": "GEPA - SelectBestCandidate",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    1,
+    2
+   ],
+   "d": 3.9444444444444438,
+   "ci95": [
+    0.27777777777777846,
+    7.555555555555555
+   ],
+   "a_better": 64,
+   "b_better": 39,
+   "per_seed": [
+    2.3299999999999983,
+    3.6700000000000017
+   ],
+   "paper": 4.0
+  },
+  {
+   "task": "IFBench",
+   "pair": "GEPA - SelectBestCandidate",
+   "seeds_a": [
+    0,
+    1
+   ],
+   "seeds_b": [
+    1,
+    2
+   ],
+   "d": 2.7210884353741496,
+   "ci95": [
+    -1.0204081632653061,
+    6.5476190476190474
+   ],
+   "a_better": 59,
+   "b_better": 44,
+   "per_seed": [
+    -0.1700000000000017
+   ],
+   "paper": 8.169999999999998
+  },
+  {
+   "task": "IFBench",
+   "pair": "GEPA - BeamSearch",
+   "seeds_a": [
+    0,
+    1
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": -3.344671201814058,
+   "ci95": [
+    -6.802721088435372,
+    0.19841269841269918
+   ],
+   "a_better": 51,
+   "b_better": 79,
+   "per_seed": [
+    -1.6999999999999957,
+    -2.039999999999999
+   ],
+   "paper": 2.219999999999999
+  },
+  {
+   "task": "HoVer",
+   "pair": "GEPA - SelectBestCandidate",
+   "seeds_a": [
+    2
+   ],
+   "seeds_b": [
+    1,
+    2
+   ],
+   "d": 3.1666666666666665,
+   "ci95": [
+    -0.5,
+    6.833333333333333
+   ],
+   "a_better": 44,
+   "b_better": 29,
+   "per_seed": [
+    0.0
+   ],
+   "paper": 7.0
+  },
+  {
+   "task": "HoVer",
+   "pair": "GEPA - BeamSearch",
+   "seeds_a": [
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": 1.4444444444444455,
+   "ci95": [
+    -2.1111111111111116,
+    4.88888888888889
+   ],
+   "a_better": 52,
+   "b_better": 38,
+   "per_seed": [
+    2.6599999999999966
+   ],
+   "paper": 11.329999999999998
+  }
+ ],
+ "seed0_selectbest": {
+  "HotpotQA": {
+   "ours": 57.33,
+   "authors": 58.33
+  },
+  "IFBench": {
+   "ours": 29.76,
+   "authors": 30.44
+  },
+  "HoVer": {
+   "ours": 50.33,
+   "authors": 45.33
+  },
+  "PUPA": {
+   "ours": null,
+   "authors": 85.45
+  }
+ },
+ "search": [
+  {
+   "task": "HotpotQA",
+   "method": "SelectBestCandidate",
+   "runs": 3,
+   "iterations": 331,
+   "proposals": 281,
+   "accepted": 62,
+   "picks": 331,
+   "picks_not_best": 0
+  },
+  {
+   "task": "HotpotQA",
+   "method": "BeamSearch",
+   "runs": 3,
+   "iterations": 414,
+   "proposals": 349,
+   "accepted": 60,
+   "picks": 414,
+   "picks_not_best": 280
+  },
+  {
+   "task": "HotpotQA",
+   "method": "GEPA",
+   "runs": 3,
+   "iterations": 369,
+   "proposals": 307,
+   "accepted": 62,
+   "picks": 369,
+   "picks_not_best": 279
+  },
+  {
+   "task": "IFBench",
+   "method": "SelectBestCandidate",
+   "runs": 3,
+   "iterations": 306,
+   "proposals": 164,
+   "accepted": 31,
+   "picks": 306,
+   "picks_not_best": 0
+  },
+  {
+   "task": "IFBench",
+   "method": "BeamSearch",
+   "runs": 3,
+   "iterations": 174,
+   "proposals": 112,
+   "accepted": 33,
+   "picks": 174,
+   "picks_not_best": 102
+  },
+  {
+   "task": "IFBench",
+   "method": "GEPA",
+   "runs": 3,
+   "iterations": 155,
+   "proposals": 103,
+   "accepted": 33,
+   "picks": 155,
+   "picks_not_best": 106
+  },
+  {
+   "task": "HoVer",
+   "method": "SelectBestCandidate",
+   "runs": 3,
+   "iterations": 383,
+   "proposals": 342,
+   "accepted": 63,
+   "picks": 383,
+   "picks_not_best": 0
+  },
+  {
+   "task": "HoVer",
+   "method": "BeamSearch",
+   "runs": 3,
+   "iterations": 393,
+   "proposals": 342,
+   "accepted": 62,
+   "picks": 393,
+   "picks_not_best": 249
+  },
+  {
+   "task": "HoVer",
+   "method": "GEPA",
+   "runs": 3,
+   "iterations": 335,
+   "proposals": 310,
+   "accepted": 63,
+   "picks": 335,
+   "picks_not_best": 249
+  },
+  {
+   "task": "PUPA",
+   "method": "SelectBestCandidate",
+   "runs": 1,
+   "iterations": 79,
+   "proposals": 35,
+   "accepted": 20,
+   "picks": 79,
+   "picks_not_best": 0
+  },
+  {
+   "task": "PUPA",
+   "method": "BeamSearch",
+   "runs": 1,
+   "iterations": 136,
+   "proposals": 67,
+   "accepted": 18,
+   "picks": 136,
+   "picks_not_best": 102
+  },
+  {
+   "task": "PUPA",
+   "method": "GEPA",
+   "runs": 3,
+   "iterations": 276,
+   "proposals": 146,
+   "accepted": 57,
+   "picks": 276,
+   "picks_not_best": 214
+  }
+ ]
+}

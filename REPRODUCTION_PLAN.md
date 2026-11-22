@@ -3,14 +3,14 @@
 Reproduction of *GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning* ([arXiv 2507.19457](https://arxiv.org/abs/2507.19457)) with this artifact, on Snellius.
 
 - **Objective:** Table 1 of the paper (Qwen3-8B) on the five benchmarks that need no OpenAI key: HotpotQA, HoVer, IFBench, AIME-2025 and LiveBench-Math, with Baseline, MIPROv2, GEPA and GEPA+Merge. Every cell gets **3 seeds (0, 1, 2), reported as mean ± SD**, served by the authors' vLLM 0.9.1 (F62).
-- **Out of scope for now:** PUPA (its program and judge call `gpt-4.1-mini`, F14), the full GRPO row (about 13k SBU per benchmark; a log analysis and one limited run are in §2.7), Table 2 (GPT-4.1-mini), Table 3 and the figures.
+- **Out of scope for now:** PUPA (its program and judge call `gpt-4.1-mini`, F14), the full GRPO row (about 13k SBU per benchmark; a log analysis and one limited run are in §2.7), Table 2 (GPT-4.1-mini) and the figures. PUPA was later run with gpt-oss-120b (§2.10), and Table 3 was added on 2026-11-20 (§2.14).
 - **Team (since 2026-11-09):** B runs all of Table 1 (all five benchmarks and methods, every cell on H100); A works on GRPO. The earlier split (A: HotpotQA and HoVer, B: IFBench, AIME-2025, LiveBench-Math) is history; the A100 runs of both are kept as a hardware check.
 - **Budget:** the shared course account `gpuuva090` (about 980k SBU on 2026-11-04, shared with the rest of the course) expires **2026-12-18**. Our own share is still unconfirmed. Used so far: A about 440 SBU, B about 1,300 SBU before his final Baseline jobs. One A100-hour is 128 SBU.
 - F-numbers point to the findings in §6. The phase plan used until 2026-11-05 is in git history (`60b8e91`).
 - **Final report (2026-11-16):** `REPRODUCTION_REPORT.md` collects the results and findings of the reproduction.
-- **Table 3 (since 2026-11-20):** SelectBestCandidate and BeamSearch with three seeds, cap 20,000 SBU, run on the user's own account smeczynski1 (§2.14).
+- **Table 3 (2026-11-20 to 2026-11-22, done):** SelectBestCandidate and BeamSearch with three seeds (PUPA: one), run on the user's own account smeczynski1; 18,864 SBU under a cap of 21,000. Result and analysis in §2.14, runs in `results/table3/`.
 
-_Last updated: 2026-11-20._
+_Last updated: 2026-11-22._
 
 ---
 
@@ -395,6 +395,42 @@ What the numbers still allow (simple arithmetic, not part of the method): the 32
 - Search statistics from the text logs (descriptive): iterations, accepted candidates, and the share of iterations whose parent is not the best candidate, for the three rules.
 - Stop rule as in §2.13: a rebuilt per-example score that differs from a run's reported score by more than 0.005 stops the analysis until the cause is written down.
 - Added 2026-11-20 (before any Table 3 result): the tested rows also without the runs that lost requests (†), descriptive, as in §2.13. Script `analysis/table3_paired.py` (PUPA per-example scores with the rebuild and changed check of §2.10), checked by `analysis/check_table3_paired.py` on the existing runs: with fake Table 3 runs (SelectBestCandidate = the GEPA run, BeamSearch = the Baseline run) GEPA − SelectBestCandidate is exactly 0 and GEPA − BeamSearch equals the published GEPA − Baseline (HotpotQA +21.67 [+17.33, +26.11], IFBench −1.64, HoVer +13.89, PUPA +6.16).
+
+*Result (run 2026-11-22 11:53 on the 20 Table 3 runs and the Baseline and GEPA runs of §1 and §2.10, after the last result was pushed in 49597d9; output `results/table3/paired_output.md`, numbers `results/table3/paired_numbers.json`).* The stop rule did not apply: every run rebuilds to its reported score (largest gap 0.0045 points), and every d equals the difference of the cell means. Missing, as decided (addendum of 2026-11-22 10:06): PUPA SelectBestCandidate and BeamSearch seeds 0 and 2. The per-seed columns come from the rounded reported scores.
+- **Table 3** (mean ± SD over the seeds [paper]):
+  - SelectBestCandidate: HotpotQA 56.78 ± 1.57† [58.33], IFBench 29.76 ± 1.70† [30.44], HoVer 50.22 ± 3.17† [45.33], PUPA 92.64 (n = 1) [85.45].
+  - BeamSearch: 54.44 ± 6.95 [57.33], 35.83 ± 2.75 [36.39], 51.89 ± 1.58 [41.00], 93.41 (n = 1) [81.08].
+  - Improvement over the Baseline (mean of the task means minus the Baseline's), over HotpotQA, IFBench and HoVer: SelectBestCandidate +8.75, BeamSearch +10.55, GEPA +11.30 (paper +6.51, +6.72, +12.90). Over all four tasks, with PUPA not comparable: +8.16, +9.71, +10.02. The paper's values, recomputed from its rounded cells, are +6.04, +5.11 and +12.44.
+- **GEPA − SelectBestCandidate:**
+  - HotpotQA +3.67 [+0.67, +6.56] (paper +4.00; p 0.019, Holm 0.133);
+  - IFBench +3.23 [+0.23, +6.24] (paper +8.17; p 0.038, Holm 0.226);
+  - HoVer +0.78 [−1.67, +3.33] (paper +7.00);
+  - PUPA −0.26 [−2.64, +2.16] (paper +6.40, not comparable);
+  - mean over the three comparable tasks +2.56 [+0.92, +4.18] (paper +6.39).
+- **GEPA − BeamSearch:**
+  - HotpotQA +6.00 [+3.11, +8.78] (paper +5.00; Holm 0.0008, the only rejection of the 8 tests);
+  - IFBench −2.83 [−5.84, +0.23] (paper +2.22; BeamSearch above GEPA in all three seeds);
+  - HoVer −0.89 [−3.33, +1.44] (paper +11.33);
+  - PUPA −1.04 [−3.16, +1.19] (paper +10.77);
+  - mean over the three comparable tasks +0.76 [−0.82, +2.34] (paper +6.18).
+- **SelectBestCandidate − BeamSearch** (descriptive): HotpotQA +2.33, IFBench −6.07 [−9.35, −2.72] (paper −5.95), HoVer −1.67, PUPA −0.77. Mean over the three comparable tasks −1.80 [−3.56, −0.06] (paper −0.21).
+- **Per seed,** 4 of the 6 comparable tested rows change sign, e.g. HotpotQA GEPA − BeamSearch +9.33 / +9.00 / −0.33 and HoVer GEPA − SelectBestCandidate −1.66 / +4.00 / 0.00. BeamSearch on HotpotQA spans 48.33 to 62.00.
+- **Without the † runs** (descriptive):
+  - GEPA − SelectBestCandidate: HotpotQA +3.94, IFBench +2.72, HoVer +3.17 (GEPA seed 2 only).
+  - GEPA − BeamSearch: IFBench −3.34, HoVer +1.44 [−2.11, +4.89] (GEPA seed 2 only; −0.89 with all runs).
+- **Our seed-0 SelectBestCandidate against the authors' released seed-0 runs:** HotpotQA 57.33 / 58.33, IFBench 29.76 / 30.44, HoVer 50.33 / 45.33.
+- **Search statistics** (sum over the seeds):
+  - SelectBestCandidate took the best candidate so far as parent in all of its 1,099 iterations, as its rule says.
+  - BeamSearch took a parent below the best in 59–75 % of the iterations per task, GEPA in 68–78 %.
+  - The three rules accepted about as many new candidates as each other (three seeds: HotpotQA 60–62, IFBench 31–33, HoVer 62–63).
+- **In short** (the intervals cover the test examples, not the run-to-run variation, as fixed in §2.13):
+  - The paper's order of the three rules holds for the improvement on the three comparable tasks: GEPA +11.30, BeamSearch +10.55, SelectBestCandidate +8.75. But GEPA's lead is much smaller: 2.56 points over SelectBestCandidate (paper 6.39) and 0.76 over BeamSearch (paper 6.18).
+  - GEPA − SelectBestCandidate is positive on every comparable task, and its three-task mean has an interval clear of zero, although no single task passes Holm.
+  - GEPA − BeamSearch reproduces only on HotpotQA.
+  - The largest departure is HoVer. There our SelectBestCandidate and BeamSearch (50.22, 51.89) are far above the paper's single runs (45.33, 41.00), while our GEPA (51.00) is close to the paper's (52.33).
+  - BeamSearch is our own reading of a one-sentence definition (F109). Its gap to the paper may come from the implementation, which cannot be checked without the authors' code.
+  - SelectBestCandidate is the authors' configuration. Our seed 0 is within 1 point of their released run on HotpotQA and IFBench, and 5.00 points above it on HoVer.
+  - Compute: 18,864 SBU (sacct, 2026-11-22) under the cap of 21,000. 3,084 of them went to the two void PUPA seed-0 jobs.
 
 ---
 
