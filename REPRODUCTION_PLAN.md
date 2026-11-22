@@ -434,6 +434,36 @@ What the numbers still allow (simple arithmetic, not part of the method): the 32
 
 ---
 
+### 2.15 Extensions E1 and E2: a smaller search val set and a staged acceptance gate (green light of 2026-11-22, as reported by C; method written 2026-11-22 17:22, before any E1 or E2 run with a full budget; C = the third team member, login scur0918)
+
+*Why.* In our GEPA runs 87–89 % of the rollouts on HotpotQA and HoVer are full val passes of new candidates, and only 55–63 % of the candidates that pass the three-example test beat their parent on val (extension proposal of 2026-11-19, from `gepa_state.bin` of the Table 1 runs). The paper names "a smaller validation set" as future work. Question: does GEPA reach the same test score when it spends less of the same budget on validation and more on proposals?
+
+*Arms.* HotpotQA and HoVer, seeds 0, 1 and 2, Qwen3-8B.
+- **GEPA** (control): our Table 1 runs (H100, commit `6ea0b87`). Not rerun.
+- **E1, `GEPA-SubVal100`**: GEPA, except that the search scores candidates on a fixed subset of 100 of the 300 val examples (drawn per seed with `random.Random(f"search_val_subset:{seed}")`, after the seed's train/val shuffle). At the end the 5 candidates with the best subset score (ties: the older one) are scored on the 200 val examples the search never saw, and the best on all 300 is returned (ties: the better one on the subset). The budget is the paper's (6,871 and 7,051 metric calls): the race costs 1,000 of it, so the search loop stops at 5,871 and 6,051, with the same overshoot rule as GEPA.
+- **E2, `GEPA-SubVal100-Gate`**: E1, plus a gate before the val pass of a child that passed the minibatch test. The child is scored on 50 of the 100 search examples (fixed per seed, `random.Random(f"val_gate:{seed}")`). If it has more than 1 correct answer fewer than its parent on these 50, it is discarded and only the 50 calls are counted. Otherwise the other 50 are scored and the search goes on as in E1.
+- Code: `search_val_size`, `final_race_top_k`, `val_gate_size`, `val_gate_tolerance` in `gepa_artifact/gepa/gepa.py`, all off by default; two entries appended to `scripts/experiment_configs.py` (indices 7 and 8, no other index moves). Checked without a model by `scripts/check_search_val_subset.py` and `scripts/check_val_gate.py`; `scripts/check_beam_selection.py` still passes. GEPA, GEPA+Merge and the two ablations run the same code path as before.
+
+*Gate tolerance (fixed now).* 1 example. Replay on the 12 HotpotQA and HoVer GEPA and GEPA+Merge runs inside each seed's 100-example subset (`analysis/gate_replay_subset.py`, output in `analysis/outputs/`): tolerance 1 discards 18 % (HotpotQA) and 24 % (HoVer) of the accepted children and saves 9 % and 12 % of the search val calls; of the 43 discarded children 3 were better than their parent on the 100 examples and 4 were in the lineage of the subset's best candidate. Tolerance 2 saves 5 % and 10 %, tolerance 0 discards 28–36 % and 10 lineage members. The searches behind these logs used all 300 val examples, so the replay shows what the gate cuts, not how the search then goes on.
+
+*Runs.* 12 runs in 6 jobs: E1 and E2 of one benchmark and seed share one server, as the GEPA and GEPA+Merge pairs did (F94). Same setup as the control: one H100, vLLM 0.9.1, 64-token chunks, the artifact's thread counts, own train/val shuffle for seeds 1 and 2 (F24), DSPy cache copied from the MIPROv2 run of the same seed (`--use_cache_from_opt MIPROv2-Heavy`; the 12 MIPROv2 run and cache folders are copied from scur0934). Account `scur0918` on `gpuuva090`, checkout `~/gepa-artifac`, environments rebuilt from `uv.lock` and `envs/arbor-vllm091-requirements.txt` (280 and 165 packages; DSPy fork `62dc3b6`, Arbor fork `113fc35` with the timeout and start-up patches; Qwen3-8B `b968826d`, hotpot_qa `1908d6af`, hover `c0e43052`, BM25 index rebuilt from the same code and corpus).
+
+*What changes besides the method.* A run does about 220–240 iterations instead of 100–110, so it takes longer at the same rollout budget (estimate from the timestamps of the 24 existing runs: 9–11 h instead of 5.5–6.3 h). The login, the checkout and the date differ from the control runs; the code path of plain GEPA does not.
+
+*Checks.* As for Table 1 and Table 3 (§2.4): `check_job.sh` with `NO_GATE=1` (the paper has no numbers for these arms) and the GEPA monitor. Per run also: `final_race.json` exists, its finalists are the top 5 of the subset, and `total_num_evals` is within the overshoot of one val pass of the budget; E2 logs its gate decisions. A run that fails for a technical reason is void and is rerun once if the budget rule allows.
+
+*Smoke tests (before any full run, own folders, capped budget, no cache chain).* E1: job 29593517 (A100, cap 1,300). E2: after it.
+
+*Budget rule.* Expected 12,300 SBU, pessimistic 16,250 (run plan of 2026-11-22). Proposed hard cap 18,000 SBU for everything of E1 and E2 on `scur0918`, counted with sacct from 2026-11-22 (no other job runs on this login); the user confirms it before the first pair job. A job is submitted only if SBU spent + the time limit of every running or pending job + its own limit stays under the cap. Time limits: HotpotQA 13 h, HoVer 16 h for the first job of a benchmark; later jobs 1.25× the longest finished one.
+
+*Analysis (fixed now).*
+- Primary: test score. Paired per-example tests as in §2.13 (per test example the seed mean of each arm; percentile bootstrap, 10,000 resamples, `random.Random(0)`; sign-flip test, 10,000 vectors, `random.Random(1)`) for E1 − GEPA, E2 − GEPA and E2 − E1 on each benchmark (6 tests, Holm at 0.05), and the mean over the two benchmarks with a stratified bootstrap. The interval covers the test examples, not the run-to-run variation; per-seed differences are shown next to it. With three seeds an equal test score at lower cost counts as a positive result; "equal" is reported as the interval, not claimed from a non-significant test.
+- Efficiency (descriptive): proposals, accepted candidates and gate discards per run; the best subset score against metric calls for the three arms, on each seed's 100 subset examples (the control scored them too; this comparison favours E1 and E2, which selected on them); metric calls until an arm first reaches the control's final score on these examples.
+- The race (descriptive): how often the returned candidate differs from the subset's best, and their scores on the 200 held-out examples.
+- Stop rule as in §2.13: a rebuilt per-example score that differs from a run's reported score by more than 0.005 stops the analysis until the cause is written down.
+
+---
+
 ## 3. Running a benchmark
 
 Every Qwen3-8B job goes through `scripts/snellius/qwen_job.sh` on one A100. This checklist is built from the problems in F50–F73.
