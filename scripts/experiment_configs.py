@@ -227,7 +227,8 @@ def get_optimizers():
         ),
         # Extension E2: GEPA-SubVal100 plus the staged acceptance gate (gepa.py, val_gate_size). A child is
         # first scored on 50 of the 100 search val examples and discarded if it trails its parent there by
-        # more than 1 example. Added at the end so the index of every other optimizer stays the same.
+        # more than 1 example (never on a pass in which the server left gate examples unanswered).
+        # Added at the end so the index of every other optimizer stays the same.
         (
             "GEPA-SubVal100-Gate",
             OptimizerConfig(

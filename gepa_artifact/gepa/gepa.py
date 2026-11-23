@@ -32,6 +32,20 @@ from .merge_programs import (
     sample_and_attempt_merge_programs_by_common_predictors
 )
 
+SERVER_ERROR_NAMES = {"InternalServerError", "APIConnectionError", "APITimeoutError", "Timeout", "ServiceUnavailableError"}
+
+def is_server_error(exception):
+    # True if the LM server failed to answer (HTTP 5xx, connection error, timeout), as opposed to an
+    # answer that could not be parsed. Checked by class name along the chain of causes, so it holds
+    # for the litellm and the openai classes alike.
+    seen = set()
+    while exception is not None and id(exception) not in seen:
+        seen.add(id(exception))
+        if SERVER_ERROR_NAMES & {c.__name__ for c in type(exception).__mro__}:
+            return True
+        exception = exception.__cause__ or exception.__context__
+    return False
+
 class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
     def __init__(
         self,
@@ -127,6 +141,9 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         # A child that passed the minibatch test is first scored on a fixed part of the val set (the gate
         # examples). If it trails its parent there by more than val_gate_tolerance examples, it is discarded
         # and only the gate examples are counted. Otherwise the rest is scored and the search goes on as before.
+        # A child is never discarded on a gate pass in which the server left examples without an answer
+        # (a failed batch costs 16 or more of the gate examples and counts them as wrong): it goes on to
+        # the rest, as it would without the gate.
         assert val_gate_size is None or val_gate_size >= 1, "val_gate_size should be None or at least 1"
         if val_gate_size is not None:
             assert track_scores_on == 'val', "val_gate_size needs track_scores_on='val'"
@@ -158,24 +175,46 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         # or None if the gate discards it. Counts the gate examples of a discarded child; the caller
         # counts a full evaluation as before.
         gate = self.val_gate
-        _, gate_outputs, gate_subscores = gate["gate_evaluator"](new_program)
+        server_failed, answered = set(), set()
+
+        def program_noting_server_errors(**inputs):
+            # DSPy scores an example whose call raised as wrong; note which ones the server caused
+            key = repr(sorted(inputs.items()))
+            try:
+                prediction = new_program(**inputs)
+            except Exception as e:
+                if is_server_error(e):
+                    server_failed.add(key)
+                raise
+            answered.add(key)
+            return prediction
+
+        _, gate_outputs, gate_subscores = gate["gate_evaluator"](program_noting_server_errors)
+        # DSPy may run a slow example twice; an example counts as unanswered only if no copy got an answer
+        unanswered = len(server_failed - answered)
         parent_subscores = gepa_state.prog_candidate_val_subscores[parent_program_idx]
         parent_gate_score = sum(parent_subscores[p] for p in gate["gate_positions"])
         child_gate_score = sum(gate_subscores)
-        cut = child_gate_score < parent_gate_score - self.val_gate_tolerance
+        trails = child_gate_score < parent_gate_score - self.val_gate_tolerance
+        cut = trails and unanswered == 0
         gepa_state.full_program_trace[-1]['val_gate'] = {
             "parent_program_idx": parent_program_idx,
             "parent_gate_score": float(parent_gate_score),
             "child_gate_score": float(child_gate_score),
             "child_gate_subscores": [float(x) for x in gate_subscores],
+            "unanswered": unanswered,
+            "trails": trails,
             "cut": cut,
         }
+        if trails and not cut:
+            self.logger.log(f"Iteration {gepa_state.i+1}: Val gate: child {child_gate_score} vs parent {parent_gate_score} on the {len(gate_subscores)} gate examples, but {unanswered} of them got no answer from the server: not discarded")
         if cut:
             gepa_state.total_num_evals += len(gate_subscores)
             gepa_state.total_num_evals_per_trainval_instance += len(gate_subscores) / self.train_val_size
             self.logger.log(f"Iteration {gepa_state.i+1}: Val gate: child {child_gate_score} vs parent {parent_gate_score} on the {len(gate_subscores)} gate examples, trails by more than {self.val_gate_tolerance}: discarded")
             return None
-        self.logger.log(f"Iteration {gepa_state.i+1}: Val gate: child {child_gate_score} vs parent {parent_gate_score} on the {len(gate_subscores)} gate examples: passed")
+        if not trails:
+            self.logger.log(f"Iteration {gepa_state.i+1}: Val gate: child {child_gate_score} vs parent {parent_gate_score} on the {len(gate_subscores)} gate examples: passed")
 
         _, rest_outputs, rest_subscores = gate["rest_evaluator"](new_program)
         size = len(gate["gate_positions"]) + len(gate["rest_positions"])
@@ -816,7 +855,7 @@ class GEPA(dspy.teleprompt.teleprompt.Teleprompter):
         
         if self.val_gate is not None:
             gated = [t['val_gate'] for t in gepa_state.full_program_trace if 'val_gate' in t]
-            self.logger.log(f"Val gate: {len(gated)} children scored on the gate examples, {sum(g['cut'] for g in gated)} discarded")
+            self.logger.log(f"Val gate: {len(gated)} children scored on the gate examples, {sum(g['cut'] for g in gated)} discarded, {sum(g['trails'] and not g['cut'] for g in gated)} kept because the server left gate examples unanswered")
 
         gepa_state.save(self.run_dir)
 

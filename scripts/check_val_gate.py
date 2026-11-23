@@ -2,7 +2,8 @@
 #   python -m scripts.check_val_gate      (from the repo root, in the run environment)
 # The gate examples must be fixed per seed, a child must be discarded exactly when it trails its parent on them
 # by more than the tolerance, a discarded child must cost only the gate examples, a child that passes must get
-# the same val evaluation as one full pass, and every other optimizer must be unchanged.
+# the same val evaluation as one full pass, a gate pass with examples the server left unanswered must not
+# discard, and every other optimizer must be unchanged.
 import inspect
 from types import SimpleNamespace
 
@@ -32,23 +33,53 @@ assert gate != GEPA.split_valset_for_gate(fake_gepa(1), 100)[0]
 assert gate != list(range(50)), "the gate is a random half, not the first half"
 
 
-# a program is the list of its scores on the 10 val examples of the search; an evaluator scores it on a devset
-# of positions and counts how often it ran
+# A program answers one val example (given by its position) with its score there, or raises. An evaluator
+# calls it on a list of positions the way dspy.Evaluate does: an example whose call raised scores 0.
+class InternalServerError(Exception):   # same class name as the litellm and openai ones
+    pass
+
+
+def as_program(scores, server_fail=(), format_fail=(), server_fail_once=()):
+    failed_once = set()
+
+    def program(position):
+        if position in server_fail:
+            raise InternalServerError("Internal Server Error")
+        if position in server_fail_once and position not in failed_once:
+            failed_once.add(position)
+            raise InternalServerError("Connection error.")
+        if position in format_fail:
+            raise ValueError("Failed to parse response as per signature")
+        return scores[position]
+    return program
+
+
 class Evaluator:
-    def __init__(self, positions):
-        self.positions, self.calls = positions, 0
+    def __init__(self, positions, twice=()):
+        self.positions, self.calls, self.twice = positions, 0, twice
 
     def __call__(self, program):
         self.calls += 1
-        sub = [program[p] for p in self.positions]
-        return round(100 * sum(sub) / len(sub), 2), [("example%d" % p, "prediction%d" % p, program[p]) for p in self.positions], sub
+        outputs, sub = [], []
+        for p in self.positions:
+            score = None
+            for _ in range(2 if p in self.twice else 1):   # DSPy may run a slow example a second time
+                try:
+                    score = program(position=p)
+                    break
+                except Exception:
+                    pass
+            score = 0.0 if score is None else score
+            outputs.append(("example%d" % p, "prediction%d" % p, score))
+            sub.append(score)
+        return round(100 * sum(sub) / len(sub), 2), outputs, sub
 
 
-def setup(parent, tol, size=4):
+def setup(parent, tol, size=4, twice=()):
     g = fake_gepa(0, size, tol)
     gate_positions, rest_positions = GEPA.split_valset_for_gate(g, len(parent))
     g.val_gate = {"gate_positions": gate_positions, "rest_positions": rest_positions,
-                  "gate_evaluator": Evaluator(gate_positions), "rest_evaluator": Evaluator(rest_positions)}
+                  "gate_evaluator": Evaluator(gate_positions, twice), "rest_evaluator": Evaluator(rest_positions)}
     st = SimpleNamespace(prog_candidate_val_subscores=[parent], full_program_trace=[{"i": 0}], i=0,
                          total_num_evals=1000, total_num_evals_per_trainval_instance=0.0)
     return g, st
@@ -71,35 +102,83 @@ for p in g.val_gate["gate_positions"][:3]:
 
 # 2. tolerance 1: a child with 1 of 4 trails by 2 and is discarded; it costs the 4 gate examples only
 g, st = setup(parent, 1)
-out = GEPA.evaluate_val_with_gate(g, child_with(parent, g, 1, 6), st, 0)
+out = GEPA.evaluate_val_with_gate(g, as_program(child_with(parent, g, 1, 6)), st, 0)
 assert out is None
 assert st.total_num_evals == 1004 and g.val_gate["gate_evaluator"].calls == 1 and g.val_gate["rest_evaluator"].calls == 0
 t = st.full_program_trace[-1]["val_gate"]
 assert t["cut"] is True and t["parent_gate_score"] == 3 and t["child_gate_score"] == 1 and t["parent_program_idx"] == 0
-assert "discarded" in g.logger.lines[-1]
+assert t["unanswered"] == 0 and t["trails"] is True
+assert "discarded" in g.logger.lines[-1] and "not discarded" not in g.logger.lines[-1]
 
 # 3. tolerance 1: a child with 2 of 4 trails by exactly 1 and passes; nothing is counted here (the full
 #    evaluation is counted by the caller, as before), and the result equals one full pass
 g, st = setup(parent, 1)
 child = child_with(parent, g, 2, 5)
-out = GEPA.evaluate_val_with_gate(g, child, st, 0)
+out = GEPA.evaluate_val_with_gate(g, as_program(child), st, 0)
 assert out is not None and st.total_num_evals == 1000
 score, outputs, subscores = out
-full = Evaluator(list(range(n)))(child)
+full = Evaluator(list(range(n)))(as_program(child))
 assert (score, outputs, subscores) == full, "two stages must give the val evaluation of one full pass"
-assert st.full_program_trace[-1]["val_gate"]["cut"] is False
+t = st.full_program_trace[-1]["val_gate"]
+assert t["cut"] is False and t["trails"] is False and t["unanswered"] == 0
 assert g.val_gate["gate_evaluator"].calls == 1 and g.val_gate["rest_evaluator"].calls == 1
 
 # 4. a child that is better on the gate passes; tolerance 0 discards a child that trails by 1; a larger
 #    tolerance lets it pass
 g, st = setup(parent, 1)
-assert GEPA.evaluate_val_with_gate(g, child_with(parent, g, 4, 0), st, 0) is not None
+assert GEPA.evaluate_val_with_gate(g, as_program(child_with(parent, g, 4, 0)), st, 0) is not None
 g, st = setup(parent, 0)
-assert GEPA.evaluate_val_with_gate(g, child_with(parent, g, 2, 6), st, 0) is None
+assert GEPA.evaluate_val_with_gate(g, as_program(child_with(parent, g, 2, 6)), st, 0) is None
 g, st = setup(parent, 0)
-assert GEPA.evaluate_val_with_gate(g, child_with(parent, g, 3, 0), st, 0) is not None   # equal on the gate
+assert GEPA.evaluate_val_with_gate(g, as_program(child_with(parent, g, 3, 0)), st, 0) is not None   # equal on the gate
 g, st = setup(parent, 2)
-assert GEPA.evaluate_val_with_gate(g, child_with(parent, g, 1, 0), st, 0) is not None
+assert GEPA.evaluate_val_with_gate(g, as_program(child_with(parent, g, 1, 0)), st, 0) is not None
+
+# 4b. server errors. A child that trails only because the server left gate examples unanswered is not
+#     discarded: the rest is scored and it goes on, the lost examples still count as wrong (as in E1).
+g, st = setup(parent, 1)
+child = child_with(parent, g, 3, 5)
+lost = set(g.val_gate["gate_positions"][:2])   # two of its three right answers are lost
+out = GEPA.evaluate_val_with_gate(g, as_program(child, server_fail=lost), st, 0)
+assert out is not None and st.total_num_evals == 1000
+t = st.full_program_trace[-1]["val_gate"]
+assert t["child_gate_score"] == 1 and t["unanswered"] == 2 and t["trails"] is True and t["cut"] is False
+assert sum(out[2]) == sum(child) - 2 and all(out[2][p] == 0 for p in lost)
+assert g.val_gate["rest_evaluator"].calls == 1
+assert any("got no answer from the server: not discarded" in l for l in g.logger.lines)
+#     The same child with answers that could not be parsed instead (the child's own failure) is discarded.
+g, st = setup(parent, 1)
+assert GEPA.evaluate_val_with_gate(g, as_program(child, format_fail=lost), st, 0) is None
+t = st.full_program_trace[-1]["val_gate"]
+assert t["unanswered"] == 0 and t["cut"] is True and st.total_num_evals == 1004
+#     An example whose first copy hit a server error but whose second copy was answered is answered.
+g, st = setup(parent, 1, twice=lost)
+out = GEPA.evaluate_val_with_gate(g, as_program(child_with(parent, g, 1, 0), server_fail_once=lost), st, 0)
+assert out is None and st.full_program_trace[-1]["val_gate"]["unanswered"] == 0
+#     A child that passes anyway is not affected; the lost examples are recorded.
+g, st = setup(parent, 1)
+out = GEPA.evaluate_val_with_gate(g, as_program(child_with(parent, g, 4, 0), server_fail={g.val_gate["gate_positions"][3]}), st, 0)
+t = st.full_program_trace[-1]["val_gate"]
+assert out is not None and t["unanswered"] == 1 and t["trails"] is False and t["cut"] is False
+
+# 4c. which exceptions count as the server's: by class name, also as the cause of another exception
+from gepa_artifact.gepa.gepa import is_server_error
+import litellm
+assert is_server_error(InternalServerError("x"))
+for name in ("InternalServerError", "APIConnectionError", "Timeout", "ServiceUnavailableError"):
+    assert name in {c.__name__ for c in getattr(litellm, name).__mro__}, name
+assert "InternalServerError" in {c.__name__ for c in litellm.InternalServerError.__mro__}
+try:
+    try:
+        raise InternalServerError("inner")
+    except Exception as inner:
+        raise RuntimeError("outer") from inner
+except Exception as e:
+    assert is_server_error(e)
+assert not is_server_error(ValueError("Failed to parse response"))
+assert not is_server_error(KeyError("answer"))
+for name in ("ContextWindowExceededError", "BadRequestError"):
+    assert not ({c.__name__ for c in getattr(litellm, name).__mro__} & gepa_module.SERVER_ERROR_NAMES), name
 
 # 5. the full-evaluation step uses the two-stage result instead of a second val pass, and counts the whole
 #    val set once, as for a child without the gate
@@ -117,12 +196,13 @@ gepa_module.log_detailed_metrics_after_discovering_new_program = lambda **kw: No
 try:
     g, st0 = setup(parent, 1)
     child = child_with(parent, g, 2, 5)
-    out = GEPA.evaluate_val_with_gate(g, child, st0, 0)
+    child_program = as_program(child)
+    out = GEPA.evaluate_val_with_gate(g, child_program, st0, 0)
     st = State(total_num_evals=1000, num_full_ds_evals=1, total_num_evals_per_trainval_instance=0.0,
                full_program_trace=[{"i": 0}], i=0)
     g.track_scores_on, g.run_dir, g.use_wandb = "val", None, False
     never = Evaluator(list(range(n)))
-    GEPA.run_full_eval_add_new_program_to_gepa_tree(g, new_program=child, gepa_state=st, trainset_evaluator=None,
+    GEPA.run_full_eval_add_new_program_to_gepa_tree(g, new_program=child_program, gepa_state=st, trainset_evaluator=None,
                                                     valset_evaluator=never, parent_program_idx=[0], valset_eval_output=out)
     assert never.calls == 0, "the val set was scored a second time"
     assert st.total_num_evals == 1000 + n and st.num_full_ds_evals == 2
@@ -130,7 +210,7 @@ try:
     # without the gate: one normal val pass, same counting
     st = State(total_num_evals=1000, num_full_ds_evals=1, total_num_evals_per_trainval_instance=0.0,
                full_program_trace=[{"i": 0}], i=0)
-    GEPA.run_full_eval_add_new_program_to_gepa_tree(g, new_program=child, gepa_state=st, trainset_evaluator=None,
+    GEPA.run_full_eval_add_new_program_to_gepa_tree(g, new_program=child_program, gepa_state=st, trainset_evaluator=None,
                                                     valset_evaluator=never, parent_program_idx=[0])
     assert never.calls == 1 and st.total_num_evals == 1000 + n and recorded["valset_subscores"] == child
 finally:
