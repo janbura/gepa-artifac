@@ -10,7 +10,11 @@
 # Submit from the repo root (logs/ must exist there):
 #   sbatch -p gpu_h100 -t 04:00:00 -J p-pilot scripts/snellius/pupa_job.sh cmds_p_pilot.txt /home/scur0934/arbor091
 # PAPILLON turns a failed call into an empty answer without any error (papillon_program.py), so when the
-# external server exits or fails its health check 3 times in a row, this script stops the runs (job fails).
+# external server exits, or fails its health check for EXT_PATIENCE_MIN minutes in a row, this script stops
+# the runs (job fails). The patience is long because of F112: gpt-oss's tokenizer (openai-harmony 0.0.8)
+# needs minutes for a Qwen answer of about a million repeated characters, and the server answers nothing
+# meanwhile, not even /health; a watchdog that gave up after 3 failed checks stopped two jobs that would
+# have recovered.
 set -u
 REPO=${SLURM_SUBMIT_DIR:-$PWD}
 cd "$REPO"
@@ -53,6 +57,14 @@ export PUPA_EXTERNAL_MODEL=openai/$EXT_NAME PUPA_EXTERNAL_API_BASE=http://localh
 export PUPA_EXTERNAL_MAX_TOKENS=4000
 echo "runs use: PUPA_EXTERNAL_MODEL=$PUPA_EXTERNAL_MODEL PUPA_EXTERNAL_API_BASE=$PUPA_EXTERNAL_API_BASE PUPA_EXTERNAL_MAX_TOKENS=$PUPA_EXTERNAL_MAX_TOKENS"
 
+# F112 (plan 2.14 addendum of 2026-11-24): while gpt-oss tokenizes a million-character answer (about 8 min each, and
+# the judge reads every answer twice), every request waits and the runs send Qwen nothing. So the external watchdog
+# waits EXT_PATIENCE_MIN minutes of failed health checks before it stops the runs, and the Qwen-side watchdog of
+# qwen_job.sh gets a stall limit longer than that. A server that exited is still caught within a minute.
+EXT_PATIENCE_MIN=${EXT_PATIENCE_MIN:-90}
+export STALL_MINUTES=${STALL_MINUTES:-120}
+echo "watchdogs: external health check may fail for $EXT_PATIENCE_MIN min, Qwen stall limit $STALL_MINUTES min"
+
 CUDA_VISIBLE_DEVICES=$G0 bash scripts/snellius/qwen_job.sh "$@" &
 QJ=$!
 
@@ -72,12 +84,20 @@ stop_runs() {
   done
 }
 ext_watch() {
-  local fails=0
+  local down_since=0 now
   while sleep 60; do
     kill -0 $QJ 2>/dev/null || return
     kill -0 $EXT_PID 2>/dev/null || { stop_runs "the external server exited"; return; }
-    if curl -sf -m 30 "http://localhost:$EXT_PORT/health" > /dev/null; then fails=0; else fails=$(( fails + 1 )); fi
-    [ $fails -ge 3 ] && { stop_runs "the external server failed its health check 3 times in a row"; return; }
+    now=$(date +%s)
+    if curl -sf -m 30 "http://localhost:$EXT_PORT/health" > /dev/null; then
+      [ $down_since -gt 0 ] && echo "=== external watchdog $(date): the external server answers again, after $(( $(date +%s) - down_since )) s"
+      down_since=0
+    elif [ $down_since -eq 0 ]; then
+      down_since=$now
+      echo "=== external watchdog $(date): the external server does not answer its health check (F112: probably tokenizing a very long answer); waiting up to $EXT_PATIENCE_MIN min"
+    elif [ $(( now - down_since )) -ge $(( EXT_PATIENCE_MIN * 60 )) ]; then
+      stop_runs "the external server failed its health check for $EXT_PATIENCE_MIN min"; return
+    fi
   done
 }
 ext_watch &
