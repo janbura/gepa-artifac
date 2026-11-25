@@ -1,0 +1,1326 @@
+{
+ "cells": {
+  "HotpotQA GEPA": {
+   "per_seed": [
+    62.33,
+    57.33,
+    61.67
+   ],
+   "mean": 60.443333333333335,
+   "sd": 2.7163455842976494
+  },
+  "HotpotQA E1": {
+   "per_seed": [
+    63.33,
+    61.33,
+    58.0
+   ],
+   "mean": 60.88666666666666,
+   "sd": 2.692514314415678
+  },
+  "HotpotQA E2": {
+   "per_seed": [
+    61.0,
+    59.67,
+    62.0
+   ],
+   "mean": 60.89,
+   "sd": 1.168888360794134
+  },
+  "HoVer GEPA": {
+   "per_seed": [
+    48.67,
+    51.0,
+    53.33
+   ],
+   "mean": 51.0,
+   "sd": 2.3299999999999983
+  },
+  "HoVer E1": {
+   "per_seed": [
+    50.0,
+    51.67,
+    51.67
+   ],
+   "mean": 51.11333333333334,
+   "sd": 0.964174949546676
+  },
+  "HoVer E2": {
+   "per_seed": [
+    51.67,
+    55.67,
+    51.67
+   ],
+   "mean": 53.00333333333334,
+   "sd": 2.309401076758503
+  }
+ },
+ "tests": [
+  {
+   "task": "HotpotQA",
+   "pair": "E1 - GEPA",
+   "d": 0.44444444444444414,
+   "ci95": [
+    -2.1111111111111116,
+    2.9999999999999996
+   ],
+   "a_better": 50,
+   "b_better": 44,
+   "per_seed": [
+    1.0,
+    4.0,
+    -3.6700000000000017
+   ],
+   "p": 0.7962203779622038,
+   "p_holm": 1.0,
+   "holm_rejects": false
+  },
+  {
+   "task": "HotpotQA",
+   "pair": "E2 - GEPA",
+   "d": 0.4444444444444442,
+   "ci95": [
+    -2.111111111111111,
+    3.0
+   ],
+   "a_better": 41,
+   "b_better": 44,
+   "per_seed": [
+    -1.3299999999999983,
+    2.3400000000000034,
+    0.3299999999999983
+   ],
+   "p": 0.8028197180281972,
+   "p_holm": 1.0,
+   "holm_rejects": false
+  },
+  {
+   "task": "HotpotQA",
+   "pair": "E2 - E1",
+   "d": 0.0,
+   "ci95": [
+    -2.444444444444444,
+    2.444444444444444
+   ],
+   "a_better": 41,
+   "b_better": 44,
+   "per_seed": [
+    -2.3299999999999983,
+    -1.6599999999999966,
+    4.0
+   ],
+   "p": 1.0,
+   "p_holm": 1.0,
+   "holm_rejects": false
+  },
+  {
+   "task": "HoVer",
+   "pair": "E1 - GEPA",
+   "d": 0.111111111111111,
+   "ci95": [
+    -2.2222222222222223,
+    2.555555555555555
+   ],
+   "a_better": 45,
+   "b_better": 43,
+   "per_seed": [
+    1.3299999999999983,
+    0.6700000000000017,
+    -1.6599999999999966
+   ],
+   "p": 1.0,
+   "p_holm": 1.0,
+   "holm_rejects": false
+  },
+  {
+   "task": "HoVer",
+   "pair": "E2 - GEPA",
+   "d": 2.0,
+   "ci95": [
+    -0.5555555555555552,
+    4.555555555555555
+   ],
+   "a_better": 47,
+   "b_better": 36,
+   "per_seed": [
+    3.0,
+    4.670000000000002,
+    -1.6599999999999966
+   ],
+   "p": 0.1461853814618538,
+   "p_holm": 0.8771122887711229,
+   "holm_rejects": false
+  },
+  {
+   "task": "HoVer",
+   "pair": "E2 - E1",
+   "d": 1.888888888888889,
+   "ci95": [
+    -0.7777777777777776,
+    4.555555555555556
+   ],
+   "a_better": 49,
+   "b_better": 40,
+   "per_seed": [
+    1.6700000000000017,
+    4.0,
+    0.0
+   ],
+   "p": 0.19208079192080793,
+   "p_holm": 0.9604039596040397,
+   "holm_rejects": false
+  }
+ ],
+ "aggregate": [
+  {
+   "pair": "E1 - GEPA",
+   "d": 0.27777777777777757,
+   "ci95": [
+    -1.4444444444444449,
+    2.0555555555555554
+   ]
+  },
+  {
+   "pair": "E2 - GEPA",
+   "d": 1.222222222222222,
+   "ci95": [
+    -0.6111111111111112,
+    3.0555555555555554
+   ]
+  },
+  {
+   "pair": "E2 - E1",
+   "d": 0.9444444444444445,
+   "ci95": [
+    -0.8333333333333333,
+    2.7222222222222223
+   ]
+  }
+ ],
+ "without_dagger": [
+  {
+   "task": "HotpotQA",
+   "pair": "E1 - GEPA",
+   "seeds_a": [
+    0,
+    2
+   ],
+   "seeds_b": [
+    0,
+    1,
+    2
+   ],
+   "d": 0.22222222222222288,
+   "ci95": [
+    -2.666666666666666,
+    3.1666666666666674
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "pair": "E2 - E1",
+   "seeds_a": [
+    0,
+    1,
+    2
+   ],
+   "seeds_b": [
+    0,
+    2
+   ],
+   "d": 0.2222222222222214,
+   "ci95": [
+    -2.6666666666666674,
+    3.1111111111111103
+   ]
+  },
+  {
+   "task": "HoVer",
+   "pair": "E1 - GEPA",
+   "seeds_a": [
+    1,
+    2
+   ],
+   "seeds_b": [
+    2
+   ],
+   "d": -1.6666666666666667,
+   "ci95": [
+    -5.5,
+    2.3333333333333335
+   ]
+  },
+  {
+   "task": "HoVer",
+   "pair": "E2 - GEPA",
+   "seeds_a": [
+    1,
+    2
+   ],
+   "seeds_b": [
+    2
+   ],
+   "d": 0.3333333333333333,
+   "ci95": [
+    -3.3333333333333335,
+    4.0
+   ]
+  },
+  {
+   "task": "HoVer",
+   "pair": "E2 - E1",
+   "seeds_a": [
+    1,
+    2
+   ],
+   "seeds_b": [
+    1,
+    2
+   ],
+   "d": 2.0,
+   "ci95": [
+    -1.1666666666666667,
+    5.333333333333333
+   ]
+  }
+ ],
+ "search": [
+  {
+   "task": "HotpotQA",
+   "method": "GEPA",
+   "per_seed": [
+    {
+     "iterations": 93,
+     "proposals": 77,
+     "accepted": 21,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 109,
+     "proposals": 88,
+     "accepted": 21,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 167,
+     "proposals": 142,
+     "accepted": 20,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    }
+   ],
+   "candidates": [
+    22,
+    22,
+    21
+   ],
+   "metric_calls": [
+    7062,
+    7128,
+    7152
+   ],
+   "val_calls": [
+    6600,
+    6600,
+    6300
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E1",
+   "per_seed": [
+    {
+     "iterations": 389,
+     "proposals": 274,
+     "accepted": 42,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 238,
+     "proposals": 195,
+     "accepted": 47,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 275,
+     "proposals": 227,
+     "accepted": 45,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    }
+   ],
+   "candidates": [
+    43,
+    48,
+    46
+   ],
+   "metric_calls": [
+    6944,
+    6970,
+    6962
+   ],
+   "val_calls": [
+    5300,
+    5800,
+    5600
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E2",
+   "per_seed": [
+    {
+     "iterations": 334,
+     "proposals": 271,
+     "accepted": 36,
+     "gate": 48,
+     "cut": 12,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 313,
+     "proposals": 237,
+     "accepted": 31,
+     "gate": 56,
+     "cut": 25,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 348,
+     "proposals": 282,
+     "accepted": 34,
+     "gate": 49,
+     "cut": 15,
+     "guard_kept": 0
+    }
+   ],
+   "candidates": [
+    37,
+    32,
+    35
+   ],
+   "metric_calls": [
+    6926,
+    6872,
+    6942
+   ],
+   "val_calls": [
+    5300,
+    5450,
+    5250
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "GEPA",
+   "per_seed": [
+    {
+     "iterations": 101,
+     "proposals": 97,
+     "accepted": 21,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 114,
+     "proposals": 102,
+     "accepted": 21,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 120,
+     "proposals": 111,
+     "accepted": 21,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    }
+   ],
+   "candidates": [
+    22,
+    22,
+    22
+   ],
+   "metric_calls": [
+    7182,
+    7212,
+    7266
+   ],
+   "val_calls": [
+    6600,
+    6600,
+    6600
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E1",
+   "per_seed": [
+    {
+     "iterations": 253,
+     "proposals": 222,
+     "accepted": 47,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 230,
+     "proposals": 201,
+     "accepted": 48,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 319,
+     "proposals": 276,
+     "accepted": 44,
+     "gate": 0,
+     "cut": 0,
+     "guard_kept": 0
+    }
+   ],
+   "candidates": [
+    48,
+    49,
+    45
+   ],
+   "metric_calls": [
+    7132,
+    7106,
+    7156
+   ],
+   "val_calls": [
+    5800,
+    5900,
+    5500
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E2",
+   "per_seed": [
+    {
+     "iterations": 304,
+     "proposals": 269,
+     "accepted": 34,
+     "gate": 53,
+     "cut": 19,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 283,
+     "proposals": 254,
+     "accepted": 37,
+     "gate": 52,
+     "cut": 15,
+     "guard_kept": 0
+    },
+    {
+     "iterations": 353,
+     "proposals": 321,
+     "accepted": 28,
+     "gate": 53,
+     "cut": 25,
+     "guard_kept": 0
+    }
+   ],
+   "candidates": [
+    35,
+    38,
+    29
+   ],
+   "metric_calls": [
+    7064,
+    7074,
+    7076
+   ],
+   "val_calls": [
+    5450,
+    5550,
+    5150
+   ]
+  }
+ ],
+ "validation": [
+  {
+   "task": "HotpotQA",
+   "method": "GEPA",
+   "seen100": [
+    62.0,
+    54.0,
+    60.0
+   ],
+   "other200": [
+    67.0,
+    59.5,
+    66.0
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E1",
+   "seen100": [
+    64.0,
+    56.0,
+    64.0
+   ],
+   "other200": [
+    64.5,
+    64.5,
+    59.5
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E2",
+   "seen100": [
+    57.0,
+    61.0,
+    64.0
+   ],
+   "other200": [
+    58.5,
+    63.5,
+    66.0
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "GEPA",
+   "seen100": [
+    47.0,
+    52.0,
+    46.0
+   ],
+   "other200": [
+    50.5,
+    49.5,
+    55.5
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E1",
+   "seen100": [
+    55.0,
+    55.0,
+    52.0
+   ],
+   "other200": [
+    48.0,
+    51.5,
+    56.0
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E2",
+   "seen100": [
+    55.0,
+    61.0,
+    50.0
+   ],
+   "other200": [
+    49.0,
+    55.0,
+    52.5
+   ]
+  }
+ ],
+ "curves": [
+  {
+   "task": "HotpotQA",
+   "method": "GEPA",
+   "checkpoints": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    5871
+   ],
+   "per_seed": [
+    [
+     48.0,
+     58.0,
+     59.0,
+     62.0,
+     62.0,
+     62.0
+    ],
+    [
+     52.0,
+     54.0,
+     54.0,
+     54.0,
+     54.0,
+     54.0
+    ],
+    [
+     51.0,
+     57.0,
+     62.0,
+     62.0,
+     62.0,
+     62.0
+    ]
+   ],
+   "end": [
+    62.0,
+    57.0,
+    62.0
+   ],
+   "calls_to_reach_gepa_final": [
+    3498,
+    1938,
+    2694
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E1",
+   "checkpoints": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    5871
+   ],
+   "per_seed": [
+    [
+     60.0,
+     64.0,
+     65.0,
+     65.0,
+     65.0,
+     65.0
+    ],
+    [
+     51.0,
+     56.0,
+     57.0,
+     57.0,
+     57.0,
+     57.0
+    ],
+    [
+     59.0,
+     59.0,
+     60.0,
+     60.0,
+     64.0,
+     64.0
+    ]
+   ],
+   "end": [
+    65.0,
+    57.0,
+    64.0
+   ],
+   "calls_to_reach_gepa_final": [
+    1382,
+    1870,
+    2086
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E2",
+   "checkpoints": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    5871
+   ],
+   "per_seed": [
+    [
+     54.0,
+     55.0,
+     58.0,
+     58.0,
+     58.0,
+     59.0
+    ],
+    [
+     57.0,
+     61.0,
+     61.0,
+     61.0,
+     61.0,
+     62.0
+    ],
+    [
+     58.0,
+     63.0,
+     64.0,
+     64.0,
+     67.0,
+     67.0
+    ]
+   ],
+   "end": [
+    59.0,
+    62.0,
+    67.0
+   ],
+   "calls_to_reach_gepa_final": [
+    null,
+    266,
+    1040
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "GEPA",
+   "checkpoints": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    5871
+   ],
+   "per_seed": [
+    [
+     40.0,
+     45.0,
+     45.0,
+     51.0,
+     51.0,
+     51.0
+    ],
+    [
+     45.0,
+     52.0,
+     52.0,
+     52.0,
+     52.0,
+     52.0
+    ],
+    [
+     40.0,
+     43.0,
+     43.0,
+     43.0,
+     48.0,
+     48.0
+    ]
+   ],
+   "end": [
+    51.0,
+    52.0,
+    48.0
+   ],
+   "calls_to_reach_gepa_final": [
+    3594,
+    1644,
+    4092
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E1",
+   "checkpoints": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    5871
+   ],
+   "per_seed": [
+    [
+     53.0,
+     53.0,
+     53.0,
+     53.0,
+     57.0,
+     57.0
+    ],
+    [
+     53.0,
+     53.0,
+     54.0,
+     55.0,
+     55.0,
+     55.0
+    ],
+    [
+     45.0,
+     45.0,
+     46.0,
+     48.0,
+     48.0,
+     52.0
+    ]
+   ],
+   "end": [
+    57.0,
+    55.0,
+    52.0
+   ],
+   "calls_to_reach_gepa_final": [
+    184,
+    378,
+    2130
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E2",
+   "checkpoints": [
+    1000,
+    2000,
+    3000,
+    4000,
+    5000,
+    5871
+   ],
+   "per_seed": [
+    [
+     47.0,
+     47.0,
+     53.0,
+     53.0,
+     55.0,
+     55.0
+    ],
+    [
+     49.0,
+     59.0,
+     59.0,
+     61.0,
+     61.0,
+     61.0
+    ],
+    [
+     47.0,
+     51.0,
+     51.0,
+     51.0,
+     51.0,
+     51.0
+    ]
+   ],
+   "end": [
+    55.0,
+    61.0,
+    51.0
+   ],
+   "calls_to_reach_gepa_final": [
+    904,
+    1160,
+    366
+   ]
+  }
+ ],
+ "race": [
+  {
+   "task": "HotpotQA",
+   "method": "E1",
+   "seed": 0,
+   "returned": 25,
+   "subset_best": 19,
+   "finalists_seen": [
+    65.0,
+    65.0,
+    64.0,
+    64.0,
+    64.0
+   ],
+   "finalists_other": [
+    63.0,
+    61.0,
+    61.0,
+    58.5,
+    64.5
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E1",
+   "seed": 1,
+   "returned": 16,
+   "subset_best": 18,
+   "finalists_seen": [
+    57.0,
+    56.0,
+    56.0,
+    56.0,
+    55.0
+   ],
+   "finalists_other": [
+    63.5,
+    64.5,
+    59.0,
+    62.0,
+    62.5
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E1",
+   "seed": 2,
+   "returned": 37,
+   "subset_best": 37,
+   "finalists_seen": [
+    64.0,
+    60.0,
+    59.0,
+    59.0,
+    59.0
+   ],
+   "finalists_other": [
+    59.5,
+    59.5,
+    58.0,
+    60.5,
+    58.5
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E2",
+   "seed": 0,
+   "returned": 31,
+   "subset_best": 32,
+   "finalists_seen": [
+    59.0,
+    59.0,
+    58.0,
+    57.0,
+    56.0
+   ],
+   "finalists_other": [
+    55.5,
+    56.0,
+    54.0,
+    58.5,
+    53.0
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E2",
+   "seed": 1,
+   "returned": 8,
+   "subset_best": 29,
+   "finalists_seen": [
+    62.0,
+    61.0,
+    60.0,
+    60.0,
+    60.0
+   ],
+   "finalists_other": [
+    60.5,
+    63.5,
+    63.0,
+    61.5,
+    63.5
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "method": "E2",
+   "seed": 2,
+   "returned": 16,
+   "subset_best": 28,
+   "finalists_seen": [
+    67.0,
+    64.0,
+    64.0,
+    64.0,
+    63.0
+   ],
+   "finalists_other": [
+    60.5,
+    63.5,
+    66.0,
+    65.5,
+    59.5
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E1",
+   "seed": 0,
+   "returned": 40,
+   "subset_best": 31,
+   "finalists_seen": [
+    57.0,
+    55.0,
+    55.0,
+    53.0,
+    52.0
+   ],
+   "finalists_other": [
+    46.5,
+    48.0,
+    48.0,
+    47.5,
+    44.5
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E1",
+   "seed": 1,
+   "returned": 31,
+   "subset_best": 31,
+   "finalists_seen": [
+    55.0,
+    55.0,
+    54.0,
+    54.0,
+    54.0
+   ],
+   "finalists_other": [
+    51.5,
+    49.5,
+    47.5,
+    49.5,
+    49.5
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E1",
+   "seed": 2,
+   "returned": 42,
+   "subset_best": 42,
+   "finalists_seen": [
+    52.0,
+    48.0,
+    47.0,
+    46.0,
+    46.0
+   ],
+   "finalists_other": [
+    56.0,
+    44.5,
+    52.5,
+    50.5,
+    50.5
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E2",
+   "seed": 0,
+   "returned": 25,
+   "subset_best": 25,
+   "finalists_seen": [
+    55.0,
+    55.0,
+    54.0,
+    54.0,
+    53.0
+   ],
+   "finalists_other": [
+    49.0,
+    48.0,
+    46.0,
+    49.5,
+    45.0
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E2",
+   "seed": 1,
+   "returned": 24,
+   "subset_best": 24,
+   "finalists_seen": [
+    61.0,
+    59.0,
+    56.0,
+    55.0,
+    55.0
+   ],
+   "finalists_other": [
+    55.0,
+    49.0,
+    52.0,
+    55.0,
+    53.5
+   ]
+  },
+  {
+   "task": "HoVer",
+   "method": "E2",
+   "seed": 2,
+   "returned": 11,
+   "subset_best": 8,
+   "finalists_seen": [
+    51.0,
+    51.0,
+    50.0,
+    50.0,
+    49.0
+   ],
+   "finalists_other": [
+    46.0,
+    51.5,
+    49.5,
+    52.5,
+    53.0
+   ]
+  }
+ ],
+ "cost": [
+  {
+   "task": "HotpotQA",
+   "jobs": "GEPA + GEPA+Merge",
+   "per_seed": [
+    {
+     "job": "29015016",
+     "state": "COMPLETED",
+     "hours": 5.785833333333334,
+     "sbu": 1111,
+     "mtok": 17.59,
+     "requests": 31289
+    },
+    {
+     "job": "29030578",
+     "state": "COMPLETED",
+     "hours": 5.390555555555556,
+     "sbu": 1035,
+     "mtok": 16.23,
+     "requests": 32645
+    },
+    {
+     "job": "29030583",
+     "state": "COMPLETED",
+     "hours": 7.2058333333333335,
+     "sbu": 1384,
+     "mtok": 18.21,
+     "requests": 32990
+    }
+   ]
+  },
+  {
+   "task": "HotpotQA",
+   "jobs": "E1 + E2",
+   "per_seed": [
+    {
+     "job": "29627113",
+     "state": "COMPLETED",
+     "hours": 11.8875,
+     "sbu": 2282,
+     "mtok": 24.09,
+     "requests": 40054
+    },
+    {
+     "job": "29655234",
+     "state": "COMPLETED",
+     "hours": 9.5975,
+     "sbu": 1843,
+     "mtok": 19.42,
+     "requests": 34611
+    },
+    {
+     "job": "29655240",
+     "state": "COMPLETED",
+     "hours": 11.92611111111111,
+     "sbu": 2290,
+     "mtok": 24.93,
+     "requests": 41475
+    }
+   ]
+  },
+  {
+   "task": "HoVer",
+   "jobs": "GEPA + GEPA+Merge",
+   "per_seed": [
+    {
+     "job": "29015028",
+     "state": "COMPLETED",
+     "hours": 6.769166666666667,
+     "sbu": 1300,
+     "mtok": 22.97,
+     "requests": 36253
+    },
+    {
+     "job": "29030587",
+     "state": "COMPLETED",
+     "hours": 7.156388888888889,
+     "sbu": 1374,
+     "mtok": 24.21,
+     "requests": 35265
+    },
+    {
+     "job": "29030590",
+     "state": "COMPLETED",
+     "hours": 6.458888888888889,
+     "sbu": 1240,
+     "mtok": 22.59,
+     "requests": 35079
+    }
+   ]
+  },
+  {
+   "task": "HoVer",
+   "jobs": "E1 + E2",
+   "per_seed": [
+    {
+     "job": "29627118",
+     "state": "COMPLETED",
+     "hours": 11.160555555555556,
+     "sbu": 2143,
+     "mtok": 29.13,
+     "requests": 42371
+    },
+    {
+     "job": "29655237",
+     "state": "COMPLETED",
+     "hours": 10.429166666666665,
+     "sbu": 2002,
+     "mtok": 28.18,
+     "requests": 40679
+    },
+    {
+     "job": "29655243",
+     "state": "COMPLETED",
+     "hours": 10.701388888888888,
+     "sbu": 2055,
+     "mtok": 26.48,
+     "requests": 40708
+    }
+   ]
+  }
+ ],
+ "rebuild_largest_gap": 0.003333333333337407,
+ "checks": {
+  "gate_decisions": 311,
+  "overshoot_min": 1,
+  "overshoot_max": 105
+ },
+ "guard_kept": 0,
+ "gate_unanswered": 0,
+ "race_summary": {
+  "changed": 7,
+  "runs": 12,
+  "mean_gain_other200_when_changed": 3.142857142857143,
+  "mean_seen_minus_other_finalists": 1.6333333333333333,
+  "finalists": 60
+ }
+}

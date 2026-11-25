@@ -2,8 +2,8 @@
 
 Reproduction of *GEPA: Reflective Prompt Evolution Can Outperform Reinforcement Learning*
 ([arXiv 2507.19457](https://arxiv.org/abs/2507.19457), v2) with the authors' artifact, on Snellius.
-Status of 2026-11-22: all runs are finished and analysed (Table 1 on 2026-11-16, Table 3 on 2026-11-22), and no job is
-queued. Each number points to its source: a section (§) or finding (F) of `REPRODUCTION_PLAN.md`, or a file under
+Status of 2026-11-25: all runs are finished and analysed (Table 1 on 2026-11-16, Table 3 on 2026-11-22, the two
+extensions of §12 on 2026-11-25), and no job is queued. Each number points to its source: a section (§) or finding (F) of `REPRODUCTION_PLAN.md`, or a file under
 `results/`.
 
 ## 1. Summary
@@ -36,6 +36,14 @@ queued. Each number points to its source: a section (§) or finding (F) of `REPR
     tasks the difference is +0.76 (−0.82 to +2.34; paper +6.18).
   - On HoVer our two simpler rules score far above the paper's single runs (50.22 and 51.89 against 45.33 and
     41.00), while our GEPA is close to the paper's.
+- **Extensions E1 and E2 (§12): no improvement.** E1 lets GEPA search on 100 of the 300 val examples and race its top
+  5 candidates on the other 200. E2 adds a 50-example gate before each val pass. Both run at GEPA's rollout budget, on
+  HotpotQA and HoVer with three seeds (12 runs).
+  - Neither changes the test score detectably: E1 − GEPA is +0.28 points over the two tasks (95 % interval −1.44 to
+    +2.06) and E2 − GEPA +1.22 (−0.61 to +3.06). None of the six tests passes Holm.
+  - Both make 2.3 to 2.7 times as many proposals as GEPA and find programs that score higher on the 100 search
+    examples. The gain does not carry over to the other 200 val examples or to the test set.
+  - They need 1.6 to 1.8 times GEPA's GPU time, so "the same score at lower cost" does not hold either.
 - **Seeds matter.** The same method moves 10–19 points between seeds (AIME MIPROv2 44.67 / 26.00 / 32.00,
   LiveBench-Math GEPA+Merge 52.94 / 42.63 / 55.23). Single runs, as in the paper, cannot separate the methods on IFBench,
   AIME and LiveBench-Math.
@@ -585,6 +593,15 @@ about 16,500 SBU.
 
 The per-job values are rounded, so they sum to 18,865.
 
+**Extensions E1 and E2 (§12):** 13,050 SBU on the course account, login C (sacct of C's login from 2026-11-22, queried
+2026-11-25; cap 18,000 SBU). The plan expected 12,300 SBU.
+
+| Extensions, by use | SBU |
+|---|---|
+| The 6 jobs with results (12 runs) | 12,615 |
+| Two smoke tests on one A100 each | 429 |
+| Check and monitor jobs on CPU nodes | 6 |
+
 ## 9. Limitations
 
 - **Three seeds per cell.** The verdict can only detect gaps of about 9–14 points (§2.4), and three seeds are too few to
@@ -618,6 +635,8 @@ The per-job values are rounded, so they sum to 18,865.
 | 2026-11-16 | Paired tests of Table 1, pushed before the run (11:13; run 11:14); the cell means were already known | §2.13 |
 | 2026-11-20 | Table 3: runs, budget rule (cap 17,000, raised to 20,000 by the user before any job), our BeamSearch, analysis script with its checks; all before any Table 3 run | §2.14 |
 | 2026-11-21 | Table 3: Arbor's start-up wait raised to 1,800 s (F111); after the first void PUPA job, the queue order "paper tasks first" (user) and the time limits of reruns; no Table 3 result used | §2.14 |
+| 2026-11-22 | Extensions E1 and E2: arms, the gate tolerance of 1 example (from a replay on the Table 1 logs), runs, checks and the analysis; before any E1 or E2 run with a full budget | §2.15 |
+| 2026-11-23 | E2: a gate pass with examples the server left unanswered never discards (user), after the E2 smoke test and before any full run; budget cap 18,000 SBU and the order "seed 0 first" (user) | §2.15 |
 
 Decisions taken after seeing a result:
 - PUPA MIPROv2 seed 0 was kept and marked ‡ after its check flagged 1.8 % empty gpt-oss answers, with a rule for the
@@ -634,6 +653,11 @@ Decisions taken after seeing a result:
 - PUPA was stopped at seed 1 after the second failure of seed 0 (2026-11-22, user). The user had seen the interim
   Table 3 results.
 
+- Extensions: seeds 1 and 2 were submitted after the seed-0 test scores were seen, as planned, with no change to code
+  or method. The analysis script was written after all 12 scores were known; it follows the method fixed on
+  2026-11-22. Three tables of §12 are not in that method and were added afterwards: the returned program on the val
+  set, the finalists' scores, and the cost per job.
+
 The full decisions log is §7 of the plan.
 
 ## 11. Files
@@ -645,7 +669,169 @@ The full decisions log is §7 of the plan.
 | `results/pupa_gptoss/` | the 12 PUPA runs, analysis output, split overlap |
 | `results/table3/` | the 20 Table 3 runs; `README.md`, `paired_output.md`, `paired_numbers.json` |
 | `results/a100_hardware_check/`, `results/b_baselines/` | the A100 runs |
+| `results/extensions_e1_e2/` | the 12 extension runs (with `final_race.json`); `README.md`, `paired_output.md`, `paired_numbers.json` |
 | `results/checks/` | the check report of every job; `LOST_REQUESTS_2026-11-13.md` |
-| `analysis/` | `table1_verdict.py`, `table1_paired.py`, `table3_paired.py`, `pupa_analysis.py`, `pupa_split_overlap.py`, `hardware_check_all.py`, `lost_request_impact.py` and `grpo/`, with their checks where they have them |
+| `analysis/` | `table1_verdict.py`, `table1_paired.py`, `table3_paired.py`, `extensions_paired.py`, `gate_replay_subset.py`, `pupa_analysis.py`, `pupa_split_overlap.py`, `hardware_check_all.py`, `lost_request_impact.py` and `grpo/`, with their checks where they have them |
 | `scripts/check_beam_selection.py` | the check of our BeamSearch parent selection and of which optimizers get GEPA's arguments (F110) |
-| Snellius `~/repro_archive/` (course account), `gepa-table3/archive/` (B's own account) | the server logs, too large for git |
+| `scripts/check_search_val_subset.py`, `scripts/check_val_gate.py` | the checks of E1 (subset draw, budget, race) and of E2 (gate rule, counting, guard), without a model |
+| Snellius `~/repro_archive/` (course account; C's login for §12), `gepa-table3/archive/` (B's own account) | the server logs, too large for git |
+
+## 12. Extensions E1 and E2: a smaller search val set and a staged gate
+
+On HotpotQA and HoVer our GEPA runs spend about 91 % of their rollouts on full val passes of new candidates, and the
+paper names a smaller validation set as future work. The two extensions test whether GEPA gets a better program when it spends less
+of the same budget on validation and more on proposals. Method, checks and analysis were fixed before any full run
+(§2.15 of the plan).
+
+- **GEPA** (control): the Table 1 runs. Every new candidate is scored on all 300 val examples.
+- **E1** (`GEPA-SubVal100`): the search scores candidates on a fixed 100 of the 300 val examples, drawn per seed. At the
+  end the 5 candidates with the best score on these 100 are scored on the other 200, and the best on all 300 is
+  returned. The race costs 1,000 of the budget.
+- **E2** (`GEPA-SubVal100-Gate`): E1, plus a gate. A child that passed the three-example test is first scored on 50 of
+  the 100 search examples. If it has more than 1 correct answer fewer than its parent there, it is discarded.
+
+All arms use the paper's rollout budgets (6,871 metric calls on HotpotQA, 7,051 on HoVer), the same seeds, splits and
+MIPROv2 caches. 12 runs in 6 jobs on H100, 2026-11-23 to 2026-11-25, commit `5c6d954`: the E1 and E2 runs of one task
+and seed shared a server, as the GEPA and GEPA+Merge runs did. Runs in `results/extensions_e1_e2/`, analysis by
+`analysis/extensions_paired.py` (output in that folder).
+
+### 12.1 Test scores
+
+Test score in %, 300 test examples per run.
+
+| Task | Method | seed 0 | seed 1 | seed 2 | mean ± SD |
+|---|---|---|---|---|---|
+| HotpotQA | GEPA | 62.33 | 57.33 | 61.67 | 60.44 ± 2.72 |
+| HotpotQA | E1 | 63.33 | 61.33† | 58.00 | 60.89 ± 2.69 |
+| HotpotQA | E2 | 61.00 | 59.67 | 62.00 | 60.89 ± 1.17 |
+| HoVer | GEPA | 48.67† | 51.00† | 53.33 | 51.00 ± 2.33 |
+| HoVer | E1 | 50.00† | 51.67 | 51.67 | 51.11 ± 0.96 |
+| HoVer | E2 | 51.67† | 55.67 | 51.67 | 53.00 ± 2.31 |
+
+† = single requests lost in the search (HoVer GEPA 2 and 3, HoVer E1 3, HoVer E2 1, HotpotQA E1 1). No test request
+was lost.
+
+Paired per-example tests, as in §3.2: d is the mean over the 300 test examples of A − B in points, each method averaged
+over its three seeds, with a 95 % bootstrap interval and a sign-flip test. Holm runs over the six tests.
+
+| Task | A − B | Per seed | d | 95 % interval | p | p (Holm) |
+|---|---|---|---|---|---|---|
+| HotpotQA | E1 − GEPA | +1.00 / +4.00 / −3.67 | +0.44 | [−2.11, +3.00] | 0.80 | 1.00 |
+| HotpotQA | E2 − GEPA | −1.33 / +2.34 / +0.33 | +0.44 | [−2.11, +3.00] | 0.80 | 1.00 |
+| HotpotQA | E2 − E1 | −2.33 / −1.66 / +4.00 | +0.00 | [−2.44, +2.44] | 1.00 | 1.00 |
+| HoVer | E1 − GEPA | +1.33 / +0.67 / −1.66 | +0.11 | [−2.22, +2.56] | 1.00 | 1.00 |
+| HoVer | E2 − GEPA | +3.00 / +4.67 / −1.66 | +2.00 | [−0.56, +4.56] | 0.15 | 0.88 |
+| HoVer | E2 − E1 | +1.67 / +4.00 / +0.00 | +1.89 | [−0.78, +4.56] | 0.19 | 0.96 |
+
+| Mean over the two tasks | d | 95 % interval |
+|---|---|---|
+| E1 − GEPA | +0.28 | [−1.44, +2.06] |
+| E2 − GEPA | +1.22 | [−0.61, +3.06] |
+| E2 − E1 | +0.94 | [−0.83, +2.72] |
+
+No test passes Holm, and none is below 0.14 before the correction. Every interval includes zero. The per-seed
+differences have both signs in five of the six rows. The intervals cover the choice of test examples only, not the
+variation between seeds.
+
+Without the † runs the picture is the same (`paired_output.md`): no interval excludes zero, and HoVer E2 − GEPA drops
+from +2.00 to +0.33, with one GEPA seed left.
+
+### 12.2 What changed in the search
+
+Mean over the three seeds, range in brackets.
+
+| Task | Method | proposals | candidates | gate: decided / discarded | metric calls | share spent on val |
+|---|---|---|---|---|---|---|
+| HotpotQA | GEPA | 102 [77, 142] | 22 [21, 22] | | 7,114 | 91 % |
+| HotpotQA | E1 | 232 [195, 274] | 46 [43, 48] | | 6,959 | 80 % |
+| HotpotQA | E2 | 263 [237, 282] | 35 [32, 37] | 51 / 17 (34 %) | 6,913 | 77 % |
+| HoVer | GEPA | 103 [97, 111] | 22 [22, 22] | | 7,220 | 91 % |
+| HoVer | E1 | 233 [201, 276] | 47 [45, 49] | | 7,131 | 80 % |
+| HoVer | E2 | 281 [254, 321] | 34 [29, 38] | 53 / 20 (37 %) | 7,071 | 76 % |
+
+The extensions did what they were built for. E1 makes 2.3 times as many proposals as GEPA and keeps twice as many
+candidates. E2 makes 2.6 to 2.7 times as many proposals and discards about a third of the children that reach the gate.
+The share of the budget spent on validation falls less than expected, from 91 % to 80 % and 77 %, because twice as many
+candidates each get a val pass and the race takes 1,000 calls.
+
+The extra search buys a better score on the 100 search examples, and nothing beyond them. The table shows the returned
+program of each arm on the seed's 100 search examples and on the other 200 val examples (mean over the seeds).
+
+| Task | Method | 100 search examples | other 200 val examples | test |
+|---|---|---|---|---|
+| HotpotQA | GEPA | 58.67 | 64.17 | 60.44 |
+| HotpotQA | E1 | 61.33 | 62.83 | 60.89 |
+| HotpotQA | E2 | 60.67 | 62.67 | 60.89 |
+| HoVer | GEPA | 48.33 | 51.83 | 51.00 |
+| HoVer | E1 | 54.00 | 51.83 | 51.11 |
+| HoVer | E2 | 55.33 | 52.17 | 53.00 |
+
+On the 100 examples the extensions' programs are 2.0 to 2.7 points above GEPA's on HotpotQA and 5.7 to 7.0 on HoVer. On
+the other 200 they are 1.3 to 1.5 points below GEPA's on HotpotQA and within 0.4 points on HoVer, and on the test set
+they are level. GEPA selected on all 300, so
+its "other 200" column is itself selection-biased upward; the test column is the fair comparison. Over the 60 race
+finalists, the score on the 100 search examples is 1.63 points above the score on the other 200. So the extra
+proposals mostly fitted the 100 examples.
+
+E1 and E2 reach the score of GEPA's returned program on these 100 examples early, after 184 to 2,130 metric calls in
+11 of 12 runs (GEPA itself: 1,644 to 4,092). This comparison favours the extensions, which selected on exactly these
+examples, and it was not tested on test data: no run used a smaller budget.
+
+### 12.3 The final race
+
+The race returned another program than the best on the 100 search examples in 7 of 12 runs. There the returned program
+is 3.14 points better on the other 200 on average; it was chosen with these 200, so part of this is selection. We did
+not score the programs the race rejected on the test set, so the race's effect on the test score is unknown.
+
+### 12.4 Cost
+
+Per job, two runs sharing one H100 (GEPA with GEPA+Merge; E1 with E2), mean over the seeds.
+
+| Task | Jobs | hours | SBU | generated tokens (M) |
+|---|---|---|---|---|
+| HotpotQA | GEPA + GEPA+Merge | 6.1 | 1,177 | 17.3 |
+| HotpotQA | E1 + E2 | 11.1 (1.82×) | 2,138 | 22.8 |
+| HoVer | GEPA + GEPA+Merge | 6.8 | 1,305 | 23.3 |
+| HoVer | E1 + E2 | 10.8 (1.58×) | 2,067 | 27.9 |
+
+The rollout budget is the same by design, but a rollout is not the unit of cost. Each proposal needs a reflection
+call, and the extensions make 2.3 to 2.7 times as many. The jobs take 1.6 to 1.8 times as long and generate 1.2 to 1.3
+times as many tokens. The servers also produced fewer tokens per second (566 to 755 against 710 to 984 in the GEPA
+jobs), as expected when more of the work comes in three-example batches and less in 300-example passes. The
+comparison is per job: the cost of E1 and E2 cannot be separated, and the GEPA jobs include a GEPA+Merge run.
+
+### 12.5 Verdict
+
+- **Not an improvement.** Neither extension raises the test score in a way these runs can detect. The estimates are
+  +0.28 points for E1 and +1.22 for E2 over the two tasks, with intervals that include zero.
+- **Not a detectable loss either.** The intervals put the average change between −1.4 and +2.1 points for E1 and
+  between −0.6 and +3.1 for E2, over the choice of test examples.
+- **Not cheaper.** The rule fixed in advance counted an equal test score as a positive result only at lower cost. At
+  the same rollout budget the extensions cost 1.6 to 1.8 times the GPU time, so the result is not positive under that
+  rule.
+- **E2 on HoVer** (+2.00, two of three seeds positive, p = 0.15) is the largest effect. It is not evidence of a gain:
+  it does not pass any test, and it shrinks to +0.33 without the † runs.
+- **What it says about GEPA.** With Qwen3-8B on these two tasks, these runs give no sign that GEPA at the paper's
+  budget is held back by the number of proposals it can afford. Doubling them, at the price of a noisier val score,
+  gave programs that fit the smaller val set better and generalise no better.
+- **For the paper.** The result belongs in the paper as a short negative result on the authors' own future-work
+  suggestion, with the method fixed in advance. It should not be presented as an improvement of GEPA, and not as
+  "the same score at lower cost".
+
+### 12.6 Checks, deviations and limits
+
+- **Checks.** Every run rebuilds to its reported test score (largest gap 0.0033 points). For every run the search
+  examples equal the seeded draw, the finalists are the top 5 on them, the returned program is the best finalist on
+  all 300, and the metric calls end 1 to 105 above the budget (GEPA: 131 to 281). All 311 gate decisions follow the rule when
+  recomputed from the saved scores. The six servers answered every request, with no batch failure and no timeout.
+- **The gate guard.** A smoke test of E2 lost 33 requests to two server batch failures (F68), all inside two gate
+  passes, and both children were discarded for it. Before any full run we added a guard: a gate pass with examples
+  the server left unanswered never discards. In the 12 runs no gate pass had such an example, so the guard never
+  acted and E2 ran exactly as the gate without it would have.
+- **Order of the smoke test.** The seed-0 jobs started before the guard's own smoke run had left the queue. We kept
+  them, checked the first gate decisions of both E2 runs against the saved state, and cancelled the smoke run.
+- **The control ran earlier.** The GEPA runs are 10 to 12 days older, from another login and commit (`6ea0b87`), and shared
+  their server with GEPA+Merge instead of an extension run. Plain GEPA's code path is unchanged, and every extension run started at the seed-program score that the control
+  run's log gives for its 100 search examples.
+- **Limits.** Two tasks, one model, three seeds, one subset size (100), one gate size and tolerance, and no run at a
+  reduced budget. Differences below about 2.5 points per task cannot be detected. The claim is about these settings.
