@@ -17,6 +17,7 @@ for e in "$@"; do
   for m in $src/metric_logs/*.jsonl; do gzip -c $m > $dst/metric_logs/$(basename $m).gz; done
   for t in optimizer_logs prog_candidates generated_best_outputs_valset; do [ -d $src/$t ] && tar czf $dst/$t.tgz -C $src $t; done
   [ -f $src/gepa_state.bin ] && cp $src/gepa_state.bin $dst/  # GEPA's binary state, kept as a file (never unpickle it)
+  [ -f $src/final_race.json ] && cp $src/final_race.json $dst/  # GEPA-SubVal100 runs: the final race
   [ -f $HOME/repro_checks/$J.md ] && cp $HOME/repro_checks/$J.md $P/checks/
   A=$HOME/repro_archive/arbor_logs/$J; mkdir -p $A
   L=$(ls -d /scratch-shared/$USER/arbor_$J/storage/logs/* 2>/dev/null | head -1)
