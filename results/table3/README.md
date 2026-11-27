@@ -14,6 +14,12 @@ text files are gzipped. The score is line 2 of `evaluation_results/evaluation_re
 job is `../checks/<job>.md`. Server logs are too big for git and stay on Snellius (account `smeczynski1`, folder
 `gepa-table3/archive/arbor_logs/<job>/`).
 
+GitHub's secret scanning flagged a "Stripe API key" in
+`seed_0/Papillon_PAPILLON_Abl-BeamSearch_qwen3-8b/evaluation_results/optimized_program/program.pkl` when it was pushed.
+It is a placeholder that gpt-oss wrote in one of its answers (`sk_live_` followed by 24 capital X's), not a key; it was
+allowed as a false positive on 2026-11-27. Placeholders of the same kind are in a few compressed files of the seed-0
+runs (the validation metric logs and some candidate programs).
+
 All jobs ran on account `smeczynski1`: HotpotQA, IFBench, HoVer and PUPA seed 1 between 2026-11-21 and 2026-11-22,
 PUPA seeds 2 and 0 between 2026-11-26 and 2026-11-27. Each job used one H100, except PUPA, which had gpt-oss-120b on a
 second H100. The SelectBestCandidate and BeamSearch runs of one task and seed shared one job and its server.
