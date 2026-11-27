@@ -1,0 +1,63 @@
+==========================================================================================
+HotpotQABench_HotpotMultiHop_GRPO_qwen3-8b
+[claim8] line-start timestamps: 4992; first 2025-07-09 08:26:28 last 2025-07-10 08:05:17; span 23.65 h; monotonic: True
+[claim8] any timestamp anywhere in a line: min 2025-07-09 08:26:28 max 2025-07-10 08:05:17; span 23.65 h
+[claim1] before training: 46.67; n later: 25; mean 48.359; SD(n-1) 1.876; SD(n) 1.838; min 44.33 max 52.33
+[claim1] best overall 52.33 at step(s) [220]; step 500: 48.0
+[claim1] 'New best' lines: 5; last: INFO dspy.teleprompt.grpo: New best score on validation set: 52.33 at step 220/500
+[claim1] final model set to checkpoint step 220 -> equals best-validation step: True
+[claim1] checkpoints saved at steps: [0, 60, 100, 140, 220]
+[claim1] lm_config.json new_model_name: openai/arbor:/code/storage/models/grpo:qwen3-8b:dspy:20250709_082629/checkpoints/model_checkpoint_220/
+[claim5] after 'finished compiling' (line 5070/41323): parallelizer ERROR lines 300; Evaluate lines: ['2025/07/10 08:05:17 INFO dspy.evaluate.evaluate: Average Metric: 0.0 / 300 (0.0%)']
+          296 x openai.InternalServerError: Internal Server Error
+          296 x litellm.exceptions.InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error
+            4 x httpx.ReadError: [Errno 104] Connection reset by peer
+            4 x openai.APIConnectionError: Connection error.
+            4 x litellm.exceptions.InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Connection error.
+[claim5] evaluation_result.txt: 43.33,0,0,0,GRPO,0,0,0,
+[info] parallelizer ERROR lines before the final evaluation: 46
+==========================================================================================
+hoverBench_HoverMultiHop_GRPO_qwen3-8b
+[claim8] line-start timestamps: 3862; first 2025-07-06 00:06:48 last 2025-07-06 12:04:07; span 11.96 h; monotonic: True
+[claim8] any timestamp anywhere in a line: min 2025-07-06 00:06:48 max 2025-07-06 12:04:07; span 11.96 h
+[claim1] before training: 35.33; n later: 25; mean 36.213; SD(n-1) 1.472; SD(n) 1.442; min 32.67 max 39.0
+[claim1] best overall 39.0 at step(s) [500]; step 500: 39.0
+[claim1] 'New best' lines: 7; last: INFO dspy.teleprompt.grpo: New best score on validation set: 39.0 at step 500/500
+[claim1] final model set to checkpoint step 500 -> equals best-validation step: True
+[claim1] checkpoints saved at steps: [0, 20, 60, 100, 260, 340, 500]
+[claim1] lm_config.json new_model_name: openai/arbor:/runtime/storage/models/grpo:qwen3-8b:dspy:20250706_000650/checkpoints/model_checkpoint_500/
+[claim5] after 'finished compiling' (line 4045/4046): parallelizer ERROR lines 0; Evaluate lines: ['2025/07/06 12:04:07 INFO dspy.evaluate.evaluate: Average Metric: 116 / 300 (38.7%)']
+[claim5] evaluation_result.txt: 38.67,0,0,0,GRPO,0,0,0,
+[info] parallelizer ERROR lines before the final evaluation: 16
+==========================================================================================
+IFBench_IFBenchCoT2StageProgram_GRPO_qwen3-8b
+[claim8] line-start timestamps: 5263; first 2025-07-09 23:02:36 last 2025-07-10 23:11:18; span 24.14 h; monotonic: True
+[claim8] any timestamp anywhere in a line: min 2025-07-09 23:02:36 max 2025-07-10 23:11:18; span 24.14 h
+[claim1] before training: 57.0; n later: 25; mean 59.093; SD(n-1) 2.403; SD(n) 2.354; min 53.33 max 63.47
+[claim1] best overall 63.47 at step(s) [460]; step 500: 59.25
+[claim1] 'New best' lines: 8; last: INFO dspy.teleprompt.grpo: New best score on validation set: 63.47 at step 460/500
+[claim1] final model set to checkpoint step 460 -> equals best-validation step: True
+[claim1] checkpoints saved at steps: [0, 20, 60, 100, 200, 260, 340, 460]
+[claim1] lm_config.json new_model_name: openai/arbor:/code/storage/models/grpo:qwen3-8b:dspy:20250709_230238/checkpoints/model_checkpoint_460/
+[claim5] after 'finished compiling' (line 6510/40389): parallelizer ERROR lines 294; Evaluate lines: ['2025/07/10 23:11:18 INFO dspy.evaluate.evaluate: Average Metric: 0.0 / 294 (0.0%)']
+          288 x openai.InternalServerError: Internal Server Error
+          288 x litellm.exceptions.InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error
+            6 x openai.APIConnectionError: Connection error.
+            6 x litellm.exceptions.InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Connection error.
+            4 x httpx.ReadError: [Errno 104] Connection reset by peer
+            2 x httpx.RemoteProtocolError: Server disconnected without sending a response.
+[claim5] evaluation_result.txt: 35.88,0,0,0,GRPO,0,0,0,
+[info] parallelizer ERROR lines before the final evaluation: 275
+==========================================================================================
+Papillon_PAPILLON_GRPO_qwen3-8b
+[claim8] line-start timestamps: 3776; first 2025-07-05 07:10:04 last 2025-07-05 21:59:14; span 14.82 h; monotonic: True
+[claim8] any timestamp anywhere in a line: min 2025-07-05 07:10:04 max 2025-07-05 21:59:14; span 14.82 h
+[claim1] before training: 78.92; n later: 25; mean 83.164; SD(n-1) 2.269; SD(n) 2.223; min 76.46 max 86.64
+[claim1] best overall 86.64 at step(s) [300]; step 500: 84.26
+[claim1] 'New best' lines: 6; last: INFO dspy.teleprompt.grpo: New best score on validation set: 86.64 at step 300/500
+[claim1] final model set to checkpoint step 300 -> equals best-validation step: True
+[claim1] checkpoints saved at steps: [0, 40, 60, 80, 160, 300]
+[claim1] lm_config.json new_model_name: openai/arbor:/runtime/storage/models/grpo:qwen3-8b:dspy:20250705_071006/checkpoints/model_checkpoint_300/
+[claim5] after 'finished compiling' (line 3840/3841): parallelizer ERROR lines 0; Evaluate lines: ['2025/07/05 21:59:14 INFO dspy.evaluate.evaluate: Average Metric: 191.5260642135642 / 221 (86.7%)']
+[claim5] evaluation_result.txt: 86.66,0,0,0,GRPO,0,0,0,
+[info] parallelizer ERROR lines before the final evaluation: 0

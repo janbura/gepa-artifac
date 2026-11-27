@@ -1,0 +1,241 @@
+{
+ "info": {
+  "programs": 12,
+  "proposals": 27,
+  "proposals_same_text_as_log": 27,
+  "merges": 3,
+  "final_program": 7,
+  "final_val_score": 80.97,
+  "logged_best_after_last_program": 7,
+  "final_lineage": [
+   "7 (merge)",
+   "1 (child of 0, generate_response_module.predict)",
+   "0 (base)"
+  ],
+  "changed_predictors": [
+   "ensure_correct_response_module.predict",
+   "generate_response_module.predict"
+  ],
+  "candidates": 1,
+  "test_examples": 294,
+  "scored": 249,
+  "lost": 34,
+  "format_failures": 11,
+  "scored_after_a_failed_copy": [
+   265,
+   268
+  ],
+  "scored_twice": 1,
+  "official_score": 31.97,
+  "sum_first_logged": 94.0,
+  "sum_last_logged": 94.0
+ },
+ "mode": "live",
+ "started": "2026-11-14 18:24:39",
+ "candidates": [
+  {
+   "candidate": 0,
+   "scored_reproduced": 248,
+   "scored_total": 249,
+   "scored_mismatch": [
+    [
+     268,
+     "failed",
+     0.0,
+     [
+      0.0
+     ],
+     "ValueError: ('Failed to parse response as per signature from original completion with input and num present and expected"
+    ]
+   ],
+   "format_failing_again": 11,
+   "format_total": 11,
+   "needing_server": 32,
+   "needing_server_not_lost": [],
+   "lost_needing_server": 32,
+   "scored_mismatch_explained_by_a_failed_copy": [
+    268
+   ],
+   "lost_examples": {
+    "10": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "13": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "14": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "30": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "49": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "50": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "53": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "54": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "55": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "56": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "58": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "66": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "75": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "76": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "79": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "88": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "93": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "108": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "110": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "111": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "112": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "124": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "128": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "130": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "133": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "139": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "146": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "153": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "192": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "195": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "205": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "211": {
+     "status": "server",
+     "score": 0.0,
+     "error": "InternalServerError: litellm.InternalServerError: InternalServerError: OpenAIException - Internal Server Error"
+    },
+    "238": {
+     "status": "ok",
+     "score": 0.0,
+     "error": ""
+    },
+    "242": {
+     "status": "ok",
+     "score": 0.0,
+     "error": ""
+    }
+   },
+   "lost_answered": 2,
+   "lost_again": 32,
+   "lost_format_failed": 0,
+   "new_points_of_the_lost": 0.0,
+   "official_points": 94.0,
+   "rescored_score": 31.97,
+   "replay_score_all_examples": 31.97
+  }
+ ],
+ "ended": "2026-11-14 18:25:51"
+}

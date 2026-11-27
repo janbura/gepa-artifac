@@ -1,0 +1,13 @@
+diff --git a/arbor/server/services/inference_manager.py b/arbor/server/services/inference_manager.py
+index db07c73..1bf6d9d 100644
+--- a/arbor/server/services/inference_manager.py
++++ b/arbor/server/services/inference_manager.py
+@@ -130,7 +130,7 @@ class InferenceManager:
+         self.vllm_client = VLLMClient(
+             port=self.port,
+             group_port=self.group_port,
+-            connection_timeout=300,  # 5 minutes
++            connection_timeout=1800,  # 30 minutes (F111, was 300)
+         )
+ 
+         # Once server is ready, we tell the thread to stop printing further lines.

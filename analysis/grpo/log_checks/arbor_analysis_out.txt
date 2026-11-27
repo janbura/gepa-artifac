@@ -1,0 +1,40 @@
+==========================================================================================
+HotpotQABench_HotpotMultiHop_GRPO_qwen3-8b
+[claim4] metric dict lines: 23; lines containing 'kl': 23; KL values: 23
+[claim4] KL > 10: 7 of 23; max 6968; values: [773.0, 0.417, 0.138, 0.199, 0.293, 0.274, 0.391, 0.236, 1980.0, 0.628, 2.9, 0.672, 22.6, 0.227, 6630.0, 6970.0, 37.7, 0.297, 0.764, 3.04, 65.0, 2.71, 4.06]
+[claim4] epochs logged: [0.02, 0.03, 0.05, 0.07, 0.08, 0.1, 0.12, 0.13, 0.15, 0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.33, 0.35, 0.37, 0.38]
+[claim4] loss values: [7.7279, 0.0046, 0.0014, 0.0026, 0.0034, 0.0016, 0.0045, 0.0018, 19.8108, 0.0063, 0.0284, 0.0073, 0.226, 0.0023, 66.3048, 69.6784, 0.3772, 0.003, 0.0081, 0.0299, 0.6496, 0.0271, 0.0401]
+[claim7] completions/mean_length: n=23; mean 129.0; min 123.2; max 132.3
+[info] TRL reward per log: [0.373, 0.428, 0.571, 0.416, 0.567, 0.467, 0.431, 0.51, 0.515, 0.468, 0.596, 0.484, 0.387, 0.547, 0.536, 0.479, 0.482, 0.446, 0.485, 0.482, 0.549, 0.388, 0.646]
+[claim7] completion tables: 23; table rows (prompt starts): 276; '<think>' completion cells: 276; empty think blocks (<think> then blank then </think>): 276; non-empty: 0; '<think>' right after an empty block: 0
+[claim7] first empty think block at arbor_logs.txt lines 167985-167987
+==========================================================================================
+hoverBench_HoverMultiHop_GRPO_qwen3-8b
+[claim4] metric dict lines: 27; lines containing 'kl': 27; KL values: 27
+[claim4] KL > 10: 5 of 27; max 5.125e+06; values: [0.0405, 0.0622, 0.0517, 0.0499, 0.0728, 0.342, 0.0764, 2.95, 0.16, 0.124, 0.141, 0.147, 0.168, 2270000.0, 0.197, 66400.0, 0.52, 0.204, 1.11, 4380.0, 0.225, 0.45, 0.205, 0.449, 9240.0, 5130000.0, 0.191]
+[claim4] epochs logged: [0.02, 0.03, 0.05, 0.07, 0.08, 0.1, 0.12, 0.13, 0.15, 0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.33, 0.35, 0.37, 0.38, 0.4, 0.42, 0.43, 0.45]
+[claim4] loss values: [0.0004, 0.0002, 0.0009, 0.0005, 0.0007, 0.0034, 0.0008, 0.0295, 0.0016, 0.0008, 0.0018, 0.0015, 0.0017, 22710.2025, 0.0016, 664.4651, 0.0049, 0.002, 0.0111, 43.8131, 0.0022, 0.0045, 0.002, 0.0045, 92.4314, 51252.735, 0.0019]
+[claim7] completions/mean_length: n=27; mean 160.8; min 155.5; max 170.1
+[info] TRL reward per log: [0.407, 0.293, 0.375, 0.507, 0.422, 0.382, 0.419, 0.517, 0.365, 0.376, 0.374, 0.474, 0.363, 0.418, 0.396, 0.476, 0.397, 0.38, 0.346, 0.51, 0.32, 0.484, 0.358, 0.374, 0.487, 0.461, 0.362]
+[claim7] completion tables: 27; table rows (prompt starts): 324; '<think>' completion cells: 324; empty think blocks (<think> then blank then </think>): 324; non-empty: 0; '<think>' right after an empty block: 0
+[claim7] first empty think block at arbor_logs.txt lines 146472-146474
+==========================================================================================
+IFBench_IFBenchCoT2StageProgram_GRPO_qwen3-8b
+[claim4] metric dict lines: 13; lines containing 'kl': 13; KL values: 13
+[claim4] KL > 10: 8 of 13; max 3681; values: [621.0, 26.5, 3.55, 124.0, 15.8, 27.9, 2.38, 3680.0, 160.0, 0.175, 0.723, 3360.0, 0.837]
+[claim4] epochs logged: [0.02, 0.03, 0.05, 0.07, 0.08, 0.1, 0.12, 0.13, 0.15, 0.17, 0.18, 0.2, 0.22]
+[claim4] loss values: [6.2066, 0.2641, 0.0355, 1.2354, 0.1582, 0.2792, 0.0238, 36.8084, 1.6006, 0.0017, 0.0072, 33.6449, 0.0084]
+[claim7] completions/mean_length: n=13; mean 343.8; min 282.6; max 413.1
+[info] TRL reward per log: [0.754, 0.803, 0.779, 0.724, 0.8, 0.776, 0.792, 0.769, 0.831, 0.75, 0.778, 0.82, 0.767]
+[claim7] completion tables: 13; table rows (prompt starts): 156; '<think>' completion cells: 162; empty think blocks (<think> then blank then </think>): 156; non-empty: 6; '<think>' right after an empty block: 6
+[claim7] first empty think block at arbor_logs.txt lines 188797-188799
+==========================================================================================
+Papillon_PAPILLON_GRPO_qwen3-8b
+[claim4] metric dict lines: 23; lines containing 'kl': 23; KL values: 23
+[claim4] KL > 10: 10 of 23; max 1.097e+06; values: [1100000.0, 0.172, 3.93, 4030.0, 20.8, 1.15, 1.93, 0.53, 3.31, 0.363, 261.0, 2250.0, 3.82, 0.624, 3.59, 4.52, 56.4, 54900.0, 616.0, 1.37, 128.0, 0.821, 35.3]
+[claim4] epochs logged: [0.02, 0.03, 0.05, 0.07, 0.08, 0.1, 0.12, 0.13, 0.15, 0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.33, 0.35, 0.37, 0.38]
+[claim4] loss values: [10973.5487, 0.0023, 0.0388, 40.2969, 0.2078, 0.0121, 0.0197, 0.0055, 0.0325, 0.0036, 2.6069, 22.4836, 0.0379, 0.0066, 0.0359, 0.0458, 0.563, 548.6696, 6.1597, 0.0126, 1.2857, 0.0089, 0.3511]
+[claim7] completions/mean_length: n=23; mean 303.2; min 269.9; max 325.3
+[info] TRL reward per log: [0.852, 0.839, 0.85, 0.835, 0.841, 0.868, 0.85, 0.862, 0.875, 0.88, 0.879, 0.868, 0.872, 0.89, 0.861, 0.876, 0.877, 0.877, 0.896, 0.899, 0.863, 0.922, 0.895]
+[claim7] completion tables: 23; table rows (prompt starts): 276; '<think>' completion cells: 276; empty think blocks (<think> then blank then </think>): 276; non-empty: 0; '<think>' right after an empty block: 0
+[claim7] first empty think block at arbor_logs.txt lines 132707-132709

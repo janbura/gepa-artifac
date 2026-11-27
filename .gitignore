@@ -227,3 +227,6 @@ replay_runs/
 analysis/figures/
 analysis/outputs/val_score_matrices/
 analysis/outputs/*.csv
+
+# job logs of scripts/snellius/qwen_job.sh (incl. copies of Arbor request logs)
+logs/

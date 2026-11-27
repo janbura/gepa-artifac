@@ -1,0 +1,52 @@
+{
+ "results": {
+  "low": {
+   "effort": "low",
+   "outputs": 275,
+   "judge_errors": 0,
+   "first_errors": [],
+   "calls": 825,
+   "finish_reasons": {
+    "stop": 825
+   },
+   "empty_answers": 0,
+   "completion_tokens_median": 166.0,
+   "completion_tokens_max": 898,
+   "mean_abs_diff": 0.09434728234728235,
+   "mean_offset_ours_minus_authors": -0.027753727753727753,
+   "exact_share": 0.7527272727272727,
+   "pearson_r": 0.5203936134328093,
+   "our_mean": 0.867546176046176,
+   "authors_mean": 0.8952999037999038,
+   "seconds": 135,
+   "usable": true
+  },
+  "medium": {
+   "effort": "medium",
+   "outputs": 275,
+   "judge_errors": 0,
+   "first_errors": [],
+   "calls": 825,
+   "finish_reasons": {
+    "stop": 825
+   },
+   "empty_answers": 0,
+   "completion_tokens_median": 333,
+   "completion_tokens_max": 1952,
+   "mean_abs_diff": 0.11456902356902357,
+   "mean_offset_ours_minus_authors": -0.05681144781144781,
+   "exact_share": 0.72,
+   "pearson_r": 0.5089215027102306,
+   "our_mean": 0.838488455988456,
+   "authors_mean": 0.8952999037999038,
+   "seconds": 256,
+   "usable": true
+  }
+ },
+ "authors_self_check": {
+  "outputs_scored_more_than_once": 104,
+  "with_different_scores": 13
+ },
+ "choice": "low",
+ "problem": ""
+}
