@@ -409,7 +409,38 @@ What the numbers still allow (simple arithmetic, not part of the method): the 32
 - Stop rule as in §2.13: a rebuilt per-example score that differs from a run's reported score by more than 0.005 stops the analysis until the cause is written down.
 - Added 2026-11-20 (before any Table 3 result): the tested rows also without the runs that lost requests (†), descriptive, as in §2.13. Script `analysis/table3_paired.py` (PUPA per-example scores with the rebuild and changed check of §2.10), checked by `analysis/check_table3_paired.py` on the existing runs: with fake Table 3 runs (SelectBestCandidate = the GEPA run, BeamSearch = the Baseline run) GEPA − SelectBestCandidate is exactly 0 and GEPA − BeamSearch equals the published GEPA − Baseline (HotpotQA +21.67 [+17.33, +26.11], IFBench −1.64, HoVer +13.89, PUPA +6.16).
 
-*Result (run 2026-11-22 11:53 on the 20 Table 3 runs and the Baseline and GEPA runs of §1 and §2.10, after the last result was pushed in 49597d9; output `results/table3/paired_output.md`, numbers `results/table3/paired_numbers.json`).* The stop rule did not apply: every run rebuilds to its reported score (largest gap 0.0045 points), and every d equals the difference of the cell means. Missing, as decided (addendum of 2026-11-22 10:06): PUPA SelectBestCandidate and BeamSearch seeds 0 and 2. The per-seed columns come from the rounded reported scores.
+*Result (run 2026-11-27 21:53 on all 24 Table 3 runs and the Baseline and GEPA runs of §1 and §2.10. The script is unchanged since `1d377a3`; it ran once, on a `git archive` of `f7ba13f`, the commit that added PUPA seed 0. Output `results/table3/paired_output.md`, numbers `results/table3/paired_numbers.json`).* The stop rule did not apply: every run rebuilds to its reported score (largest gap 0.0045 points), and every d equals the difference of the cell means. No run is missing. Compared with the run of 2026-11-22 (kept below), the only changes are the PUPA cells, every number that contains PUPA, and the Holm-adjusted p values. Holm ranks all 8 tests together, so the new PUPA p values also moved the adjusted p values of the other tasks (for example HotpotQA GEPA − SelectBestCandidate 0.133 → 0.114). None of those crossed 0.05. The addendum of 2026-11-24 said the three-task results cannot change: that holds for d, the intervals and the p values before correction, but not for Holm.
+- **Table 3** (mean ± SD over the seeds [paper]):
+  - SelectBestCandidate: HotpotQA 56.78 ± 1.57† [58.33], IFBench 29.76 ± 1.70† [30.44], HoVer 50.22 ± 3.17† [45.33], PUPA 89.72 ± 3.81 [85.45] (seeds 91.11 / 92.64 / 85.41).
+  - BeamSearch: 54.44 ± 6.95 [57.33], 35.83 ± 2.75 [36.39], 51.89 ± 1.58 [41.00], 92.71 ± 1.11 [81.08] (seeds 91.43 / 93.41 / 93.30).
+  - Improvement over the Baseline over HotpotQA, IFBench and HoVer, as on 2026-11-22: SelectBestCandidate +8.75, BeamSearch +10.55, GEPA +11.30 (paper +6.51, +6.72, +12.90). Over all four tasks, with PUPA not comparable: +7.43, +9.53, +10.02 (paper, recomputed from its rounded cells, +6.04, +5.11, +12.44).
+- **GEPA − SelectBestCandidate:**
+  - HotpotQA +3.67 [+0.67, +6.56] (paper +4.00; p 0.019, Holm 0.114);
+  - IFBench +3.23 [+0.23, +6.24] (paper +8.17; p 0.038, Holm 0.188);
+  - HoVer +0.78 [−1.67, +3.33] (paper +7.00);
+  - PUPA +2.65 [+0.90, +4.49] (paper +6.40, not comparable; p 0.0027, Holm 0.019, rejected; per seed +1.75 / −1.91 / +8.12);
+  - mean over the three comparable tasks +2.56 [+0.92, +4.18] (paper +6.39); over all four +2.58 [+1.27, +3.90].
+- **GEPA − BeamSearch:**
+  - HotpotQA +6.00 [+3.11, +8.78] (paper +5.00; Holm 0.0008, rejected);
+  - IFBench −2.83 [−5.84, +0.23] (paper +2.22; Holm 0.267);
+  - HoVer −0.89 [−3.33, +1.44] (paper +11.33);
+  - PUPA −0.34 [−1.86, +1.23] (paper +10.77; per seed +1.43 / −2.68 / +0.23);
+  - mean over the three comparable tasks +0.76 [−0.82, +2.34] (paper +6.18); over all four +0.48 [−0.77, +1.70].
+- **SelectBestCandidate − BeamSearch** (descriptive): HotpotQA +2.33, IFBench −6.07 [−9.35, −2.72] (paper −5.95), HoVer −1.67, PUPA −2.99 [−4.87, −1.15] (paper +4.37; per seed −0.32 / −0.77 / −7.89). Mean over the three comparable tasks −1.80 [−3.56, −0.06] (paper −0.21); over all four −2.10 [−3.46, −0.71].
+- **Per seed,** the comparable rows are as on 2026-11-22. PUPA SelectBestCandidate seed 2 (85.41) is the lowest of the nine PUPA runs of the three rules, and below each PUPA Baseline run (85.94 / 85.93 / 86.79). The PUPA difference GEPA − SelectBestCandidate rests mostly on it.
+- **Without the † runs:** as on 2026-11-22; no PUPA run is †.
+- **Our seed-0 SelectBestCandidate against the authors' released seed-0 runs:** HotpotQA 57.33 / 58.33, IFBench 29.76 / 30.44, HoVer 50.33 / 45.33; PUPA 91.11 / 85.45 (other judge, not comparable).
+- **Search statistics** (sum over the seeds):
+  - SelectBestCandidate took the best candidate so far as parent in all of its 1,326 iterations.
+  - BeamSearch took a parent below the best in 59–73 % of the iterations per task, GEPA in 68–78 %.
+  - Accepted new candidates over the three seeds: HotpotQA 60–62, IFBench 31–33, HoVer 62–63, PUPA 55–57.
+- **In short** (the intervals cover the test examples, not the run-to-run variation, as fixed in §2.13):
+  - The three comparable tasks give the same results as on 2026-11-22, so its conclusions below stand.
+  - Over all four tasks GEPA still has the largest improvement (+10.02; BeamSearch +9.53, SelectBestCandidate +7.43). In the paper SelectBestCandidate is second over all four (+6.04 against +5.11), but our PUPA is not comparable.
+  - On PUPA (not comparable) GEPA is ahead of SelectBestCandidate, +2.65, and this passes Holm. Per seed it is +1.75 / −1.91 / +8.12, so it rests mostly on SelectBestCandidate seed 2. GEPA and BeamSearch do not differ on PUPA (−0.34), and BeamSearch is above SelectBestCandidate (SelectBestCandidate − BeamSearch −2.99), the opposite of the paper (+4.37).
+  - Compute: 23,548 SBU (sacct over the 40 jobs of the ledger, 2026-11-27) under the cap of 26,400. Since 2026-11-22 (18,864): the F112 test 173, PUPA seed 2 2,042, the seed-0 job cancelled by Slurm 2, the seed-0 job that failed at the server start 357, PUPA seed 0 2,109 (per job, rounded).
+
+*Result of 2026-11-22 (superseded by the result above; kept as written, except that its output files were renamed). Run 2026-11-22 11:53 on the 20 Table 3 runs and the Baseline and GEPA runs of §1 and §2.10, after the last result was pushed in 49597d9; output `results/table3/paired_output_2026-11-22.md`, numbers `results/table3/paired_numbers_2026-11-22.json`.* The stop rule did not apply: every run rebuilds to its reported score (largest gap 0.0045 points), and every d equals the difference of the cell means. Missing, as decided (addendum of 2026-11-22 10:06): PUPA SelectBestCandidate and BeamSearch seeds 0 and 2. The per-seed columns come from the rounded reported scores.
 - **Table 3** (mean ± SD over the seeds [paper]):
   - SelectBestCandidate: HotpotQA 56.78 ± 1.57† [58.33], IFBench 29.76 ± 1.70† [30.44], HoVer 50.22 ± 3.17† [45.33], PUPA 92.64 (n = 1) [85.45].
   - BeamSearch: 54.44 ± 6.95 [57.33], 35.83 ± 2.75 [36.39], 51.89 ± 1.58 [41.00], 93.41 (n = 1) [81.08].

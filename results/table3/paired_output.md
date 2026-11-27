@@ -1,12 +1,12 @@
 ## Table 3 with three seeds (plan 2.14)
 
-Rebuild: every run gives its reported score (largest gap 0.0045 points). Missing runs: PUPA SelectBestCandidate s0, PUPA SelectBestCandidate s2, PUPA BeamSearch s0, PUPA BeamSearch s2. Test score in %, mean ± SD over the seeds [paper, one run]. Our PUPA uses gpt-oss-120b as external model and judge (plan 2.10), so its column and the four-task aggregate are not comparable with the paper.
+Rebuild: every run gives its reported score (largest gap 0.0045 points). Missing runs: none. Test score in %, mean ± SD over the seeds [paper, one run]. Our PUPA uses gpt-oss-120b as external model and judge (plan 2.10), so its column and the four-task aggregate are not comparable with the paper.
 
 | Method | HotpotQA | IFBench | HoVer | PUPA | Aggregate (4) | Improvement (4) | Aggregate (3, no PUPA) | Improvement (3) |
 |---|---|---|---|---|---|---|---|---|
 | Baseline | 38.78 ± 0.69 [42.33] | 34.63 ± 0.52 [36.90] | 37.11 ± 1.58 [35.33] | 86.22 ± 0.49 [80.82] | 49.19 [48.84] | – | 36.84 [38.19] | – |
-| SelectBestCandidate | 56.78 ± 1.57† [58.33] | 29.76 ± 1.70† [30.44] | 50.22 ± 3.17† [45.33] | 92.64 (n=1) [85.45] | 57.35 [54.89] | +8.16 [+6.04] | 45.59 [44.70] | +8.75 [+6.51] |
-| BeamSearch | 54.44 ± 6.95 [57.33] | 35.83 ± 2.75 [36.39] | 51.89 ± 1.58 [41.00] | 93.41 (n=1) [81.08] | 58.89 [53.95] | +9.71 [+5.11] | 47.39 [44.91] | +10.55 [+6.72] |
+| SelectBestCandidate | 56.78 ± 1.57† [58.33] | 29.76 ± 1.70† [30.44] | 50.22 ± 3.17† [45.33] | 89.72 ± 3.81 [85.45] | 56.62 [54.89] | +7.43 [+6.04] | 45.59 [44.70] | +8.75 [+6.51] |
+| BeamSearch | 54.44 ± 6.95 [57.33] | 35.83 ± 2.75 [36.39] | 51.89 ± 1.58 [41.00] | 92.71 ± 1.11 [81.08] | 58.72 [53.95] | +9.53 [+5.11] | 47.39 [44.91] | +10.55 [+6.72] |
 | GEPA | 60.44 ± 2.72 [62.33] | 32.99 ± 1.48† [38.61] | 51.00 ± 2.33† [52.33] | 92.37 ± 1.46 [91.85] | 59.20 [61.28] | +10.02 [+12.44] | 48.14 [51.09] | +11.30 [+12.90] |
 
 † = contains a run with lost requests or a lost test score (rule of 2026-11-11; F113).
@@ -16,8 +16,8 @@ Rebuild: every run gives its reported score (largest gap 0.0045 points). Missing
 | Method | HotpotQA | IFBench | HoVer | PUPA |
 |---|---|---|---|---|
 | Baseline | 39.33 / 38.00 / 39.00 | 35.20 / 34.18 / 34.52 | 38.33 / 35.33 / 37.67 | 85.94 / 85.93 / 86.79 |
-| SelectBestCandidate | 57.33† / 55.00 / 58.00 | 29.76† / 31.46 / 28.06 | 50.33† / 47.00 / 53.33 | – / 92.64 / – |
-| BeamSearch | 53.00 / 48.33 / 62.00 | 35.37 / 33.33 / 38.78 | 51.33 / 53.67 / 50.67 | – / 93.41 / – |
+| SelectBestCandidate | 57.33† / 55.00 / 58.00 | 29.76† / 31.46 / 28.06 | 50.33† / 47.00 / 53.33 | 91.11 / 92.64 / 85.41 |
+| BeamSearch | 53.00 / 48.33 / 62.00 | 35.37 / 33.33 / 38.78 | 51.33 / 53.67 / 50.67 | 91.43 / 93.41 / 93.30 |
 | GEPA | 62.33 / 57.33 / 61.67 | 33.67 / 31.29 / 34.01† | 48.67† / 51.00† / 53.33 | 92.86 / 90.73 / 93.53 |
 
 ### Observation 3: paired per-example tests (Holm over the 8 tests)
@@ -26,25 +26,25 @@ d = mean over test examples of A − B in points (each method: mean over its see
 
 | Task | A − B | Paper | Per seed | d | 95 % interval | A better / B better | p | p (Holm) | Holm at 0.05 |
 |---|---|---|---|---|---|---|---|---|---|
-| HotpotQA | GEPA - SelectBestCandidate | +4.00 | +5.00 / +2.33 / +3.67 | +3.67 | [+0.67, +6.56] | 57 / 33 | 0.0190 | 0.1330 | no |
+| HotpotQA | GEPA - SelectBestCandidate | +4.00 | +5.00 / +2.33 / +3.67 | +3.67 | [+0.67, +6.56] | 57 / 33 | 0.0190 | 0.1140 | no |
 | HotpotQA | GEPA - BeamSearch | +5.00 | +9.33 / +9.00 / -0.33 | +6.00 | [+3.11, +8.78] | 69 / 30 | 0.0001 | 0.0008 | rejects |
-| IFBench | GEPA - SelectBestCandidate | +8.17 | +3.91 / -0.17 / +5.95 | +3.23 | [+0.23, +6.24] | 75 / 55 | 0.0377 | 0.2262 | no |
-| IFBench | GEPA - BeamSearch | +2.22 | -1.70 / -2.04 / -4.77 | -2.83 | [-5.84, +0.23] | 44 / 71 | 0.0668 | 0.3340 | no |
+| IFBench | GEPA - SelectBestCandidate | +8.17 | +3.91 / -0.17 / +5.95 | +3.23 | [+0.23, +6.24] | 75 / 55 | 0.0377 | 0.1885 | no |
+| IFBench | GEPA - BeamSearch | +2.22 | -1.70 / -2.04 / -4.77 | -2.83 | [-5.84, +0.23] | 44 / 71 | 0.0668 | 0.2672 | no |
 | HoVer | GEPA - SelectBestCandidate | +7.00 | -1.66 / +4.00 / +0.00 | +0.78 | [-1.67, +3.33] | 44 / 41 | 0.6057 | 1.0000 | no |
 | HoVer | GEPA - BeamSearch | +11.33 | -2.66 / -2.67 / +2.66 | -0.89 | [-3.33, +1.44] | 36 / 38 | 0.5272 | 1.0000 | no |
-| PUPA | GEPA - SelectBestCandidate | +6.40 | -1.91 | -0.26 | [-2.64, +2.16] | 37 / 60 | 0.8287 | 1.0000 | no |
-| PUPA | GEPA - BeamSearch | +10.77 | -2.68 | -1.04 | [-3.16, +1.19] | 31 / 59 | 0.3550 | 1.0000 | no |
+| PUPA | GEPA - SelectBestCandidate | +6.40 | +1.75 / -1.91 / +8.12 | +2.65 | [+0.90, +4.49] | 65 / 32 | 0.0027 | 0.0189 | rejects |
+| PUPA | GEPA - BeamSearch | +10.77 | +1.43 / -2.68 / +0.23 | -0.34 | [-1.86, +1.23] | 38 / 46 | 0.6691 | 1.0000 | no |
 
 ### Mean over tasks (no test)
 
 | A − B | Tasks | Paper | d | 95 % interval |
 |---|---|---|---|---|
 | GEPA − SelectBestCandidate | HotpotQA, IFBench, HoVer | +6.39 | +2.56 | [+0.92, +4.18] |
-| GEPA − SelectBestCandidate | all four (PUPA not comparable) | +6.39 | +1.85 | [+0.49, +3.22] |
+| GEPA − SelectBestCandidate | all four (PUPA not comparable) | +6.39 | +2.58 | [+1.27, +3.90] |
 | GEPA − BeamSearch | HotpotQA, IFBench, HoVer | +6.18 | +0.76 | [-0.82, +2.34] |
-| GEPA − BeamSearch | all four (PUPA not comparable) | +7.33 | +0.31 | [-0.99, +1.59] |
+| GEPA − BeamSearch | all four (PUPA not comparable) | +7.33 | +0.48 | [-0.77, +1.70] |
 | SelectBestCandidate − BeamSearch | HotpotQA, IFBench, HoVer | -0.21 | -1.80 | [-3.56, -0.06] |
-| SelectBestCandidate − BeamSearch | all four (PUPA not comparable) | +0.94 | -1.54 | [-3.01, -0.08] |
+| SelectBestCandidate − BeamSearch | all four (PUPA not comparable) | +0.94 | -2.10 | [-3.46, -0.71] |
 
 ### Descriptive: SelectBestCandidate − BeamSearch per task
 
@@ -53,7 +53,7 @@ d = mean over test examples of A − B in points (each method: mean over its see
 | HotpotQA | +1.00 | +4.33 / +6.67 / -4.00 | +2.33 | [-0.67, +5.33] |
 | IFBench | -5.95 | -5.61 / -1.87 / -10.72 | -6.07 | [-9.35, -2.72] |
 | HoVer | +4.33 | -1.00 / -6.67 / +2.66 | -1.67 | [-4.33, +1.00] |
-| PUPA | +4.37 | -0.77 | -0.77 | [-3.38, +1.85] |
+| PUPA | +4.37 | -0.32 / -0.77 / -7.89 | -2.99 | [-4.87, -1.15] |
 
 ### Descriptive: the tested rows without the † runs
 
@@ -72,7 +72,7 @@ d = mean over test examples of A − B in points (each method: mean over its see
 | HotpotQA | 57.33 | 58.33 |
 | IFBench | 29.76 | 30.44 |
 | HoVer | 50.33 | 45.33 |
-| PUPA | – | 85.45 (GPT-4.1-mini judge) |
+| PUPA | 91.11 | 85.45 (GPT-4.1-mini judge) |
 
 ### Search statistics from the run logs (descriptive; sum over the seeds)
 
@@ -87,7 +87,7 @@ d = mean over test examples of A − B in points (each method: mean over its see
 | HoVer | SelectBestCandidate | 3 | 383 | 342 | 63 | 383 | 0 (0 %) |
 | HoVer | BeamSearch | 3 | 393 | 342 | 62 | 393 | 249 (63 %) |
 | HoVer | GEPA | 3 | 335 | 310 | 63 | 335 | 249 (74 %) |
-| PUPA | SelectBestCandidate | 1 | 79 | 35 | 20 | 79 | 0 (0 %) |
-| PUPA | BeamSearch | 1 | 136 | 67 | 18 | 136 | 102 (75 %) |
+| PUPA | SelectBestCandidate | 3 | 306 | 179 | 55 | 306 | 0 (0 %) |
+| PUPA | BeamSearch | 3 | 369 | 170 | 55 | 369 | 268 (73 %) |
 | PUPA | GEPA | 3 | 276 | 146 | 57 | 276 | 214 (78 %) |
 
