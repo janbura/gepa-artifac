@@ -1,0 +1,11 @@
+--- a/arbor/server/services/inference/vllm_serve.py
++++ b/arbor/server/services/inference/vllm_serve.py
+@@ -1245,7 +1245,7 @@
+         ready_connections = set()
+         
+         # Timeout for waiting for workers to get ready (e.g., 5 minutes)
+-        timeout_seconds = 300 
++        timeout_seconds = 1800  # 30 minutes (F115, was 300)
+         start_wait_time = time.time()
+ 
+         while len(ready_connections) < script_args.data_parallel_size:
